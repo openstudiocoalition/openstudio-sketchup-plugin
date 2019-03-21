@@ -27,9 +27,9 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/dialogs/ProgressDialog")
-require("openstudio/sketchup_plugin/lib/interfaces/ModelInterface")
-require("openstudio/sketchup_plugin/lib/observers/AppObserver")
+require("openstudio/lib/dialogs/ProgressDialog")
+require("openstudio/lib/interfaces/ModelInterface")
+require("openstudio/lib/observers/AppObserver")
 
 module OpenStudio
 

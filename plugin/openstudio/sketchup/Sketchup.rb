@@ -27,7 +27,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/sketchup/Geom")
+require("openstudio/sketchup/Geom")
 
 
 # This file adds new methods to native SketchUp classes.

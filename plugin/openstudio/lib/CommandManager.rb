@@ -27,7 +27,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/dialogs/PreferencesDialog")
+require("openstudio/lib/dialogs/PreferencesDialog")
 
 module OpenStudio
 

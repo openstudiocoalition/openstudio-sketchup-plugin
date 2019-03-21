@@ -27,9 +27,9 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/interfaces/DrawingInterface")
-require("openstudio/sketchup_plugin/lib/interfaces/Space")
-require("openstudio/sketchup_plugin/lib/observers/ComponentObserver")
+require("openstudio/lib/interfaces/DrawingInterface")
+require("openstudio/lib/interfaces/Space")
+require("openstudio/lib/observers/ComponentObserver")
 
 module OpenStudio
 

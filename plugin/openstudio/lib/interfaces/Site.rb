@@ -27,8 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/interfaces/DrawingInterface")
-require("openstudio/sketchup_plugin/lib/observers/ShadowInfoObserver")
+require("openstudio/lib/interfaces/DrawingInterface")
+require("openstudio/lib/observers/ShadowInfoObserver")
 
 
 module OpenStudio

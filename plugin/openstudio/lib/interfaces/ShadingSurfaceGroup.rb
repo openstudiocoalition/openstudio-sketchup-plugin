@@ -27,7 +27,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/interfaces/SurfaceGroup")
+require("openstudio/lib/interfaces/SurfaceGroup")
 
 
 module OpenStudio

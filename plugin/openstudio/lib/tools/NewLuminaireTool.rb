@@ -27,8 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/tools/Tool")
-require("openstudio/sketchup_plugin/lib/interfaces/Luminaire")
+require("openstudio/lib/tools/Tool")
+require("openstudio/lib/interfaces/Luminaire")
 
 module OpenStudio
 

@@ -27,7 +27,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/watchers/PluginModelObjectWatcher")
+require("openstudio/lib/watchers/PluginModelObjectWatcher")
 
 require("set")
 

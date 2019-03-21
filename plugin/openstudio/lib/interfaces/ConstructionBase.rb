@@ -27,7 +27,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/interfaces/DrawingInterface")
+require("openstudio/lib/interfaces/DrawingInterface")
 
 
 module OpenStudio

@@ -27,8 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/interfaces/ShadingSurfaceGroup")
-require("openstudio/sketchup_plugin/lib/tools/NewGroupTool")
+require("openstudio/lib/interfaces/ShadingSurfaceGroup")
+require("openstudio/lib/tools/NewGroupTool")
 
 
 module OpenStudio

@@ -27,8 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/dialogs/DialogInterface")
-require("openstudio/sketchup_plugin/lib/dialogs/LooseGeometryDialog")
+require("openstudio/lib/dialogs/DialogInterface")
+require("openstudio/lib/dialogs/LooseGeometryDialog")
 
 module OpenStudio
 

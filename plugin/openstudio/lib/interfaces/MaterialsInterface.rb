@@ -27,7 +27,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/observers/MaterialsObserver.rb")
+require("openstudio/lib/observers/MaterialsObserver.rb")
 
 module OpenStudio
 

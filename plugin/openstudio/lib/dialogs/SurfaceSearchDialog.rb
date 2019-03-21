@@ -27,8 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/dialogs/Dialogs")
-require("openstudio/sketchup_plugin/lib/dialogs/LastReportInterface")
+require("openstudio/lib/dialogs/Dialogs")
+require("openstudio/lib/dialogs/LastReportInterface")
 
 module OpenStudio
 

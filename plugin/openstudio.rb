@@ -27,64 +27,26 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/lib/interfaces/DrawingUtils")
+require 'extensions.rb'   # defines the SketchupExtension class
+require 'rbconfig'
 
-module OpenStudio
+version = "3.0.0"
 
-  class ComponentObserver < Sketchup::EntityObserver
+$OPENSTUDIO_SKETCHUPPLUGIN_NAME = "OpenStudio"
+$OPENSTUDIO_SKETCHUPPLUGIN_VERSION_BRIEF = version
+$OPENSTUDIO_SKETCHUPPLUGIN_LAUNCH_GETTING_STARTED_ON_START = false
 
-    def initialize(drawing_interface)
-      @drawing_interface = drawing_interface
-      @enabled = false
-    end
+ext = SketchupExtension.new($OPENSTUDIO_SKETCHUPPLUGIN_NAME, "OpenStudio/Startup.rb")
+ext.name = $OPENSTUDIO_SKETCHUPPLUGIN_NAME
+ext.description = "Adds building energy modeling capabilities by coupling SketchUp to the OpenStudio suite of tools.  \r\n\r\nVisit openstudio.net for more information."
+ext.version = version
+ext.creator = "National Renewable Energy Laboratory"
+ext.copyright = "2008-2019, Alliance for Sustainable Energy, LLC, and other contributors."
 
-    def disable
-      was_enabled = @enabled
-      @enabled = false
-      return was_enabled
-    end
+# 'true' automatically loads the extension the first time it is registered, e.g., after install
+Sketchup.register_extension(ext, true)
 
-    def enable
-      @enabled = true
-    end
+$OPENSTUDIO_SKETCHUPPLUGIN_VERSION = version
+$OPENSTUDIO_SKETCHUPPLUGIN_DEVELOPER_MENU = false
 
-    def destroy
-      @drawing_interface = nil
-      @enabled = false
-    end
 
-    def onChangeEntity(entity)
-
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
-
-      return if not @enabled
-
-      # http://www.thomthom.net/software/sketchup/observers/#note_EntityObserver
-      # EntityObserver.onChangeEntity mistriggers right before EntityObserver.onEraseEntity, referencing a non-existant entity.
-      # EntityObserver.onEraseEntity reference a non-existant entity.
-
-      proc = Proc.new {
-        @drawing_interface.on_change_entity
-      }
-      Plugin.add_event( proc )
-    end
-
-    def onEraseEntity(entity)
-
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
-
-      return if not @enabled
-
-      # http://www.thomthom.net/software/sketchup/observers/#note_EntityObserver
-      # EntityObserver.onChangeEntity mistriggers right before EntityObserver.onEraseEntity, referencing a non-existant entity.
-      # EntityObserver.onEraseEntity reference a non-existant entity.
-
-      proc = Proc.new {
-        @drawing_interface.on_erase_entity
-      }
-      Plugin.add_event( proc )
-    end
-
-  end
-
-end

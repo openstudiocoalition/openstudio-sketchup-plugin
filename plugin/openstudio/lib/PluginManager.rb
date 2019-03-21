@@ -28,20 +28,20 @@
 ########################################################################################################################
 
 require("openstudio")
-require("openstudio/sketchup_plugin/lib/AnimationManager")
-require("openstudio/sketchup_plugin/lib/CommandManager")
-require("openstudio/sketchup_plugin/lib/DialogManager")
-require("openstudio/sketchup_plugin/lib/MenuManager")
-require("openstudio/sketchup_plugin/lib/ModelManager")
-#require("openstudio/sketchup_plugin/lib/SimulationManager")
-require("openstudio/sketchup_plugin/lib/ConflictManager")
-require("openstudio/sketchup_plugin/lib/UpdateManager")
-require("openstudio/sketchup_plugin/lib/WorkspaceObject")
-require("openstudio/sketchup_plugin/lib/PluginUserScriptRunner")
+require("openstudio/lib/AnimationManager")
+require("openstudio/lib/CommandManager")
+require("openstudio/lib/DialogManager")
+require("openstudio/lib/MenuManager")
+require("openstudio/lib/ModelManager")
+#require("openstudio/lib/SimulationManager")
+require("openstudio/lib/ConflictManager")
+require("openstudio/lib/UpdateManager")
+require("openstudio/lib/WorkspaceObject")
+require("openstudio/lib/PluginUserScriptRunner")
 
-require("openstudio/sketchup_plugin/sketchup/UI")
-require("openstudio/sketchup_plugin/sketchup/Sketchup")
-require("openstudio/sketchup_plugin/sketchup/Geom")
+require("openstudio/sketchup/UI")
+require("openstudio/sketchup/Sketchup")
+require("openstudio/sketchup/Geom")
 
 require("fileutils")
 

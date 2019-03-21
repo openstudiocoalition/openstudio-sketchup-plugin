@@ -27,7 +27,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/observers/SelectionObserver.rb")
+require("openstudio/lib/observers/SelectionObserver.rb")
 
 module OpenStudio
 

@@ -27,8 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/dialogs/DialogInterface")
-require("openstudio/sketchup_plugin/lib/dialogs/SurfaceSearchDialog")
+require("openstudio/lib/dialogs/DialogInterface")
+require("openstudio/lib/dialogs/SurfaceSearchDialog")
 
 module OpenStudio
 

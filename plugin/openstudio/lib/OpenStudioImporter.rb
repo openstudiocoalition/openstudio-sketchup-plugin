@@ -27,7 +27,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/ModelManager")
+require("openstudio/lib/ModelManager")
 
 
 module OpenStudio

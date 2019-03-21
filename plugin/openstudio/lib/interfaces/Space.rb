@@ -27,8 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/interfaces/SurfaceGroup")
-require("openstudio/sketchup_plugin/lib/watchers/RenderableModelObjectWatcher")
+require("openstudio/lib/interfaces/SurfaceGroup")
+require("openstudio/lib/watchers/RenderableModelObjectWatcher")
 
 
 module OpenStudio

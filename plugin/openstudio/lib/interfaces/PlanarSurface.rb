@@ -27,8 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/interfaces/DrawingInterface")
-require("openstudio/sketchup_plugin/lib/observers/FaceObserver")
+require("openstudio/lib/interfaces/DrawingInterface")
+require("openstudio/lib/observers/FaceObserver")
 
 
 module OpenStudio

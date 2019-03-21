@@ -27,7 +27,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/tools/Tool")
+require("openstudio/lib/tools/Tool")
 
 
 module OpenStudio

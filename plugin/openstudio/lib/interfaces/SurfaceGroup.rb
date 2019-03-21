@@ -27,10 +27,10 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/interfaces/DrawingInterface")
-require("openstudio/sketchup_plugin/lib/observers/InstanceObserver")
-require("openstudio/sketchup_plugin/lib/observers/SurfaceGroupObserver")
-require("openstudio/sketchup_plugin/lib/observers/SurfaceGroupEntitiesObserver")
+require("openstudio/lib/interfaces/DrawingInterface")
+require("openstudio/lib/observers/InstanceObserver")
+require("openstudio/lib/observers/SurfaceGroupObserver")
+require("openstudio/lib/observers/SurfaceGroupEntitiesObserver")
 
 
 module OpenStudio

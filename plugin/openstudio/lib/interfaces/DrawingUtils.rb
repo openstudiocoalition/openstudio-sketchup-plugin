@@ -27,8 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/sketchup/Sketchup")
-require("openstudio/sketchup_plugin/sketchup/Geom")
+require("openstudio/sketchup/Sketchup")
+require("openstudio/sketchup/Geom")
 
 
 # Everything in this module should be strictly based on entities and not drawing interfaces.

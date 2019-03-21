@@ -27,64 +27,39 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/lib/interfaces/DrawingUtils")
+require 'extensions.rb'   # defines the SketchupExtension class
 
-module OpenStudio
+# check current settings
+openstudio_rb = Sketchup.read_default("OpenStudio", "OpenStudio_rb")
 
-  class ComponentObserver < Sketchup::EntityObserver
+if openstudio_rb.nil? || !File.exists?(openstudio_rb)
 
-    def initialize(drawing_interface)
-      @drawing_interface = drawing_interface
-      @enabled = false
-    end
-
-    def disable
-      was_enabled = @enabled
-      @enabled = false
-      return was_enabled
-    end
-
-    def enable
-      @enabled = true
-    end
-
-    def destroy
-      @drawing_interface = nil
-      @enabled = false
-    end
-
-    def onChangeEntity(entity)
-
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
-
-      return if not @enabled
-
-      # http://www.thomthom.net/software/sketchup/observers/#note_EntityObserver
-      # EntityObserver.onChangeEntity mistriggers right before EntityObserver.onEraseEntity, referencing a non-existant entity.
-      # EntityObserver.onEraseEntity reference a non-existant entity.
-
-      proc = Proc.new {
-        @drawing_interface.on_change_entity
-      }
-      Plugin.add_event( proc )
-    end
-
-    def onEraseEntity(entity)
-
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
-
-      return if not @enabled
-
-      # http://www.thomthom.net/software/sketchup/observers/#note_EntityObserver
-      # EntityObserver.onChangeEntity mistriggers right before EntityObserver.onEraseEntity, referencing a non-existant entity.
-      # EntityObserver.onEraseEntity reference a non-existant entity.
-
-      proc = Proc.new {
-        @drawing_interface.on_erase_entity
-      }
-      Plugin.add_event( proc )
-    end
-
+  prompts = ["Path to openstudio.rb"]
+  is_windows = (RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/)
+  if is_windows
+    defaults = ['C:\openstudio-2.7.1\Ruby\openstudio.rb']
+  else
+    defaults = ['']
   end
 
+  input = UI.inputbox(prompts, defaults, "Select OpenStudio Version.")
+  openstudio_rb = input[0]
+  
+  Sketchup.write_default("OpenStudio", "OpenStudio_rb", openstudio_rb)
 end
+
+minimum_version = '17'
+maximum_version = '9999'
+installed_version = Sketchup.version.split('.').first
+
+begin
+  if (installed_version < minimum_version || installed_version > maximum_version)
+    UI.messagebox("OpenStudio #{$OPENSTUDIO_SKETCHUPPLUGIN_VERSION} is compatible with SketchUp 2017.\nThe installed version is 20#{installed_version}.  The plugin was not loaded.", MB_OK)
+  else
+    load(openstudio_rb)
+    load("openstudio/lib/PluginManager.rb")
+  end
+rescue LoadError => e
+  UI.messagebox("Error loading OpenStudio SketchUp Plug-In:\n  #{e.message}", MB_OK)
+end
+

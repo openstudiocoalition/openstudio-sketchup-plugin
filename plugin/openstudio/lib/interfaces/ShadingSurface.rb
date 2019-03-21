@@ -27,8 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/interfaces/PlanarSurface")
-require("openstudio/sketchup_plugin/lib/interfaces/ShadingSurfaceGroup")
+require("openstudio/lib/interfaces/PlanarSurface")
+require("openstudio/lib/interfaces/ShadingSurfaceGroup")
 
 module OpenStudio
 

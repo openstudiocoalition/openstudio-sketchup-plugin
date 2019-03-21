@@ -27,8 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-require("openstudio/sketchup_plugin/lib/tools/Tool")
-require("openstudio/sketchup_plugin/lib/interfaces/IlluminanceMap")
+require("openstudio/lib/tools/Tool")
+require("openstudio/lib/interfaces/IlluminanceMap")
 
 module OpenStudio
 
