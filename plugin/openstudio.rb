@@ -30,23 +30,18 @@
 require 'extensions.rb'   # defines the SketchupExtension class
 require 'rbconfig'
 
-version = "3.0.0"
-
 $OPENSTUDIO_SKETCHUPPLUGIN_NAME = "OpenStudio"
-$OPENSTUDIO_SKETCHUPPLUGIN_VERSION_BRIEF = version
+$OPENSTUDIO_SKETCHUPPLUGIN_VERSION = "3.0.0" 
 $OPENSTUDIO_SKETCHUPPLUGIN_LAUNCH_GETTING_STARTED_ON_START = false
 
 ext = SketchupExtension.new($OPENSTUDIO_SKETCHUPPLUGIN_NAME, "OpenStudio/Startup.rb")
 ext.name = $OPENSTUDIO_SKETCHUPPLUGIN_NAME
 ext.description = "Adds building energy modeling capabilities by coupling SketchUp to the OpenStudio suite of tools.  \r\n\r\nVisit openstudio.net for more information."
-ext.version = version
+ext.version = $OPENSTUDIO_SKETCHUPPLUGIN_VERSION
 ext.creator = "National Renewable Energy Laboratory"
 ext.copyright = "2008-2019, Alliance for Sustainable Energy, LLC, and other contributors."
 
 # 'true' automatically loads the extension the first time it is registered, e.g., after install
 Sketchup.register_extension(ext, true)
-
-$OPENSTUDIO_SKETCHUPPLUGIN_VERSION = version
-$OPENSTUDIO_SKETCHUPPLUGIN_DEVELOPER_MENU = false
 
 
