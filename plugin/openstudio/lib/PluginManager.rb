@@ -55,6 +55,12 @@ $OPENSTUDIO_SKETCHUPPLUGIN_LOGGING = false # default is false, disable to speed 
 $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS = true # default is true, disables observers rather than adding/removing as SketchUp does not handle that well
 $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OPERATIONS = false # default is false, enabling operations speeds things up but might introduce problems
 
+if defined?(OpenStudio::Modeleditor::PathWatcher)
+  $OpenStudioApplicationClass = OpenStudio::Modeleditor::Application
+else
+  $OpenStudioApplicationClass = OpenStudio::Application
+end
+
 if $OPENSTUDIO_SKETCHUPPLUGIN_CURRENT_METHOD_NAME
   # function to return current method name
   def current_method_name
@@ -213,7 +219,7 @@ module OpenStudio
 
       # process events in OpenStudio Model
       # this may add events to the Plugin event_queue
-      OpenStudio::Application.instance.processEvents
+      $OpenStudioApplicationClass.instance.processEvents
 
       @model_manager.model_interfaces.each do |model_interface|
         model_interface.model_watcher.processAddedObjects
@@ -524,13 +530,13 @@ module OpenStudio
   end
 
   # initialize QApplication
-  Application::instance.application(true)
-  Application::instance.application.setOrganizationName("NREL")
-  Application::instance.application.setOrganizationDomain("nrel.gov")
-  Application::instance.application.setApplicationName("OpenStudio")
+  $OpenStudioApplicationClass::instance.application(true)
+  $OpenStudioApplicationClass::instance.application.setOrganizationName("NREL")
+  $OpenStudioApplicationClass::instance.application.setOrganizationDomain("nrel.gov")
+  $OpenStudioApplicationClass::instance.application.setApplicationName("OpenStudio")
 
   # get SketchUp Qt Widget if possible
-  SketchUpWidget = Application::instance.sketchUpWidget
+  SketchUpWidget = $OpenStudioApplicationClass::instance.sketchUpWidget
   SketchUpWidget.hide if SketchUpWidget
 
   # Create a module constant to reference the plugin object anywhere within the module.

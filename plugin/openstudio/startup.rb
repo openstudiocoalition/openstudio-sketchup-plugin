@@ -29,34 +29,47 @@
 
 require 'extensions.rb'   # defines the SketchupExtension class
 
-# check current settings
-openstudio_rb = Sketchup.read_default("OpenStudio", "OpenStudio_rb")
+sketchup_version = Sketchup.version.split('.').first.to_i
 
-if openstudio_rb.nil? || !File.exists?(openstudio_rb)
+# check current settings
+openstudio_dir = Sketchup.read_default("OpenStudio", "OpenStudioDir")
+
+if openstudio_dir.nil? || !File.exists?(openstudio_dir)
 
   prompts = ["Path to openstudio.rb"]
   is_windows = (RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/)
   if is_windows
-    defaults = ['C:\openstudio-2.7.1\Ruby\openstudio.rb']
+    if sketchup_version >= 19
+      defaults = ['C:/openstudio3-2.7.2']
+    else
+      defaults = ['C:/openstudio-2.7.2']
+    end
   else
     defaults = ['']
   end
 
-  input = UI.inputbox(prompts, defaults, "Select OpenStudio Version.")
-  openstudio_rb = input[0]
+  input = UI.inputbox(prompts, defaults, "Select OpenStudio Root Directory.")
+  openstudio_dir = input[0]
+  openstudio_dir.gsub('\\', '/')
   
-  Sketchup.write_default("OpenStudio", "OpenStudio_rb", openstudio_rb)
+  Sketchup.write_default("OpenStudio", "OpenStudioDir", openstudio_dir)
 end
 
-minimum_version = '17'
-maximum_version = '9999'
-installed_version = Sketchup.version.split('.').first
+minimum_version = 17
+maximum_version = 9999
 
 begin
-  if (installed_version < minimum_version || installed_version > maximum_version)
-    UI.messagebox("OpenStudio #{$OPENSTUDIO_SKETCHUPPLUGIN_VERSION} is compatible with SketchUp 2017.\nThe installed version is 20#{installed_version}.  The plugin was not loaded.", MB_OK)
+  if (sketchup_version < minimum_version || sketchup_version > maximum_version)
+    UI.messagebox("OpenStudio #{$OPENSTUDIO_SKETCHUPPLUGIN_VERSION} is compatible with SketchUp 2017.\nThe installed version is 20#{sketchup_version}.  The plugin was not loaded.", MB_OK)
   else
-    load(openstudio_rb)
+    openstudio_rb = File.join(openstudio_dir, "Ruby/openstudio.rb")
+    openstudio_modeleditor_rb = File.join(openstudio_dir, "Ruby/openstudio_modeleditor.rb")
+    
+    if File.exists?(openstudio_modeleditor_rb)
+      load(openstudio_modeleditor_rb) if File.exists?(openstudio_modeleditor_rb)
+    else
+      load(openstudio_rb)
+    end
     load("openstudio/lib/PluginManager.rb")
   end
 rescue LoadError => e
