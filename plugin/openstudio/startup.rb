@@ -36,13 +36,13 @@ openstudio_dir = Sketchup.read_default("OpenStudio", "OpenStudioDir")
 
 if openstudio_dir.nil? || !File.exists?(openstudio_dir)
 
-  prompts = ["Path to openstudio.rb"]
+  prompts = ["Path to OpenStudio Root Directory"]
   is_windows = (RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/)
   if is_windows
     if sketchup_version >= 19
-      defaults = ['C:/openstudio3-2.7.2']
+      defaults = ['C:/openstudioapplication-1.0.0-pre1']
     else
-      defaults = ['C:/openstudio-2.7.2']
+      defaults = ['C:/openstudio-2.9.0']
     end
   else
     defaults = ['']
