@@ -179,7 +179,7 @@ module OpenStudio
       @import_schedules_cmd = UI::Command.new("Import Schedules") { Plugin.command_manager.import_schedules }
       @import_schedules_cmd.set_validation_proc { enable_if_model_interface }
 
-      @import_space_types_cmd = UI::Command.new("Import Space Loads") { Plugin.command_manager.import_space_types }
+      @import_space_types_cmd = UI::Command.new("Import Space Types") { Plugin.command_manager.import_space_types }
       @import_space_types_cmd.set_validation_proc { enable_if_model_interface }
 
       @import_idf_cmd = UI::Command.new("Import EnergyPlus Idf") { Plugin.command_manager.import_idf }
