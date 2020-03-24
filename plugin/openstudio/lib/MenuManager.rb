@@ -308,13 +308,6 @@ module OpenStudio
       @loose_geometry_cmd.status_bar_text = "Project loose geometry onto OpenStudio surfaces"
       @loose_geometry_cmd.set_validation_proc { Plugin.dialog_manager.validate(LooseGeometryInterface) if (Plugin.dialog_manager) }
 
-      @space_loads_cmd = UI::Command.new("Space Loads") { } #Plugin.dialog_manager.show(SpaceLoadsInterface) }
-      @space_loads_cmd.small_icon = Plugin.dir + "/lib/resources/icons/SpaceLoads-16.png"
-      @space_loads_cmd.large_icon = Plugin.dir + "/lib/resources/icons/SpaceLoads-24.png"
-      @space_loads_cmd.tooltip = "Space Loads"
-      @space_loads_cmd.status_bar_text = "Add common loads to spaces"
-      @space_loads_cmd.set_validation_proc { enable_if_model_interface }
-
       @inspector_dialog_cmd = UI::Command.new("Inspector") {
         Plugin.dialog_manager.inspector_dialog.restoreState
         Plugin.dialog_manager.inspector_dialog.show
