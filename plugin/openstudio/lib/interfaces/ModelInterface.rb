@@ -1542,7 +1542,7 @@ module OpenStudio
     def glare_sensors
       Plugin.log(OpenStudio::Trace, "#{current_method_name}")
 
-      return(@interfaces[Glare_Sensor])
+      return(@interfaces[GlareSensor])
     end
 
     def rendering_colors

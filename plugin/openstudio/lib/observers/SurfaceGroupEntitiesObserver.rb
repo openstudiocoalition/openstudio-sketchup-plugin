@@ -293,6 +293,23 @@ module OpenStudio
                 error_message = "Can only add DaylightingControl to a Space"
               end
 
+            elsif (drawing_interface.class == GlareSensor)
+              Plugin.log(OpenStudio::Info, "New GlareSensor")
+
+              if (@drawing_interface.class == Space)
+                # see if we already have this object
+                Plugin.model_manager.model_interface.glare_sensors.each do |glare_sensor|
+                  if glare_sensor.entity == entity
+                    already_exists = true
+                    break
+                  end
+                end
+              else
+                # not added to a space
+                need_to_remove = true
+                error_message = "Can only add GlareSensor to a Space"
+              end
+
             elsif(drawing_interface.class == IlluminanceMap)
               Plugin.log(OpenStudio::Info, "New IlluminanceMap")
 
