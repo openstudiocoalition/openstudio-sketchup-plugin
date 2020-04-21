@@ -40,7 +40,7 @@ if openstudio_dir.nil? || !File.exists?(openstudio_dir)
   is_windows = (RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/)
   if is_windows
     if sketchup_version >= 19
-      defaults = ['C:/openstudioapplication-1.0.0-pre1']
+      defaults = ['C:/openstudioapplication-1.0.0']
     else
       defaults = ['C:/openstudio-2.9.0']
     end
