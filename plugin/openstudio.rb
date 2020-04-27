@@ -1,5 +1,5 @@
 ########################################################################################################################
-#  OpenStudio(R), Copyright (c) 2008-2019, Alliance for Sustainable Energy, LLC, and other contributors. All rights reserved.
+#  OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC, and other contributors. All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 #  following conditions are met:
@@ -39,7 +39,7 @@ ext.name = $OPENSTUDIO_SKETCHUPPLUGIN_NAME
 ext.description = "Adds building energy modeling capabilities by coupling SketchUp to the OpenStudio suite of tools.  \r\n\r\nVisit openstudio.net for more information."
 ext.version = $OPENSTUDIO_SKETCHUPPLUGIN_VERSION
 ext.creator = "National Renewable Energy Laboratory"
-ext.copyright = "2008-2019, Alliance for Sustainable Energy, LLC, and other contributors."
+ext.copyright = "2008-2020, Alliance for Sustainable Energy, LLC, and other contributors."
 
 # 'true' automatically loads the extension the first time it is registered, e.g., after install
 Sketchup.register_extension(ext, true)
