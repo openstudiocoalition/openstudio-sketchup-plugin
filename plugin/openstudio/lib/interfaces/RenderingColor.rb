@@ -189,7 +189,7 @@ module OpenStudio
         if not name_changed
           if @model_object.name.get != @entity.name
             Plugin.log(OpenStudio::Debug, "Failed to set Material entity name to " + @model_object.name.get)
-            Plugin.log(OpenStudio::Debug, "Current entity name is " + @entity.name)
+            Plugin.log(OpenStudio::Debug, "Setting RenderingColor model object name to " + @entity.name)
             
             had_watcher = disable_watcher
             @model_object.setName(@entity.name)

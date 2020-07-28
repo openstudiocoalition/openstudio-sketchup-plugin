@@ -50,8 +50,8 @@ $OPENSTUDIO_SKETCHUPPLUGIN_DIR = File.dirname(__FILE__)
 
 $OPENSTUDIO_SKETCHUPPLUGIN_DEVELOPER_MENU = false # default is false, enable to see developer menu
 $OPENSTUDIO_SKETCHUPPLUGIN_PROGRESS_DIALOGS = true # default is true, disable to speed up
-$OPENSTUDIO_SKETCHUPPLUGIN_CURRENT_METHOD_NAME = true # default is false, disable to speed up
-$OPENSTUDIO_SKETCHUPPLUGIN_LOGGING = true # default is false, disable to speed up
+$OPENSTUDIO_SKETCHUPPLUGIN_CURRENT_METHOD_NAME = false # default is false, disable to speed up
+$OPENSTUDIO_SKETCHUPPLUGIN_LOGGING = false # default is false, disable to speed up
 $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS = true # default is true, disables observers rather than adding/removing as SketchUp does not handle that well
 $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OPERATIONS = false # default is false, enabling operations speeds things up but might introduce problems
 
