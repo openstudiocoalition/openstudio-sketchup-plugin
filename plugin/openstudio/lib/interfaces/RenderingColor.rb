@@ -1,5 +1,5 @@
 ########################################################################################################################
-#  OpenStudio(R), Copyright (c) 2008-2019, Alliance for Sustainable Energy, LLC, and other contributors. All rights reserved.
+#  OpenStudio(R), Copyright (c) 2008-2020, Alliance for Sustainable Energy, LLC, and other contributors. All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 #  following conditions are met:
@@ -189,12 +189,13 @@ module OpenStudio
         if not name_changed
           if @model_object.name.get != @entity.name
             Plugin.log(OpenStudio::Debug, "Failed to set Material entity name to " + @model_object.name.get)
-
+            Plugin.log(OpenStudio::Debug, "Setting RenderingColor model object name to " + @entity.name)
+            
             had_watcher = disable_watcher
             @model_object.setName(@entity.name)
             add_watcher if had_watcher
 
-            Plugin.dialog_manager.inspector_dialog.rebuildInspectorGadget(true)
+            Plugin.dialog_manager.inspector_dialog.rebuildInspectorGadget(true) if Plugin.dialog_manager && Plugin.dialog_manager.inspector_dialog
           end
         end
 
