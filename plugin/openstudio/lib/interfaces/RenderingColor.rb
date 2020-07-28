@@ -189,12 +189,13 @@ module OpenStudio
         if not name_changed
           if @model_object.name.get != @entity.name
             Plugin.log(OpenStudio::Debug, "Failed to set Material entity name to " + @model_object.name.get)
-
+            Plugin.log(OpenStudio::Debug, "Current entity name is " + @entity.name)
+            
             had_watcher = disable_watcher
             @model_object.setName(@entity.name)
             add_watcher if had_watcher
 
-            Plugin.dialog_manager.inspector_dialog.rebuildInspectorGadget(true)
+            Plugin.dialog_manager.inspector_dialog.rebuildInspectorGadget(true) if Plugin.dialog_manager && Plugin.dialog_manager.inspector_dialog
           end
         end
 
