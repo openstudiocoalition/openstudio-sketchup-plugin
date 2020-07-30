@@ -101,16 +101,20 @@ module OpenStudio
 
       openstudio_path = skp_model.openstudio_path
       openstudio_entities = skp_model.openstudio_entities
-
-      if (openstudio_path && !openstudio_path.empty?) || (openstudio_entities.size > 0)
+      openstudio_materials = skp_model.openstudio_materials
+      
+      if (openstudio_path && !openstudio_path.empty?) || (openstudio_entities.size > 0) || (openstudio_materials.size > 0)
 
         message = "Removing previously linked OpenStudio content."
-        message += "\n\nOpen OpenStudio model at '#{openstudio_path}' to restore content."
+        if (openstudio_path && !openstudio_path.empty?)
+          message += "\n\nOpen OpenStudio model at '#{openstudio_path}' to restore content."
+        end
         UI.messagebox(message, MB_OK)
 
         # remove all OpenStudio content so user is not confused
         skp_model.start_operation("Remove all OpenStudio Content", true)
         skp_model.delete_openstudio_entities
+        openstudio_materials.each {|m| skp_model.materials.remove(m)}
         skp_model.commit_operation
       end
 
