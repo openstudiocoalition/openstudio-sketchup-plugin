@@ -1,3 +1,8 @@
+Important!
+==========
+
+After the v1.0.0 final NREL software distribution (04/27/2020), the OpenStudio SketchUp Plug-in is now independently supported and maintained with open source contributions by The OpenStudio Coalition and members of the software community at the GitHub repository https://github.com/openstudiocoalition/openstudio-sketchup-plugin. The NREL OpenStudio SketchUp Plug-in repository no longer accepts new issues or pull requests. Please submit new issues or enhancement requests in the new OpenStudio Coalition repository at https://github.com/openstudiocoalition/openstudio-sketchup-plugin/issues.
+
 OpenStudio SketchUp Plug-in
 ==========
 
