@@ -46,6 +46,7 @@ require("openstudio/sketchup/Geom")
 require("fileutils")
 
 $OPENSTUDIO_APPLICATION_DIR
+$OPENSTUDIO_VERSION = OpenStudio::openStudioVersion
 $OPENSTUDIO_SKETCHUPPLUGIN_DIR = File.dirname(__FILE__)
 
 $OPENSTUDIO_SKETCHUPPLUGIN_DEVELOPER_MENU = false # default is false, enable to see developer menu
@@ -410,12 +411,6 @@ module OpenStudio
       hash['Open Dialogs'] = ""
       hash['Inspector Dialog Visible'] = ""
 
-      if (platform == Platform_Windows)
-        hash['Text Editor Path'] = "C:/WINDOWS/system32/notepad.exe"
-      elsif (platform == Platform_Mac)
-        hash['Text Editor Path'] = "/Applications/TextEdit.app"
-      end
-
       return(hash)
     end
 
@@ -434,7 +429,6 @@ module OpenStudio
       write_pref("Last Schedules Import Dir", nil)
       write_pref("Last Space Loads Import Dir", nil)
       write_pref("Open Dialogs", nil)
-      write_pref("Text Editor Path", nil)
       write_pref("Warn on Idf Export", nil)
       write_pref("Warn on gbXML Export", nil)
       write_pref("Show Errors on Idf Translation", nil)
