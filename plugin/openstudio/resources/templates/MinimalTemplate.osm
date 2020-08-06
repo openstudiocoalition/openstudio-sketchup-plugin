@@ -1,7 +1,21 @@
 
 OS:Version,
-  {75c78dc0-37e4-4b61-8b1c-9406b524766e}, !- Handle
-  2.7.0;                                  !- Version Identifier
+  {e3dffbe8-579d-44b5-9de6-f9dd243d6abf}, !- Handle
+  3.0.0;                                  !- Version Identifier
+
+OS:Schedule:Constant,
+  {1fc20587-dd67-41cb-af8b-f125c2f6c909}, !- Handle
+  Always On Discrete,                     !- Name
+  {88abf700-c9bb-489b-94fd-619c223cb221}, !- Schedule Type Limits Name
+  1;                                      !- Value
+
+OS:ScheduleTypeLimits,
+  {88abf700-c9bb-489b-94fd-619c223cb221}, !- Handle
+  Always On Discrete Limits,              !- Name
+  0,                                      !- Lower Limit Value
+  1,                                      !- Upper Limit Value
+  Discrete,                               !- Numeric Type
+  Availability;                           !- Unit Type
 
 OS:SpaceType,
   {e0526529-4fdb-4700-9395-efccd411628b}, !- Handle
@@ -116,24 +130,23 @@ OS:Schedule:Day,
   0;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {908b277a-17ad-43e5-8ca0-e1d276873fc0}, ! Handle
-  Office Bldg Light Rule 1,               ! Name
-  {2c940045-acb3-429d-974e-30a7a792c982}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {f781a329-5fd9-4e85-a1ef-b4bef14b48ef}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {908b277a-17ad-43e5-8ca0-e1d276873fc0}, !- Handle
+  Office Bldg Light Rule 1,               !- Name
+  {2c940045-acb3-429d-974e-30a7a792c982}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {f781a329-5fd9-4e85-a1ef-b4bef14b48ef}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {f781a329-5fd9-4e85-a1ef-b4bef14b48ef}, ! Handle
@@ -145,24 +158,23 @@ OS:Schedule:Day,
   0.050000000000000003;                   ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {58f59580-2b1c-4b49-8761-6e97b4f06a41}, ! Handle
-  Office Bldg Light Rule 2,               ! Name
-  {2c940045-acb3-429d-974e-30a7a792c982}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {d19a64b1-fd5a-4540-b6d8-57bf21de3b30}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {58f59580-2b1c-4b49-8761-6e97b4f06a41}, !- Handle
+  Office Bldg Light Rule 2,               !- Name
+  {2c940045-acb3-429d-974e-30a7a792c982}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {d19a64b1-fd5a-4540-b6d8-57bf21de3b30}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {d19a64b1-fd5a-4540-b6d8-57bf21de3b30}, ! Handle
@@ -267,24 +279,23 @@ OS:Schedule:Day,
   0;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {a97798e8-5429-4f50-b44e-dfb58ab1171e}, ! Handle
-  Office Misc Occ Rule 1,                 ! Name
-  {57e1c24d-9d92-4abf-b5da-f09ece9870d2}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {67399e18-2529-4b87-8ea4-2dc28aff6617}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {a97798e8-5429-4f50-b44e-dfb58ab1171e}, !- Handle
+  Office Misc Occ Rule 1,                 !- Name
+  {57e1c24d-9d92-4abf-b5da-f09ece9870d2}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {67399e18-2529-4b87-8ea4-2dc28aff6617}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {67399e18-2529-4b87-8ea4-2dc28aff6617}, ! Handle
@@ -296,24 +307,23 @@ OS:Schedule:Day,
   0;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {6b831ffb-ef84-4a8a-a32f-d7d10b547a0e}, ! Handle
-  Office Misc Occ Rule 2,                 ! Name
-  {57e1c24d-9d92-4abf-b5da-f09ece9870d2}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {ee72aee8-eeaf-433a-9e3e-619a532596a3}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {6b831ffb-ef84-4a8a-a32f-d7d10b547a0e}, !- Handle
+  Office Misc Occ Rule 2,                 !- Name
+  {57e1c24d-9d92-4abf-b5da-f09ece9870d2}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {ee72aee8-eeaf-433a-9e3e-619a532596a3}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {ee72aee8-eeaf-433a-9e3e-619a532596a3}, ! Handle
@@ -448,24 +458,23 @@ OS:Schedule:Day,
   1;                                      ! Value Until Time 3
 
 OS:Schedule:Rule,
-  {669f6450-48fd-4c9f-aa54-cb0a65aaaea4}, ! Handle
-  Office Infil Quarter On Rule 1,         ! Name
-  {f3007024-d8b2-4f63-80eb-68d25b3f311b}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {a70ff7aa-e531-409d-9b14-d76d8b3d2fcd}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {669f6450-48fd-4c9f-aa54-cb0a65aaaea4}, !- Handle
+  Office Infil Quarter On Rule 1,         !- Name
+  {f3007024-d8b2-4f63-80eb-68d25b3f311b}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {a70ff7aa-e531-409d-9b14-d76d8b3d2fcd}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {a70ff7aa-e531-409d-9b14-d76d8b3d2fcd}, ! Handle
@@ -477,24 +486,23 @@ OS:Schedule:Day,
   1;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {0754978c-410e-49ee-a9fb-78c434aa0747}, ! Handle
-  Office Infil Quarter On Rule 2,         ! Name
-  {f3007024-d8b2-4f63-80eb-68d25b3f311b}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {e0f7388a-c254-4ec7-be7c-4baf001742a7}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {0754978c-410e-49ee-a9fb-78c434aa0747}, !- Handle
+  Office Infil Quarter On Rule 2,         !- Name
+  {f3007024-d8b2-4f63-80eb-68d25b3f311b}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {e0f7388a-c254-4ec7-be7c-4baf001742a7}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {e0f7388a-c254-4ec7-be7c-4baf001742a7}, ! Handle
@@ -582,24 +590,23 @@ OS:Schedule:Day,
   0;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {ef64122e-df93-4108-bfcf-d1233b552ebc}, ! Handle
-  Office Bldg Equip Rule 1,               ! Name
-  {88b4ac91-159f-4214-9ba7-aac28ba70021}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {d3ee3a96-7374-4f52-a6f1-5d5d9202b8aa}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {ef64122e-df93-4108-bfcf-d1233b552ebc}, !- Handle
+  Office Bldg Equip Rule 1,               !- Name
+  {88b4ac91-159f-4214-9ba7-aac28ba70021}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {d3ee3a96-7374-4f52-a6f1-5d5d9202b8aa}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {d3ee3a96-7374-4f52-a6f1-5d5d9202b8aa}, ! Handle
@@ -611,24 +618,23 @@ OS:Schedule:Day,
   0.29999999999999999;                    ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {148ecf7d-381b-405a-83e5-4dda8df23254}, ! Handle
-  Office Bldg Equip Rule 2,               ! Name
-  {88b4ac91-159f-4214-9ba7-aac28ba70021}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {16910aad-aa54-450e-ad27-3d490c451dcb}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {148ecf7d-381b-405a-83e5-4dda8df23254}, !- Handle
+  Office Bldg Equip Rule 2,               !- Name
+  {88b4ac91-159f-4214-9ba7-aac28ba70021}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {16910aad-aa54-450e-ad27-3d490c451dcb}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {16910aad-aa54-450e-ad27-3d490c451dcb}, ! Handle
@@ -707,24 +713,23 @@ OS:Schedule:Day,
   21;                                     ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {c7f812fa-7446-40ee-b68b-b3a8b51b12e6}, ! Handle
-  Medium Office HtgSetp Rule 1,           ! Name
-  {09614427-a80e-4def-b3c8-4569d9820c87}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {42a8882f-6fd8-4828-a5b5-47a81c1a7b4b}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {c7f812fa-7446-40ee-b68b-b3a8b51b12e6}, !- Handle
+  Medium Office HtgSetp Rule 1,           !- Name
+  {09614427-a80e-4def-b3c8-4569d9820c87}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {42a8882f-6fd8-4828-a5b5-47a81c1a7b4b}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {42a8882f-6fd8-4828-a5b5-47a81c1a7b4b}, ! Handle
@@ -736,24 +741,23 @@ OS:Schedule:Day,
   15.6;                                   ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {2e1dc3e8-d10c-4d93-ae1c-b45ed550e975}, ! Handle
-  Medium Office HtgSetp Rule 2,           ! Name
-  {09614427-a80e-4def-b3c8-4569d9820c87}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {aac68dcf-cce4-43fa-939c-a27379cb5e6d}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {2e1dc3e8-d10c-4d93-ae1c-b45ed550e975}, !- Handle
+  Medium Office HtgSetp Rule 2,           !- Name
+  {09614427-a80e-4def-b3c8-4569d9820c87}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {aac68dcf-cce4-43fa-939c-a27379cb5e6d}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {aac68dcf-cce4-43fa-939c-a27379cb5e6d}, ! Handle
@@ -826,24 +830,23 @@ OS:Schedule:Day,
   26.699999999999999;                     ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {0d632a2f-7030-458d-a605-1c8b22675112}, ! Handle
-  Medium Office ClgSetp Rule 1,           ! Name
-  {b0c1894d-c9fc-4037-9dd0-81db953b7a2a}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {ef8f110c-4e65-4bff-a09f-b7a26ac7ead7}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {0d632a2f-7030-458d-a605-1c8b22675112}, !- Handle
+  Medium Office ClgSetp Rule 1,           !- Name
+  {b0c1894d-c9fc-4037-9dd0-81db953b7a2a}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {ef8f110c-4e65-4bff-a09f-b7a26ac7ead7}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {ef8f110c-4e65-4bff-a09f-b7a26ac7ead7}, ! Handle
@@ -855,24 +858,23 @@ OS:Schedule:Day,
   26.699999999999999;                     ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {64435df8-d2ce-49d3-ab10-d80ef7c9dc79}, ! Handle
-  Medium Office ClgSetp Rule 2,           ! Name
-  {b0c1894d-c9fc-4037-9dd0-81db953b7a2a}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {3103b702-d5fe-489f-a4a3-03c0cdaefd36}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {64435df8-d2ce-49d3-ab10-d80ef7c9dc79}, !- Handle
+  Medium Office ClgSetp Rule 2,           !- Name
+  {b0c1894d-c9fc-4037-9dd0-81db953b7a2a}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {3103b702-d5fe-489f-a4a3-03c0cdaefd36}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {3103b702-d5fe-489f-a4a3-03c0cdaefd36}, ! Handle
@@ -1029,24 +1031,23 @@ OS:Schedule:Day,
   0;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {b8161167-4161-4e02-8f47-36bd863088fc}, ! Handle
-  Office Work Occ Rule 1,                 ! Name
-  {163effd1-65ed-44c0-a206-60c4b6812644}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {1ead174b-87ef-4841-aa88-529f1393689b}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {b8161167-4161-4e02-8f47-36bd863088fc}, !- Handle
+  Office Work Occ Rule 1,                 !- Name
+  {163effd1-65ed-44c0-a206-60c4b6812644}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {1ead174b-87ef-4841-aa88-529f1393689b}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {1ead174b-87ef-4841-aa88-529f1393689b}, ! Handle
@@ -1058,24 +1059,23 @@ OS:Schedule:Day,
   0;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {fbf97f6c-3df4-4a6b-8446-999a24edf3bc}, ! Handle
-  Office Work Occ Rule 2,                 ! Name
-  {163effd1-65ed-44c0-a206-60c4b6812644}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {6976aee5-609c-4442-ad06-6ae5468617e3}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {fbf97f6c-3df4-4a6b-8446-999a24edf3bc}, !- Handle
+  Office Work Occ Rule 2,                 !- Name
+  {163effd1-65ed-44c0-a206-60c4b6812644}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {6976aee5-609c-4442-ad06-6ae5468617e3}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {6976aee5-609c-4442-ad06-6ae5468617e3}, ! Handle
@@ -1762,7 +1762,14 @@ OS:Building,
   ,                                       !- Nominal Floor to Floor Height {m}
   {5db4db79-bc99-4052-9ada-702a715bdd5e}, !- Space Type Name
   {c843ac02-1e81-40be-b7ce-59ca34e6922f}, !- Default Construction Set Name
-  ;                                       !- Default Schedule Set Name
+  ,                                       !- Default Schedule Set Name
+  ,                                       !- Standards Number of Stories
+  ,                                       !- Standards Number of Above Ground Stories
+  ,                                       !- Standards Template
+  ,                                       !- Standards Building Type
+  ,                                       !- Standards Number of Living Units
+  ,                                       !- Relocatable
+  ;                                       !- Nominal Floor to Ceiling Height {m}
 
 OS:SpaceType,
   {04f2322f-db88-4f90-b85a-ffd19b6bc305}, !- Handle
@@ -2349,24 +2356,23 @@ OS:Schedule:Day,
   0;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {e993fcdd-4bf2-4620-80da-3cefd388470a}, ! Handle
-  Large Office Bldg Light Rule 1,         ! Name
-  {887b2604-862e-444b-89ad-50e2dc4d71e9}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {075c555a-61c2-4dc0-b42a-4c76eeab2975}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {e993fcdd-4bf2-4620-80da-3cefd388470a}, !- Handle
+  Large Office Bldg Light Rule 1,         !- Name
+  {887b2604-862e-444b-89ad-50e2dc4d71e9}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {075c555a-61c2-4dc0-b42a-4c76eeab2975}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {075c555a-61c2-4dc0-b42a-4c76eeab2975}, ! Handle
@@ -2378,24 +2384,23 @@ OS:Schedule:Day,
   0.050000000000000003;                   ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {1822b24d-5ca6-4da7-94ae-0b2fcd5c329a}, ! Handle
-  Large Office Bldg Light Rule 2,         ! Name
-  {887b2604-862e-444b-89ad-50e2dc4d71e9}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {0e53450b-3329-4a77-b402-c64e9577d303}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {1822b24d-5ca6-4da7-94ae-0b2fcd5c329a}, !- Handle
+  Large Office Bldg Light Rule 2,         !- Name
+  {887b2604-862e-444b-89ad-50e2dc4d71e9}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {0e53450b-3329-4a77-b402-c64e9577d303}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {0e53450b-3329-4a77-b402-c64e9577d303}, ! Handle
@@ -2512,24 +2517,23 @@ OS:Schedule:Day,
   0;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {6b2290e6-83e6-4257-8bbf-21541e13acc8}, ! Handle
-  Large Office Bldg Occ Rule 1,           ! Name
-  {3809a7de-fc37-4d8a-9225-159a2dfb2aaa}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {1c83a61e-98a0-4a84-b2fb-c90b7714176a}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {6b2290e6-83e6-4257-8bbf-21541e13acc8}, !- Handle
+  Large Office Bldg Occ Rule 1,           !- Name
+  {3809a7de-fc37-4d8a-9225-159a2dfb2aaa}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {1c83a61e-98a0-4a84-b2fb-c90b7714176a}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {1c83a61e-98a0-4a84-b2fb-c90b7714176a}, ! Handle
@@ -2541,24 +2545,23 @@ OS:Schedule:Day,
   0;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {8209eb3a-736d-4a18-ac0a-24109a77fb15}, ! Handle
-  Large Office Bldg Occ Rule 2,           ! Name
-  {3809a7de-fc37-4d8a-9225-159a2dfb2aaa}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {ac99d433-bc10-4b25-b41e-394e8732c645}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {8209eb3a-736d-4a18-ac0a-24109a77fb15}, !- Handle
+  Large Office Bldg Occ Rule 2,           !- Name
+  {3809a7de-fc37-4d8a-9225-159a2dfb2aaa}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {ac99d433-bc10-4b25-b41e-394e8732c645}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {ac99d433-bc10-4b25-b41e-394e8732c645}, ! Handle
@@ -2693,24 +2696,23 @@ OS:Schedule:Day,
   1;                                      ! Value Until Time 3
 
 OS:Schedule:Rule,
-  {c3c5ea47-8a11-4dd0-a525-11253766908b}, ! Handle
-  Large Office Infil Quarter On Rule 1,   ! Name
-  {db7f073b-9c2d-43a5-b827-b5b8d6adcaa3}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {bf38162e-0fc0-4bd8-9fee-f15555eb9377}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {c3c5ea47-8a11-4dd0-a525-11253766908b}, !- Handle
+  Large Office Infil Quarter On Rule 1,   !- Name
+  {db7f073b-9c2d-43a5-b827-b5b8d6adcaa3}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {bf38162e-0fc0-4bd8-9fee-f15555eb9377}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {bf38162e-0fc0-4bd8-9fee-f15555eb9377}, ! Handle
@@ -2722,24 +2724,23 @@ OS:Schedule:Day,
   1;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {3fe5f1f7-922f-44d9-9b56-cb70366a5183}, ! Handle
-  Large Office Infil Quarter On Rule 2,   ! Name
-  {db7f073b-9c2d-43a5-b827-b5b8d6adcaa3}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {a51d47b7-d9e6-450b-818c-71e2d734461a}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {3fe5f1f7-922f-44d9-9b56-cb70366a5183}, !- Handle
+  Large Office Infil Quarter On Rule 2,   !- Name
+  {db7f073b-9c2d-43a5-b827-b5b8d6adcaa3}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {a51d47b7-d9e6-450b-818c-71e2d734461a}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {a51d47b7-d9e6-450b-818c-71e2d734461a}, ! Handle
@@ -2827,24 +2828,23 @@ OS:Schedule:Day,
   0;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {7149bcfb-5097-4839-8a6a-ae6b0566da96}, ! Handle
-  Large Office Bldg Equip Rule 1,         ! Name
-  {ebe8d780-87ee-4f15-bff7-d4f18dba8a4a}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {458917f7-6665-4186-b3ec-363f21da5d0a}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {7149bcfb-5097-4839-8a6a-ae6b0566da96}, !- Handle
+  Large Office Bldg Equip Rule 1,         !- Name
+  {ebe8d780-87ee-4f15-bff7-d4f18dba8a4a}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {458917f7-6665-4186-b3ec-363f21da5d0a}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {458917f7-6665-4186-b3ec-363f21da5d0a}, ! Handle
@@ -2856,24 +2856,23 @@ OS:Schedule:Day,
   0.29999999999999999;                    ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {368172ef-1ae0-4e6c-96b9-b0ce19029e0a}, ! Handle
-  Large Office Bldg Equip Rule 2,         ! Name
-  {ebe8d780-87ee-4f15-bff7-d4f18dba8a4a}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {8c75aa08-6e3e-478e-aeb4-72ed71fe4a56}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {368172ef-1ae0-4e6c-96b9-b0ce19029e0a}, !- Handle
+  Large Office Bldg Equip Rule 2,         !- Name
+  {ebe8d780-87ee-4f15-bff7-d4f18dba8a4a}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {8c75aa08-6e3e-478e-aeb4-72ed71fe4a56}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {8c75aa08-6e3e-478e-aeb4-72ed71fe4a56}, ! Handle
@@ -2952,24 +2951,23 @@ OS:Schedule:Day,
   21;                                     ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {3dec2ebc-3be0-4809-ab92-aba518f7243a}, ! Handle
-  Large Office HtgSetp Rule 1,            ! Name
-  {2122cc4e-7e1b-44c0-9c3f-9e9e201eccca}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {6eec3602-ae5e-4520-9022-42f6eb158f11}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {3dec2ebc-3be0-4809-ab92-aba518f7243a}, !- Handle
+  Large Office HtgSetp Rule 1,            !- Name
+  {2122cc4e-7e1b-44c0-9c3f-9e9e201eccca}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {6eec3602-ae5e-4520-9022-42f6eb158f11}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {6eec3602-ae5e-4520-9022-42f6eb158f11}, ! Handle
@@ -2981,24 +2979,23 @@ OS:Schedule:Day,
   15.6;                                   ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {d0fd0485-8d3a-4d93-b472-c2c055f12d8f}, ! Handle
-  Large Office HtgSetp Rule 2,            ! Name
-  {2122cc4e-7e1b-44c0-9c3f-9e9e201eccca}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {855ab926-166d-457e-bee0-48035528728b}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {d0fd0485-8d3a-4d93-b472-c2c055f12d8f}, !- Handle
+  Large Office HtgSetp Rule 2,            !- Name
+  {2122cc4e-7e1b-44c0-9c3f-9e9e201eccca}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {855ab926-166d-457e-bee0-48035528728b}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {855ab926-166d-457e-bee0-48035528728b}, ! Handle
@@ -3071,24 +3068,23 @@ OS:Schedule:Day,
   26.699999999999999;                     ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {0c2aa966-89ef-414d-9cb8-7c5866667a68}, ! Handle
-  Large Office ClgSetp Rule 1,            ! Name
-  {28f74a9b-29da-4e35-bd76-56b9a3c9360c}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {4eb7dda9-f704-4e80-b779-17f6a393f713}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {0c2aa966-89ef-414d-9cb8-7c5866667a68}, !- Handle
+  Large Office ClgSetp Rule 1,            !- Name
+  {28f74a9b-29da-4e35-bd76-56b9a3c9360c}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {4eb7dda9-f704-4e80-b779-17f6a393f713}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {4eb7dda9-f704-4e80-b779-17f6a393f713}, ! Handle
@@ -3100,24 +3096,23 @@ OS:Schedule:Day,
   26.699999999999999;                     ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {bfc0394c-2ee2-4a76-b55b-94b145027791}, ! Handle
-  Large Office ClgSetp Rule 2,            ! Name
-  {28f74a9b-29da-4e35-bd76-56b9a3c9360c}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {9616ff3f-9dda-4339-accb-413452c0303f}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {bfc0394c-2ee2-4a76-b55b-94b145027791}, !- Handle
+  Large Office ClgSetp Rule 2,            !- Name
+  {28f74a9b-29da-4e35-bd76-56b9a3c9360c}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {9616ff3f-9dda-4339-accb-413452c0303f}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {9616ff3f-9dda-4339-accb-413452c0303f}, ! Handle
@@ -3274,24 +3269,23 @@ OS:Schedule:Day,
   0;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {93f3fbaf-3bcc-4d46-aa12-29f75ede5812}, ! Handle
-  Medium Office Bldg Occ Rule 1,          ! Name
-  {e07d3266-bbf4-4110-98ab-fa7a311efd8a}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {41d016c8-0dad-4e7b-bc98-ac9d99fc871b}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {93f3fbaf-3bcc-4d46-aa12-29f75ede5812}, !- Handle
+  Medium Office Bldg Occ Rule 1,          !- Name
+  {e07d3266-bbf4-4110-98ab-fa7a311efd8a}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {41d016c8-0dad-4e7b-bc98-ac9d99fc871b}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {41d016c8-0dad-4e7b-bc98-ac9d99fc871b}, ! Handle
@@ -3303,24 +3297,23 @@ OS:Schedule:Day,
   0;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {531b6f84-a9f6-4451-b459-a3fba4568642}, ! Handle
-  Medium Office Bldg Occ Rule 2,          ! Name
-  {e07d3266-bbf4-4110-98ab-fa7a311efd8a}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {5f0e50da-131f-4b5b-a8c4-dec84d5df3f0}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {531b6f84-a9f6-4451-b459-a3fba4568642}, !- Handle
+  Medium Office Bldg Occ Rule 2,          !- Name
+  {e07d3266-bbf4-4110-98ab-fa7a311efd8a}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {5f0e50da-131f-4b5b-a8c4-dec84d5df3f0}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {5f0e50da-131f-4b5b-a8c4-dec84d5df3f0}, ! Handle
@@ -3455,24 +3448,23 @@ OS:Schedule:Day,
   1;                                      ! Value Until Time 3
 
 OS:Schedule:Rule,
-  {efccc2eb-56fd-412a-b63b-91e6e93f2f76}, ! Handle
-  Medium Office Infil Quarter On Rule 1,  ! Name
-  {b2069f4f-b25a-42e8-badd-8d1d6c35c9c1}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {704bfc92-0704-49f0-a832-ddb0869765de}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {efccc2eb-56fd-412a-b63b-91e6e93f2f76}, !- Handle
+  Medium Office Infil Quarter On Rule 1,  !- Name
+  {b2069f4f-b25a-42e8-badd-8d1d6c35c9c1}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {704bfc92-0704-49f0-a832-ddb0869765de}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {704bfc92-0704-49f0-a832-ddb0869765de}, ! Handle
@@ -3484,24 +3476,23 @@ OS:Schedule:Day,
   1;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {148c0532-bdb0-42d5-bfcc-d099b0354456}, ! Handle
-  Medium Office Infil Quarter On Rule 2,  ! Name
-  {b2069f4f-b25a-42e8-badd-8d1d6c35c9c1}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {33628b24-7929-42bc-a7af-063332bd3b03}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {148c0532-bdb0-42d5-bfcc-d099b0354456}, !- Handle
+  Medium Office Infil Quarter On Rule 2,  !- Name
+  {b2069f4f-b25a-42e8-badd-8d1d6c35c9c1}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {33628b24-7929-42bc-a7af-063332bd3b03}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {33628b24-7929-42bc-a7af-063332bd3b03}, ! Handle
@@ -3589,24 +3580,23 @@ OS:Schedule:Day,
   0;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {d6cb0cf6-da77-4422-91ed-f9b16f4a074b}, ! Handle
-  Medium Office Bldg Equip Rule 1,        ! Name
-  {a07a8dd7-c4c7-4b5c-8731-bf52277c2daa}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {dd0aea7f-20ff-4725-9c38-bf26b08baafd}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {d6cb0cf6-da77-4422-91ed-f9b16f4a074b}, !- Handle
+  Medium Office Bldg Equip Rule 1,        !- Name
+  {a07a8dd7-c4c7-4b5c-8731-bf52277c2daa}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {dd0aea7f-20ff-4725-9c38-bf26b08baafd}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {dd0aea7f-20ff-4725-9c38-bf26b08baafd}, ! Handle
@@ -3618,24 +3608,23 @@ OS:Schedule:Day,
   0.29999999999999999;                    ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {fc5b8baf-c101-48ac-baff-dd26b6be21b3}, ! Handle
-  Medium Office Bldg Equip Rule 2,        ! Name
-  {a07a8dd7-c4c7-4b5c-8731-bf52277c2daa}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {f3eac8f6-f536-402a-84ad-ee7462d7d6a1}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {fc5b8baf-c101-48ac-baff-dd26b6be21b3}, !- Handle
+  Medium Office Bldg Equip Rule 2,        !- Name
+  {a07a8dd7-c4c7-4b5c-8731-bf52277c2daa}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {f3eac8f6-f536-402a-84ad-ee7462d7d6a1}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {f3eac8f6-f536-402a-84ad-ee7462d7d6a1}, ! Handle
@@ -3801,24 +3790,23 @@ OS:Schedule:Day,
   0;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {1ec6e3e7-82b4-49e6-8e40-d62233fc0746}, ! Handle
-  Small Office Bldg Occ Rule 1,           ! Name
-  {9f1aa367-d1f3-4c90-95ae-249558baece7}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {19df3478-1363-4984-ab4c-55527060e1df}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {1ec6e3e7-82b4-49e6-8e40-d62233fc0746}, !- Handle
+  Small Office Bldg Occ Rule 1,           !- Name
+  {9f1aa367-d1f3-4c90-95ae-249558baece7}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {19df3478-1363-4984-ab4c-55527060e1df}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {19df3478-1363-4984-ab4c-55527060e1df}, ! Handle
@@ -3830,24 +3818,23 @@ OS:Schedule:Day,
   0;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {c2299737-2fd3-4274-97d6-b3a72f5c6d13}, ! Handle
-  Small Office Bldg Occ Rule 2,           ! Name
-  {9f1aa367-d1f3-4c90-95ae-249558baece7}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {174c0756-607e-45cd-a3b3-7ae2e78824dc}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {c2299737-2fd3-4274-97d6-b3a72f5c6d13}, !- Handle
+  Small Office Bldg Occ Rule 2,           !- Name
+  {9f1aa367-d1f3-4c90-95ae-249558baece7}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {174c0756-607e-45cd-a3b3-7ae2e78824dc}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {174c0756-607e-45cd-a3b3-7ae2e78824dc}, ! Handle
@@ -3982,24 +3969,23 @@ OS:Schedule:Day,
   1;                                      ! Value Until Time 3
 
 OS:Schedule:Rule,
-  {5deeb2a0-d918-4a10-aed0-e23a586fea7a}, ! Handle
-  Small Office Infil Quarter On Rule 1,   ! Name
-  {ad2bb55c-c030-4caf-910a-5432d42cb8e3}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {fb9a701c-7378-479d-8a7a-6355f1415c37}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {5deeb2a0-d918-4a10-aed0-e23a586fea7a}, !- Handle
+  Small Office Infil Quarter On Rule 1,   !- Name
+  {ad2bb55c-c030-4caf-910a-5432d42cb8e3}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {fb9a701c-7378-479d-8a7a-6355f1415c37}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {fb9a701c-7378-479d-8a7a-6355f1415c37}, ! Handle
@@ -4011,24 +3997,23 @@ OS:Schedule:Day,
   1;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {a4516d3b-a74d-4b7d-aad5-0330cc643492}, ! Handle
-  Small Office Infil Quarter On Rule 2,   ! Name
-  {ad2bb55c-c030-4caf-910a-5432d42cb8e3}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {f5f91d52-1d0d-41ec-a00c-4b4e680a7528}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {a4516d3b-a74d-4b7d-aad5-0330cc643492}, !- Handle
+  Small Office Infil Quarter On Rule 2,   !- Name
+  {ad2bb55c-c030-4caf-910a-5432d42cb8e3}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {f5f91d52-1d0d-41ec-a00c-4b4e680a7528}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {f5f91d52-1d0d-41ec-a00c-4b4e680a7528}, ! Handle
@@ -4110,24 +4095,23 @@ OS:Schedule:Day,
   0;                                      ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {10be943f-7e03-430c-bc8a-27e75bd212a0}, ! Handle
-  Small Office Bldg Equip Rule 1,         ! Name
-  {a7dafb11-496a-41f5-9c5e-7e72d0f956b6}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {16eab646-a742-47ec-a5ba-4a4f77d2f9af}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {10be943f-7e03-430c-bc8a-27e75bd212a0}, !- Handle
+  Small Office Bldg Equip Rule 1,         !- Name
+  {a7dafb11-496a-41f5-9c5e-7e72d0f956b6}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {16eab646-a742-47ec-a5ba-4a4f77d2f9af}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {16eab646-a742-47ec-a5ba-4a4f77d2f9af}, ! Handle
@@ -4139,24 +4123,23 @@ OS:Schedule:Day,
   0.29999999999999999;                    ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {05df7d2e-cd48-42f6-8b14-8fe684fabc7d}, ! Handle
-  Small Office Bldg Equip Rule 2,         ! Name
-  {a7dafb11-496a-41f5-9c5e-7e72d0f956b6}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {b02be6a4-e029-4e6a-87d2-7ba289724c20}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {05df7d2e-cd48-42f6-8b14-8fe684fabc7d}, !- Handle
+  Small Office Bldg Equip Rule 2,         !- Name
+  {a7dafb11-496a-41f5-9c5e-7e72d0f956b6}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {b02be6a4-e029-4e6a-87d2-7ba289724c20}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {b02be6a4-e029-4e6a-87d2-7ba289724c20}, ! Handle
@@ -4235,24 +4218,23 @@ OS:Schedule:Day,
   21;                                     ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {792c05aa-ea05-400e-b84a-027aa910f176}, ! Handle
-  Small Office HtgSetp Rule 1,            ! Name
-  {d8a34998-a5ca-4870-9760-87f84853d622}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {67b58685-2e51-4ff7-b5f2-db3f5078bf4b}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {792c05aa-ea05-400e-b84a-027aa910f176}, !- Handle
+  Small Office HtgSetp Rule 1,            !- Name
+  {d8a34998-a5ca-4870-9760-87f84853d622}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {67b58685-2e51-4ff7-b5f2-db3f5078bf4b}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {67b58685-2e51-4ff7-b5f2-db3f5078bf4b}, ! Handle
@@ -4264,24 +4246,23 @@ OS:Schedule:Day,
   15.6;                                   ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {28ed0a78-272a-4fab-935b-e8424dc3c8a0}, ! Handle
-  Small Office HtgSetp Rule 2,            ! Name
-  {d8a34998-a5ca-4870-9760-87f84853d622}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {0c9975e7-2cdf-4577-8a4f-e15d71e97c80}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {28ed0a78-272a-4fab-935b-e8424dc3c8a0}, !- Handle
+  Small Office HtgSetp Rule 2,            !- Name
+  {d8a34998-a5ca-4870-9760-87f84853d622}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {0c9975e7-2cdf-4577-8a4f-e15d71e97c80}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {0c9975e7-2cdf-4577-8a4f-e15d71e97c80}, ! Handle
@@ -4354,24 +4335,23 @@ OS:Schedule:Day,
   26.699999999999999;                     ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {81f510c7-f9ca-455f-9ef3-0903ac443801}, ! Handle
-  Small Office ClgSetp Rule 1,            ! Name
-  {6d6b07e6-b80d-494b-b4cf-1e4365d94ea0}, ! Schedule Ruleset Name
-  0,                                      ! Rule Order
-  {5cfc6f17-28f4-4afd-9b9e-37e6a045e1a3}, ! Day Schedule Name
-  Yes,                                    ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  No,                                     ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {81f510c7-f9ca-455f-9ef3-0903ac443801}, !- Handle
+  Small Office ClgSetp Rule 1,            !- Name
+  {6d6b07e6-b80d-494b-b4cf-1e4365d94ea0}, !- Schedule Ruleset Name
+  0,                                      !- Rule Order
+  {5cfc6f17-28f4-4afd-9b9e-37e6a045e1a3}, !- Day Schedule Name
+  Yes,                                    !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  No,                                     !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {5cfc6f17-28f4-4afd-9b9e-37e6a045e1a3}, ! Handle
@@ -4383,24 +4363,23 @@ OS:Schedule:Day,
   26.699999999999999;                     ! Value Until Time 1
 
 OS:Schedule:Rule,
-  {d836848b-25ff-4e04-af66-bc1103146f33}, ! Handle
-  Small Office ClgSetp Rule 2,            ! Name
-  {6d6b07e6-b80d-494b-b4cf-1e4365d94ea0}, ! Schedule Ruleset Name
-  1,                                      ! Rule Order
-  {ae941aee-b2d5-474f-a3a6-fe3773c26e9c}, ! Day Schedule Name
-  No,                                     ! Apply Sunday
-  No,                                     ! Apply Monday
-  No,                                     ! Apply Tuesday
-  No,                                     ! Apply Wednesday
-  No,                                     ! Apply Thursday
-  No,                                     ! Apply Friday
-  Yes,                                    ! Apply Saturday
-  ,                                       ! Apply Holiday
-  DateRange,                              ! Date Specification Type
-  1,                                      ! Start Month
-  1,                                      ! Start Day
-  12,                                     ! End Month
-  31;                                     ! End Day
+  {d836848b-25ff-4e04-af66-bc1103146f33}, !- Handle
+  Small Office ClgSetp Rule 2,            !- Name
+  {6d6b07e6-b80d-494b-b4cf-1e4365d94ea0}, !- Schedule Ruleset Name
+  1,                                      !- Rule Order
+  {ae941aee-b2d5-474f-a3a6-fe3773c26e9c}, !- Day Schedule Name
+  No,                                     !- Apply Sunday
+  No,                                     !- Apply Monday
+  No,                                     !- Apply Tuesday
+  No,                                     !- Apply Wednesday
+  No,                                     !- Apply Thursday
+  No,                                     !- Apply Friday
+  Yes,                                    !- Apply Saturday
+  DateRange,                              !- Date Specification Type
+  1,                                      !- Start Month
+  1,                                      !- Start Day
+  12,                                     !- End Month
+  31;                                     !- End Day
 
 OS:Schedule:Day,
   {ae941aee-b2d5-474f-a3a6-fe3773c26e9c}, ! Handle
@@ -6051,7 +6030,8 @@ OS:DefaultConstructionSet,
   {b9ac6245-26b5-4f64-93ef-6f6c00c376f5}, !- Interior Partition Construction Name
   ,                                       !- Space Shading Construction Name
   ,                                       !- Building Shading Construction Name
-  ;                                       !- Site Shading Construction Name
+  ,                                       !- Site Shading Construction Name
+  ;                                       !- Adiabatic Surface Construction Name
 
 OS:DefaultSurfaceConstructions,
   {47c9a601-105b-47ab-aff7-fa0032269a4b}, !- Handle
@@ -6063,7 +6043,7 @@ OS:DefaultSurfaceConstructions,
 OS:Construction,
   {ca0b8402-a973-458c-a138-eacbdf3dea5d}, !- Handle
   ExtSlabCarpet 4in ClimateZone 1-8,      !- Name
-  ,                                       !- Surface Rendering Name
+  {9fa83145-af57-4b8a-99ca-ad387a59d2f1}, !- Surface Rendering Name
   {7311a74e-33cf-47e9-a28c-a9a6c74f4083}, !- Layer 1
   {f9d8d3d0-67dd-44ee-b650-ac57d9c4fdc9}; !- Layer 2
 
@@ -6109,7 +6089,7 @@ OS:StandardsInformation:Material,
 OS:Construction,
   {53efab9d-1ed9-4a39-b30f-22a0abc482ae}, !- Handle
   ASHRAE 189.1-2009 ExtWall Mass ClimateZone 1, !- Name
-  ,                                       !- Surface Rendering Name
+  {2bced3da-bbd2-4395-9ed1-1e9236c0982e}, !- Surface Rendering Name
   {f599e234-5bef-4b8b-a29e-b0e66ba90d1c}, !- Layer 1
   {86ce4850-8b71-4fc3-8156-58e01dd0d672}, !- Layer 2
   {139997b3-f812-4db0-bf69-d7f13ed976c1}, !- Layer 3
@@ -6192,7 +6172,7 @@ OS:StandardsInformation:Material,
 OS:Construction,
   {673452b6-43fd-47bf-80e6-bc038113682f}, !- Handle
   ASHRAE 189.1-2009 ExtRoof IEAD ClimateZone 1, !- Name
-  ,                                       !- Surface Rendering Name
+  {5000d449-7c8a-4267-ae0a-d0b02d25e195}, !- Surface Rendering Name
   {637f69c7-a2cd-4b1e-b4e9-15cbad7076da}, !- Layer 1
   {f27f75a0-f278-4334-bb8d-02dc483d51cb}, !- Layer 2
   {50421cc9-2708-4aab-9ca0-83f0f97fc06a}; !- Layer 3
@@ -6265,7 +6245,7 @@ OS:DefaultSurfaceConstructions,
 OS:Construction,
   {0b0018dc-e472-468b-a845-7af44941b4e4}, !- Handle
   Interior Floor,                         !- Name
-  ,                                       !- Surface Rendering Name
+  {15fced15-e9a4-4ae3-8f70-1b112dcc0067}, !- Surface Rendering Name
   {f35e4ce9-d5ea-4f23-b69d-7ba4ccb2817f}, !- Layer 1
   {2a614ed8-fa53-404f-bed4-f1093e6c32d5}, !- Layer 2
   {0ed2a254-f2fa-403e-8ba1-79175fd0ed3d}; !- Layer 3
@@ -6324,7 +6304,7 @@ OS:StandardsInformation:Material,
 OS:Construction,
   {53884ea6-a192-41b5-81c2-1408e285d41a}, !- Handle
   Interior Wall,                          !- Name
-  ,                                       !- Surface Rendering Name
+  {32e0623d-81f7-4a5d-8fad-47d368c6170b}, !- Surface Rendering Name
   {8850cc38-8245-483b-8e4e-5b6f1e5b6292}, !- Layer 1
   {d1f8070f-6ca4-4646-a468-2ea72351c34f}, !- Layer 2
   {8850cc38-8245-483b-8e4e-5b6f1e5b6292}; !- Layer 3
@@ -6367,7 +6347,7 @@ OS:StandardsInformation:Material,
 OS:Construction,
   {5ec6d64f-0911-4526-a0bf-dc24257386ae}, !- Handle
   Interior Ceiling,                       !- Name
-  ,                                       !- Surface Rendering Name
+  {b5824260-1b0f-4202-96ff-631547e37549}, !- Surface Rendering Name
   {0ed2a254-f2fa-403e-8ba1-79175fd0ed3d}, !- Layer 1
   {2a614ed8-fa53-404f-bed4-f1093e6c32d5}, !- Layer 2
   {f35e4ce9-d5ea-4f23-b69d-7ba4ccb2817f}; !- Layer 3
@@ -6404,7 +6384,7 @@ OS:DefaultSubSurfaceConstructions,
 OS:Construction,
   {657a409f-20c9-42ba-8563-484eca759acc}, !- Handle
   ASHRAE 189.1-2009 ExtWindow ClimateZone 1, !- Name
-  ,                                       !- Surface Rendering Name
+  {edd574e0-01aa-4635-b3fc-ff728836e393}, !- Surface Rendering Name
   {c51ec9e3-f684-42f4-b67d-591666991784}; !- Layer 1
 
 OS:StandardsInformation:Construction,
@@ -6443,7 +6423,7 @@ OS:StandardsInformation:Material,
 OS:Construction,
   {d2ff3f72-9ebc-4a16-a5c6-797a25521b72}, !- Handle
   Exterior Door,                          !- Name
-  ,                                       !- Surface Rendering Name
+  {0a507cd9-2f5b-4156-a4ba-074b1dffb6e0}, !- Surface Rendering Name
   {e6c0a63c-155c-4168-98b4-c0a281d363a5}, !- Layer 1
   {8493fef8-9809-4979-a024-8dfc82421565}; !- Layer 2
 
@@ -6492,7 +6472,7 @@ OS:StandardsInformation:Material,
 OS:Construction,
   {22386d01-690a-424f-a2bf-fa63e2a9dd0c}, !- Handle
   Interior Window,                        !- Name
-  ,                                       !- Surface Rendering Name
+  {d04162e5-8501-414a-806c-3e0a71a4b095}, !- Surface Rendering Name
   {32f534d4-997e-48dd-9996-adc31dca1449}; !- Layer 1
 
 OS:StandardsInformation:Construction,
@@ -6543,7 +6523,7 @@ OS:DefaultSubSurfaceConstructions,
 OS:Construction,
   {70882ec4-63fb-4f06-bb2d-0eda19c6cd5a}, !- Handle
   Interior Door,                          !- Name
-  ,                                       !- Surface Rendering Name
+  {bbb82e0e-a8f9-4b1f-80ca-d013ec3057fb}, !- Surface Rendering Name
   {20dd75fb-bb93-4254-b788-10a83a075663}; !- Layer 1
 
 OS:StandardsInformation:Construction,
@@ -6575,7 +6555,7 @@ OS:StandardsInformation:Material,
 OS:Construction,
   {b9ac6245-26b5-4f64-93ef-6f6c00c376f5}, !- Handle
   Interior Partition,                     !- Name
-  ,                                       !- Surface Rendering Name
+  {2d2929cf-81b9-49df-8663-65c84945b7f1}, !- Surface Rendering Name
   {20dd75fb-bb93-4254-b788-10a83a075663}; !- Layer 1
 
 OS:StandardsInformation:Construction,
@@ -6599,7 +6579,8 @@ OS:DefaultConstructionSet,
   {b9ac6245-26b5-4f64-93ef-6f6c00c376f5}, !- Interior Partition Construction Name
   ,                                       !- Space Shading Construction Name
   ,                                       !- Building Shading Construction Name
-  ;                                       !- Site Shading Construction Name
+  ,                                       !- Site Shading Construction Name
+  ;                                       !- Adiabatic Surface Construction Name
 
 OS:DefaultSurfaceConstructions,
   {482afdb1-0c2e-4032-880c-35b1a7d9ffa6}, !- Handle
@@ -6611,7 +6592,7 @@ OS:DefaultSurfaceConstructions,
 OS:Construction,
   {f902f50f-be47-4e57-a2ad-80ab0542896b}, !- Handle
   ASHRAE 189.1-2009 ExtWall Mass ClimateZone 2, !- Name
-  ,                                       !- Surface Rendering Name
+  {dff9fd14-6f87-430b-8292-5b69d8981bfa}, !- Surface Rendering Name
   {f599e234-5bef-4b8b-a29e-b0e66ba90d1c}, !- Layer 1
   {86ce4850-8b71-4fc3-8156-58e01dd0d672}, !- Layer 2
   {15233567-5d6a-4edf-a404-3fe317404d70}, !- Layer 3
@@ -6646,7 +6627,7 @@ OS:StandardsInformation:Material,
 OS:Construction,
   {f01c2998-dc2a-40e4-92ac-634289a393bd}, !- Handle
   ASHRAE 189.1-2009 ExtRoof IEAD ClimateZone 2-5, !- Name
-  ,                                       !- Surface Rendering Name
+  {be932b73-ac9b-4da9-9617-2db4e5a766a3}, !- Surface Rendering Name
   {637f69c7-a2cd-4b1e-b4e9-15cbad7076da}, !- Layer 1
   {d685b838-3ae4-4a0b-8303-51c9297985dd}, !- Layer 2
   {50421cc9-2708-4aab-9ca0-83f0f97fc06a}; !- Layer 3
@@ -6706,7 +6687,7 @@ OS:DefaultSubSurfaceConstructions,
 OS:Construction,
   {7306ff70-92f0-4093-a23c-e0a6acc89ae7}, !- Handle
   ASHRAE 189.1-2009 ExtWindow ClimateZone 2, !- Name
-  ,                                       !- Surface Rendering Name
+  {0b11032c-ce56-4a46-8a4f-406efc4eb723}, !- Surface Rendering Name
   {0fb74a22-0b3c-44c3-9ecb-fdedafb63fda}; !- Layer 1
 
 OS:StandardsInformation:Construction,
@@ -6765,7 +6746,8 @@ OS:DefaultConstructionSet,
   {b9ac6245-26b5-4f64-93ef-6f6c00c376f5}, !- Interior Partition Construction Name
   ,                                       !- Space Shading Construction Name
   ,                                       !- Building Shading Construction Name
-  ;                                       !- Site Shading Construction Name
+  ,                                       !- Site Shading Construction Name
+  ;                                       !- Adiabatic Surface Construction Name
 
 OS:DefaultSurfaceConstructions,
   {d6af2b3b-28db-4bf2-a9dc-1c4fd0f824dd}, !- Handle
@@ -6777,7 +6759,7 @@ OS:DefaultSurfaceConstructions,
 OS:Construction,
   {9a6d1d24-5c4d-4c7a-8152-e08f0adc89b0}, !- Handle
   ASHRAE 189.1-2009 ExtWall Mass ClimateZone 3, !- Name
-  ,                                       !- Surface Rendering Name
+  {ad5b9fe0-39c8-4654-9e5c-8f41e0fb31b5}, !- Surface Rendering Name
   {f599e234-5bef-4b8b-a29e-b0e66ba90d1c}, !- Layer 1
   {86ce4850-8b71-4fc3-8156-58e01dd0d672}, !- Layer 2
   {86c63f48-004b-41fa-9082-ef9d67605dd6}, !- Layer 3
@@ -6838,7 +6820,7 @@ OS:DefaultSubSurfaceConstructions,
 OS:Construction,
   {c1099696-431f-459f-9d2a-4b0605f508c8}, !- Handle
   ASHRAE 189.1-2009 ExtWindow ClimateZone 3, !- Name
-  ,                                       !- Surface Rendering Name
+  {19914dc2-d89a-43bb-a8b1-d6fcd3b59f7a}, !- Surface Rendering Name
   {8e3b0056-5c77-4812-936e-a0acb51c8d43}; !- Layer 1
 
 OS:StandardsInformation:Construction,
@@ -6897,7 +6879,8 @@ OS:DefaultConstructionSet,
   {b9ac6245-26b5-4f64-93ef-6f6c00c376f5}, !- Interior Partition Construction Name
   ,                                       !- Space Shading Construction Name
   ,                                       !- Building Shading Construction Name
-  ;                                       !- Site Shading Construction Name
+  ,                                       !- Site Shading Construction Name
+  ;                                       !- Adiabatic Surface Construction Name
 
 OS:DefaultSurfaceConstructions,
   {c592de20-015b-46b7-9ed9-9a7c6492d96b}, !- Handle
@@ -6909,7 +6892,7 @@ OS:DefaultSurfaceConstructions,
 OS:Construction,
   {2beb5de0-7c8e-47e6-912c-93d5c1452753}, !- Handle
   ASHRAE 189.1-2009 ExtWall Mass ClimateZone 4, !- Name
-  ,                                       !- Surface Rendering Name
+  {4c48835d-a4e4-407e-be00-600834e6b036}, !- Surface Rendering Name
   {f599e234-5bef-4b8b-a29e-b0e66ba90d1c}, !- Layer 1
   {86ce4850-8b71-4fc3-8156-58e01dd0d672}, !- Layer 2
   {797c89e5-49d2-4929-878d-c01c2d4f65bf}, !- Layer 3
@@ -6970,7 +6953,7 @@ OS:DefaultSubSurfaceConstructions,
 OS:Construction,
   {7b0057cf-d08e-4a45-99ec-87f0eb94b1bd}, !- Handle
   ASHRAE 189.1-2009 ExtWindow ClimateZone 4-5, !- Name
-  ,                                       !- Surface Rendering Name
+  {c8796405-d258-48f9-9760-bad8dd064ad9}, !- Surface Rendering Name
   {6b986149-4d27-4395-8784-6f01e63a470b}; !- Layer 1
 
 OS:StandardsInformation:Construction,
@@ -7029,7 +7012,8 @@ OS:DefaultConstructionSet,
   {b9ac6245-26b5-4f64-93ef-6f6c00c376f5}, !- Interior Partition Construction Name
   ,                                       !- Space Shading Construction Name
   ,                                       !- Building Shading Construction Name
-  ;                                       !- Site Shading Construction Name
+  ,                                       !- Site Shading Construction Name
+  ;                                       !- Adiabatic Surface Construction Name
 
 OS:DefaultSurfaceConstructions,
   {5087102c-c07c-40d4-acaf-15aea71334e6}, !- Handle
@@ -7041,7 +7025,7 @@ OS:DefaultSurfaceConstructions,
 OS:Construction,
   {d5c64026-fa3b-4ab3-bb89-7b01cf2c44f5}, !- Handle
   ASHRAE 189.1-2009 ExtWall Mass ClimateZone 5, !- Name
-  ,                                       !- Surface Rendering Name
+  {b944a4cf-fdd8-44dd-820d-ddca2eb51510}, !- Surface Rendering Name
   {f599e234-5bef-4b8b-a29e-b0e66ba90d1c}, !- Layer 1
   {86ce4850-8b71-4fc3-8156-58e01dd0d672}, !- Layer 2
   {4a8d2e13-f63a-4207-9dda-3f2e6e1de10d}, !- Layer 3
@@ -7122,7 +7106,8 @@ OS:DefaultConstructionSet,
   {b9ac6245-26b5-4f64-93ef-6f6c00c376f5}, !- Interior Partition Construction Name
   ,                                       !- Space Shading Construction Name
   ,                                       !- Building Shading Construction Name
-  ;                                       !- Site Shading Construction Name
+  ,                                       !- Site Shading Construction Name
+  ;                                       !- Adiabatic Surface Construction Name
 
 OS:DefaultSurfaceConstructions,
   {376d4f07-37bd-46e5-a15e-aae6bc33d029}, !- Handle
@@ -7134,7 +7119,7 @@ OS:DefaultSurfaceConstructions,
 OS:Construction,
   {202d8a78-0453-447c-a6fb-e98dfbcfbee1}, !- Handle
   ASHRAE 189.1-2009 ExtWall Mass ClimateZone 6, !- Name
-  ,                                       !- Surface Rendering Name
+  {17e0c7e5-5fd8-41cc-bea3-be08a5c53ae2}, !- Surface Rendering Name
   {f599e234-5bef-4b8b-a29e-b0e66ba90d1c}, !- Layer 1
   {86ce4850-8b71-4fc3-8156-58e01dd0d672}, !- Layer 2
   {ad3c59b6-6b6c-4d1d-a9e7-ef32980023e5}, !- Layer 3
@@ -7169,7 +7154,7 @@ OS:StandardsInformation:Material,
 OS:Construction,
   {c5684fc0-fc27-4375-9757-4248e099b538}, !- Handle
   ASHRAE 189.1-2009 ExtRoof Metal ClimateZone 6, !- Name
-  ,                                       !- Surface Rendering Name
+  {105eb7f4-dbc2-4a0b-8ab3-8d1bcf235190}, !- Surface Rendering Name
   {974c10e4-1777-4808-8bac-f8c8cacb9690}, !- Layer 1
   {481c1af1-c048-42f6-83eb-e22390f48e53}, !- Layer 2
   {50421cc9-2708-4aab-9ca0-83f0f97fc06a}; !- Layer 3
@@ -7245,7 +7230,7 @@ OS:DefaultSubSurfaceConstructions,
 OS:Construction,
   {f8756568-0e66-4799-a5bf-77a579335010}, !- Handle
   ASHRAE 189.1-2009 ExtWindow ClimateZone 6, !- Name
-  ,                                       !- Surface Rendering Name
+  {ce62a96f-ab8c-4a91-93da-776160608727}, !- Surface Rendering Name
   {8fb7ea74-e85a-45a7-b167-4b76e2fea79e}; !- Layer 1
 
 OS:StandardsInformation:Construction,
@@ -7304,7 +7289,8 @@ OS:DefaultConstructionSet,
   {b9ac6245-26b5-4f64-93ef-6f6c00c376f5}, !- Interior Partition Construction Name
   ,                                       !- Space Shading Construction Name
   ,                                       !- Building Shading Construction Name
-  ;                                       !- Site Shading Construction Name
+  ,                                       !- Site Shading Construction Name
+  ;                                       !- Adiabatic Surface Construction Name
 
 OS:DefaultSurfaceConstructions,
   {7785fac6-0917-4b78-a353-f104f131e302}, !- Handle
@@ -7316,7 +7302,7 @@ OS:DefaultSurfaceConstructions,
 OS:Construction,
   {ddf18f57-4b8a-48e7-b983-1d63e02d5f46}, !- Handle
   ASHRAE 189.1-2009 ExtWall Mass ClimateZone 7-8, !- Name
-  ,                                       !- Surface Rendering Name
+  {170f1d38-539a-4a37-80c0-80634d58991e}, !- Surface Rendering Name
   {f599e234-5bef-4b8b-a29e-b0e66ba90d1c}, !- Layer 1
   {86ce4850-8b71-4fc3-8156-58e01dd0d672}, !- Layer 2
   {8958248e-c613-47d9-811f-c2093667a433}, !- Layer 3
@@ -7351,7 +7337,7 @@ OS:StandardsInformation:Material,
 OS:Construction,
   {6d4a72a5-b0fe-4670-8a61-37e0423f58dc}, !- Handle
   ASHRAE 189.1-2009 ExtRoof IEAD ClimateZone 7-8, !- Name
-  ,                                       !- Surface Rendering Name
+  {3b139aa7-d5e2-481c-b316-bbe3d507d4d1}, !- Surface Rendering Name
   {637f69c7-a2cd-4b1e-b4e9-15cbad7076da}, !- Layer 1
   {0d28c5d8-2c41-4f8f-8c5a-3e5e258dc5b8}, !- Layer 2
   {50421cc9-2708-4aab-9ca0-83f0f97fc06a}; !- Layer 3
@@ -7411,7 +7397,7 @@ OS:DefaultSubSurfaceConstructions,
 OS:Construction,
   {a02420de-79de-483d-8152-c9b55559e2eb}, !- Handle
   ASHRAE 189.1-2009 ExtWindow ClimateZone 7-8, !- Name
-  ,                                       !- Surface Rendering Name
+  {53351a2c-f679-4fcc-8b3c-3de2064d83ea}, !- Surface Rendering Name
   {1ef57f0c-fcc7-4d22-aceb-27f65b882b32}; !- Layer 1
 
 OS:StandardsInformation:Construction,
@@ -7466,7 +7452,7 @@ OS:Material:AirWall,
 OS:Construction,
   {c2015e14-8a99-41b4-a8b9-ca08a758e5b5}, !- Handle
   Air Wall,                               !- Name
-  ,                                       !- Surface Rendering Name
+  {2b0a158f-377f-44e8-a29f-c08cf3343315}, !- Surface Rendering Name
   {9c2e9d3e-294f-43b6-a35a-50ee1f5a6da4}; !- Layer 1
 
 OS:Site,
@@ -7483,8 +7469,6 @@ OS:YearDescription,
 
 OS:ClimateZones,
   {f9298a12-fa75-446c-a6a6-301b9e4dc7b8}, !- Handle
-  ,                                       !- Active Institution
-  ,                                       !- Active Year
   ASHRAE,                                 !- Climate Zone Institution Name 1
   ANSI/ASHRAE Standard 169,               !- Climate Zone Document Name 1
   2006,                                   !- Climate Zone Document Year 1
@@ -7589,4 +7573,186 @@ OS:WindowProperty:FrameAndDivider,
   ,                                       !- Inside Sill Solar Absorptance
   ,                                       !- Inside Reveal Depth {m}
   ;                                       !- Inside Reveal Solar Absorptance
+
+OS:Rendering:Color,
+  {2b0a158f-377f-44e8-a29f-c08cf3343315}, !- Handle
+  Rendering Color 33,                     !- Name
+  148,                                    !- Rendering Red Value
+  211,                                    !- Rendering Green Value
+  0;                                      !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {3b139aa7-d5e2-481c-b316-bbe3d507d4d1}, !- Handle
+  Rendering Color 34,                     !- Name
+  250,                                    !- Rendering Red Value
+  215,                                    !- Rendering Green Value
+  235;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {170f1d38-539a-4a37-80c0-80634d58991e}, !- Handle
+  Rendering Color 35,                     !- Name
+  255,                                    !- Rendering Red Value
+  205,                                    !- Rendering Green Value
+  250;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {ce62a96f-ab8c-4a91-93da-776160608727}, !- Handle
+  Rendering Color 36,                     !- Name
+  47,                                     !- Rendering Red Value
+  79,                                     !- Rendering Green Value
+  79;                                     !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {105eb7f4-dbc2-4a0b-8ab3-8d1bcf235190}, !- Handle
+  Rendering Color 37,                     !- Name
+  245,                                    !- Rendering Red Value
+  250,                                    !- Rendering Green Value
+  255;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {17e0c7e5-5fd8-41cc-bea3-be08a5c53ae2}, !- Handle
+  Rendering Color 38,                     !- Name
+  85,                                     !- Rendering Red Value
+  47,                                     !- Rendering Green Value
+  107;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {b944a4cf-fdd8-44dd-820d-ddca2eb51510}, !- Handle
+  Rendering Color 39,                     !- Name
+  50,                                     !- Rendering Red Value
+  50,                                     !- Rendering Green Value
+  205;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {c8796405-d258-48f9-9760-bad8dd064ad9}, !- Handle
+  Rendering Color 40,                     !- Name
+  0,                                      !- Rendering Red Value
+  0,                                      !- Rendering Green Value
+  100;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {4c48835d-a4e4-407e-be00-600834e6b036}, !- Handle
+  Rendering Color 41,                     !- Name
+  255,                                    !- Rendering Red Value
+  193,                                    !- Rendering Green Value
+  182;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {19914dc2-d89a-43bb-a8b1-d6fcd3b59f7a}, !- Handle
+  Rendering Color 42,                     !- Name
+  178,                                    !- Rendering Red Value
+  34,                                     !- Rendering Green Value
+  34;                                     !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {ad5b9fe0-39c8-4654-9e5c-8f41e0fb31b5}, !- Handle
+  Rendering Color 43,                     !- Name
+  248,                                    !- Rendering Red Value
+  255,                                    !- Rendering Green Value
+  248;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {0b11032c-ce56-4a46-8a4f-406efc4eb723}, !- Handle
+  Rendering Color 44,                     !- Name
+  139,                                    !- Rendering Red Value
+  0,                                      !- Rendering Green Value
+  0;                                      !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {be932b73-ac9b-4da9-9617-2db4e5a766a3}, !- Handle
+  Rendering Color 45,                     !- Name
+  0,                                      !- Rendering Red Value
+  255,                                    !- Rendering Green Value
+  255;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {dff9fd14-6f87-430b-8292-5b69d8981bfa}, !- Handle
+  Rendering Color 46,                     !- Name
+  50,                                     !- Rendering Red Value
+  50,                                     !- Rendering Green Value
+  205;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {2d2929cf-81b9-49df-8663-65c84945b7f1}, !- Handle
+  Rendering Color 47,                     !- Name
+  210,                                    !- Rendering Red Value
+  140,                                    !- Rendering Green Value
+  180;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {bbb82e0e-a8f9-4b1f-80ca-d013ec3057fb}, !- Handle
+  Rendering Color 48,                     !- Name
+  250,                                    !- Rendering Red Value
+  210,                                    !- Rendering Green Value
+  250;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {d04162e5-8501-414a-806c-3e0a71a4b095}, !- Handle
+  Rendering Color 49,                     !- Name
+  0,                                      !- Rendering Red Value
+  209,                                    !- Rendering Green Value
+  206;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {0a507cd9-2f5b-4156-a4ba-074b1dffb6e0}, !- Handle
+  Rendering Color 50,                     !- Name
+  255,                                    !- Rendering Red Value
+  240,                                    !- Rendering Green Value
+  255;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {edd574e0-01aa-4635-b3fc-ff728836e393}, !- Handle
+  Rendering Color 51,                     !- Name
+  221,                                    !- Rendering Red Value
+  221,                                    !- Rendering Green Value
+  160;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {b5824260-1b0f-4202-96ff-631547e37549}, !- Handle
+  Rendering Color 52,                     !- Name
+  192,                                    !- Rendering Red Value
+  192,                                    !- Rendering Green Value
+  192;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {32e0623d-81f7-4a5d-8fad-47d368c6170b}, !- Handle
+  Rendering Color 53,                     !- Name
+  245,                                    !- Rendering Red Value
+  245,                                    !- Rendering Green Value
+  245;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {15fced15-e9a4-4ae3-8f70-1b112dcc0067}, !- Handle
+  Rendering Color 54,                     !- Name
+  255,                                    !- Rendering Red Value
+  225,                                    !- Rendering Green Value
+  228;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {5000d449-7c8a-4267-ae0a-d0b02d25e195}, !- Handle
+  Rendering Color 55,                     !- Name
+  0,                                      !- Rendering Red Value
+  139,                                    !- Rendering Green Value
+  0;                                      !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {2bced3da-bbd2-4395-9ed1-1e9236c0982e}, !- Handle
+  Rendering Color 56,                     !- Name
+  32,                                     !- Rendering Red Value
+  170,                                    !- Rendering Green Value
+  178;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {9fa83145-af57-4b8a-99ca-ad387a59d2f1}, !- Handle
+  Rendering Color 57,                     !- Name
+  219,                                    !- Rendering Red Value
+  147,                                    !- Rendering Green Value
+  112;                                    !- Rendering Blue Value
+
+OS:Rendering:Color,
+  {53351a2c-f679-4fcc-8b3c-3de2064d83ea}, !- Handle
+  Rendering Color 58,                     !- Name
+  165,                                    !- Rendering Red Value
+  42,                                     !- Rendering Green Value
+  42;                                     !- Rendering Blue Value
 

@@ -46,55 +46,32 @@ module OpenStudio
       @hash['NEW_ZONE_FOR_SPACE'] = Plugin.read_pref("New Zone for Space")
       @hash['DISABLE_USER_SCRIPTS'] = Plugin.read_pref("Disable OpenStudio User Scripts")
       @hash['UNIT_SYSTEM'] = Plugin.read_pref("Unit System")
-      @hash['TEXT_EDITOR_PATH'] = Plugin.read_pref("Text Editor Path")
+      @hash['OPENSTUDIO_DIR'] = Plugin.read_pref("OpenStudioDir")
 
       @hash['SHOW_ERRORS_ON_IDF_TRANSLATION'] = Plugin.read_pref("Show Errors on Idf Translation")
       @hash['SHOW_WARNINGS_ON_IDF_TRANSLATION'] = Plugin.read_pref("Show Warnings on Idf Translation")
-      @hash['ENERGYPLUS_PATH'] = Plugin.read_pref("EnergyPlus Path")
     end
 
 
     def report
 
-      path = @hash['TEXT_EDITOR_PATH']
-      # Should filter out any arguments that get passed for line number, etc.
-      # For example:  textpad.exe -l%1 -p
-      if (path.nil? or path.empty?)
-        # do nothing
-      elsif (not File.exists?(path))
-        UI.messagebox("WARNING:  Bad file path for the text editor.")
+      openstudio_dir = @hash['OPENSTUDIO_DIR']
+      
+      key_file = nil
+      sketchup_version = Sketchup.version.split('.').first.to_i
+      if sketchup_version >= 19
+        key_file = File.join(openstudio_dir, "Ruby/openstudio_modeleditor.rb")
+      else
+        key_file = File.join(openstudio_dir, "Ruby/openstudio.rb")
       end
-
-      # DLM: this is no longer needed as simulations are not run from the plugin
-      #path = @hash['ENERGYPLUS_PATH']
-      #if (path.nil? or path.empty?)
-      #  # do nothing
-      #elsif (not File.exists?(path))
-      #  UI.messagebox("WARNING:  Bad file path for the EnergyPlus engine.")
-      #else
-      #  idd_path = File.dirname(path) + "/Energy+.idd"
-      #  if (not File.exists?(idd_path))
-      #    UI.messagebox("WARNING:  Cannot locate the input data dictionary (IDD) in the EnergyPlus directory.")
-      #    #@hash['ENERGYPLUS_PATH'] = Plugin.read_pref("EnergyPlus Path")
-      #    #@dialog.update
-      #    #return(false)
-      #  else
-      #
-      #    # check idd version
-      #    user_version = "Unknown"
-      #    File.open(idd_path, 'r') do |file|
-      #      line = file.gets
-      #      if md = /IDD_Version (\d+\.\d+\.\d+)/.match(line)
-      #        user_version = md[1]
-      #      end
-      #    end
-      #
-      #    if (user_version != Plugin.energyplus_version)
-      #      UI.messagebox("WARNING:  The EnergyPlus engine you have specified is version " + user_version + ".  The plugin is designed for version " +
-      #        Plugin.energyplus_version + ".\nThere might be problems with compatibility. Try updating your EnergyPlus engine if there are a lot of simulation errors.")
-      #    end
-      #  end
-      #end
+  
+      if (openstudio_dir.nil? or openstudio_dir.empty?)
+        # do nothing, assume user wants to clear
+      elsif (not File.exists?(openstudio_dir))
+        UI.messagebox("WARNING: #{openstudio_dir} does not exist.")
+      elsif (not File.exists?(key_file))
+        UI.messagebox("WARNING: #{key_file} does not exist.")
+      end
 
       need_update = false
       if @hash['SHOW_WARNINGS_ON_IDF_EXPORT'] and not @hash['SHOW_ERRORS_ON_IDF_EXPORT']
@@ -106,12 +83,10 @@ module OpenStudio
       Plugin.write_pref("New Zone for Space", @hash['NEW_ZONE_FOR_SPACE'])
       Plugin.write_pref("Disable OpenStudio User Scripts", @hash['DISABLE_USER_SCRIPTS'])
       Plugin.write_pref("Unit System", @hash['UNIT_SYSTEM'])
-      Plugin.write_pref("Text Editor Path", @hash['TEXT_EDITOR_PATH'])
+      Plugin.write_pref("OpenStudioDir", @hash['OPENSTUDIO_DIR'])
 
       Plugin.write_pref("Show Errors on Idf Translation", @hash['SHOW_ERRORS_ON_IDF_TRANSLATION'])
       Plugin.write_pref("Show Warnings on Idf Translation", @hash['SHOW_WARNINGS_ON_IDF_TRANSLATION'])
-      Plugin.write_pref("EnergyPlus Path", @hash['ENERGYPLUS_PATH'])
-
       if (@hash['UNIT_SYSTEM'] != Plugin.dialog_manager.units_system)
         Plugin.dialog_manager.update_units
       end

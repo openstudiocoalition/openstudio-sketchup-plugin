@@ -35,7 +35,12 @@ require("openstudio/lib/MenuManager")
 require("openstudio/lib/ModelManager")
 #require("openstudio/lib/SimulationManager")
 require("openstudio/lib/ConflictManager")
-require("openstudio/lib/UpdateManager")
+begin
+  require("openstudio/lib/UpdateManager")
+  $OPENSTUDIO_UPDATE_MANAGER = true
+rescue LoadError, NameError
+  $OPENSTUDIO_UPDATE_MANAGER = false
+end
 require("openstudio/lib/WorkspaceObject")
 require("openstudio/lib/PluginUserScriptRunner")
 
@@ -46,6 +51,7 @@ require("openstudio/sketchup/Geom")
 require("fileutils")
 
 $OPENSTUDIO_APPLICATION_DIR
+$OPENSTUDIO_VERSION = OpenStudio::openStudioVersion
 $OPENSTUDIO_SKETCHUPPLUGIN_DIR = File.dirname(__FILE__)
 
 $OPENSTUDIO_SKETCHUPPLUGIN_DEVELOPER_MENU = false # default is false, enable to see developer menu
@@ -172,8 +178,8 @@ module OpenStudio
       @user_script_runner.discover_user_scripts
 
       @update_manager = nil
-      if Plugin.read_pref("Check For Update #{self.version}")
-        @update_manager = PluginUpdateManager.new("SketchUp Plug-in", false)
+      if $OPENSTUDIO_UPDATE_MANAGER && Plugin.read_pref("Check For Update #{self.version}")
+        @update_manager = PluginUpdateManager.new(false)
       end
 
       @conflict_manager = ConflictManager.new
@@ -410,12 +416,6 @@ module OpenStudio
       hash['Open Dialogs'] = ""
       hash['Inspector Dialog Visible'] = ""
 
-      if (platform == Platform_Windows)
-        hash['Text Editor Path'] = "C:/WINDOWS/system32/notepad.exe"
-      elsif (platform == Platform_Mac)
-        hash['Text Editor Path'] = "/Applications/TextEdit.app"
-      end
-
       return(hash)
     end
 
@@ -434,7 +434,6 @@ module OpenStudio
       write_pref("Last Schedules Import Dir", nil)
       write_pref("Last Space Loads Import Dir", nil)
       write_pref("Open Dialogs", nil)
-      write_pref("Text Editor Path", nil)
       write_pref("Warn on Idf Export", nil)
       write_pref("Warn on gbXML Export", nil)
       write_pref("Show Errors on Idf Translation", nil)
