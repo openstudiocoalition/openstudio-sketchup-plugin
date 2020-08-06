@@ -35,7 +35,12 @@ require("openstudio/lib/MenuManager")
 require("openstudio/lib/ModelManager")
 #require("openstudio/lib/SimulationManager")
 require("openstudio/lib/ConflictManager")
-require("openstudio/lib/UpdateManager")
+begin
+  require("openstudio/lib/UpdateManager")
+  $OPENSTUDIO_UPDATE_MANAGER = true
+rescue LoadError, NameError
+  $OPENSTUDIO_UPDATE_MANAGER = false
+end
 require("openstudio/lib/WorkspaceObject")
 require("openstudio/lib/PluginUserScriptRunner")
 
@@ -173,8 +178,8 @@ module OpenStudio
       @user_script_runner.discover_user_scripts
 
       @update_manager = nil
-      if Plugin.read_pref("Check For Update #{self.version}")
-        @update_manager = PluginUpdateManager.new("SketchUp Plug-in", false)
+      if $OPENSTUDIO_UPDATE_MANAGER && Plugin.read_pref("Check For Update #{self.version}")
+        @update_manager = PluginUpdateManager.new(false)
       end
 
       @conflict_manager = ConflictManager.new

@@ -11,6 +11,7 @@ function onLoad() {
   document.getElementById('ok').focus();
   if (is_mac()) {
     // Automatic check for updates is not supported on the Mac yet.
+    // DLM: is this still true?
     document.getElementById('CHECK_FOR_UPDATE').checked = false;
     disableElement('CHECK_FOR_UPDATE');
   }

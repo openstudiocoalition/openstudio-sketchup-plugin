@@ -712,9 +712,9 @@ module OpenStudio
       @prefs_cmd = UI::Command.new("Preferences") { Plugin.dialog_manager.show(PreferencesInterface) }
       @prefs_cmd.set_validation_proc { MF_ENABLED }
 
-      @update_cmd = UI::Command.new("Check For Update") { Plugin.update_manager = PluginUpdateManager.new("SketchUp Plug-in", true) }
+      @update_cmd = UI::Command.new("Check For Update") { Plugin.update_manager = PluginUpdateManager.new(true) }
       @update_cmd.set_validation_proc {
-        if Plugin.update_manager.nil?
+        if $OPENSTUDIO_UPDATE_MANAGER && Plugin.update_manager.nil?
           MF_ENABLED
         else
           MF_GRAYED
@@ -788,7 +788,13 @@ module OpenStudio
       @help_menu.set_validation_proc(id) { MF_ENABLED }
 
       id = @plugin_menu.add_item(@update_cmd)
-      @plugin_menu.set_validation_proc(id) { MF_ENABLED }
+      @plugin_menu.set_validation_proc(id) { 
+        if $OPENSTUDIO_UPDATE_MANAGER && Plugin.update_manager.nil?
+          MF_ENABLED
+        else
+          MF_GRAYED
+        end
+      }
 
       @plugin_menu.add_separator
       @plugin_menu.add_item(@openstudio_cmd)
