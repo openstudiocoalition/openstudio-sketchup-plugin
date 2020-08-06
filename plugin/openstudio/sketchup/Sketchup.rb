@@ -126,7 +126,13 @@ class Sketchup::Model
     entities.each {|e| result << e if e.model_object_handle }
     return result
   end
-
+  
+  def openstudio_materials
+    result = []
+    materials.each {|m| result << m if m.model_object_handle }
+    return result
+  end
+  
   def delete_openstudio_entities
     # DLM: for some reason there is no delete_attribute for SketchUp::Model
     # delete_attribute('OpenStudio') # deletes entire attribute dictionary

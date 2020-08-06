@@ -580,17 +580,17 @@ module OpenStudio
       @openstudio_cmd.status_bar_text = "Launch Openstudio"
       @openstudio_cmd.set_validation_proc { enable_if_model_interface }
 
-      @online_help_cmd = UI::Command.new("Online Help") { UI.openURL("http://nrel.github.io/OpenStudio-user-documentation/reference/sketchup_plugin_interface/")  }
+      @online_help_cmd = UI::Command.new("Online Reference") { UI.openURL("https://openstudiocoalition.org/reference/sketchup_plugin_interface/")  }
       @online_help_cmd.small_icon = Plugin.dir + "/lib/resources/icons/Help-16.png"
       @online_help_cmd.large_icon = Plugin.dir + "/lib/resources/icons/Help-24.png"
       @online_help_cmd.tooltip = "Online OpenStudio Help"
       @online_help_cmd.status_bar_text = "View the Online OpenStudio Help"
       @online_help_cmd.set_validation_proc { MF_ENABLED }
 
-      @forum_cmd = UI::Command.new("Forum") { UI.openURL("https://www.openstudio.net/forum") }
+      @forum_cmd = UI::Command.new("Unmet Hours Forum") { UI.openURL("https://unmethours.com/questions/scope:all/sort:activity-desc/tags:sketchup/page:1/") }
       @forum_cmd.set_validation_proc { MF_ENABLED }
 
-      @contact_cmd = UI::Command.new("Contact Us") { UI.openURL("https://www.openstudio.net/contact") }
+      @contact_cmd = UI::Command.new("Contact Us") { UI.openURL("mailto:osc@openstudiocoalition.org") }
       @contact_cmd.set_validation_proc { MF_ENABLED }
 
       # Shortcuts for SketchUp Commands
@@ -712,9 +712,9 @@ module OpenStudio
       @prefs_cmd = UI::Command.new("Preferences") { Plugin.dialog_manager.show(PreferencesInterface) }
       @prefs_cmd.set_validation_proc { MF_ENABLED }
 
-      @update_cmd = UI::Command.new("Check For Update") { Plugin.update_manager = PluginUpdateManager.new("SketchUp Plug-in", true) }
+      @update_cmd = UI::Command.new("Check For Update") { Plugin.update_manager = PluginUpdateManager.new(true) }
       @update_cmd.set_validation_proc {
-        if Plugin.update_manager.nil?
+        if $OPENSTUDIO_UPDATE_MANAGER && Plugin.update_manager.nil?
           MF_ENABLED
         else
           MF_GRAYED
@@ -788,7 +788,13 @@ module OpenStudio
       @help_menu.set_validation_proc(id) { MF_ENABLED }
 
       id = @plugin_menu.add_item(@update_cmd)
-      @plugin_menu.set_validation_proc(id) { MF_ENABLED }
+      @plugin_menu.set_validation_proc(id) { 
+        if $OPENSTUDIO_UPDATE_MANAGER && Plugin.update_manager.nil?
+          MF_ENABLED
+        else
+          MF_GRAYED
+        end
+      }
 
       @plugin_menu.add_separator
       @plugin_menu.add_item(@openstudio_cmd)

@@ -48,52 +48,23 @@ module OpenStudio
 
     def add_callbacks
       super
-      @container.web_dialog.add_action_callback("on_browse_text_editor") { browse_text_editor }
-      @container.web_dialog.add_action_callback("on_browse_exe") { browse_exe }
+      @container.web_dialog.add_action_callback("on_browse_openstudio_dir") { browse_openstudio_dir }
     end
 
+    def browse_openstudio_dir
+      openstudio_dir = @hash['OPENSTUDIO_DIR']
 
-    def browse_text_editor
-      path = @hash['TEXT_EDITOR_PATH']
-
-      if (path.nil? or path.empty?)
-        path = Plugin.default_preferences['Text Editor Path']
-      end
-
-      dir = File.dirname(path)
-      file_name = File.basename(path)
+      dir = File.dirname(openstudio_dir)
+      file_name = File.basename(openstudio_dir)
 
       if (not File.exist?(dir))
         dir = ""
       end
 
-      if (path = UI.open_panel("Locate Text Editor Program", dir, file_name))
+      if (path = UI.open_panel("Locate OpenStudio Dir", dir, file_name))
         path = path.split("\\").join("/")  # Have to convert the file separator for other stuff to work later
         # Above is a kludge...should allow any separators to be cut and paste into the text box
-        @hash['TEXT_EDITOR_PATH'] = path
-        update
-      end
-    end
-
-    def browse_exe
-      path = @hash['ENERGYPLUS_PATH']
-
-      if (path.nil? or path.empty?)
-        path = Plugin.default_preferences['EnergyPlus Path']
-      end
-
-      dir = File.dirname(path)
-      file_name = File.basename(path)
-
-      if (not File.exist?(dir))
-        dir = ""
-      end
-
-      if (path = UI.open_panel("Locate EnergyPlus Program", dir, file_name))
-        path = path.split("\\").join("/")  # Have to convert the file separator for other stuff to work later
-        # Above is a kludge...should allow any separators to be cut and paste into the text box
-
-        @hash['ENERGYPLUS_PATH'] = path
+        @hash['OPENSTUDIO_DIR'] = path
         update
       end
     end
