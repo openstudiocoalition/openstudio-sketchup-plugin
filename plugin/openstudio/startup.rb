@@ -100,6 +100,7 @@ if do_load
     else
       openstudio_rb = File.join(openstudio_dir, "Ruby/openstudio.rb")
       load(openstudio_rb)
+      $OPENSTUDIO_APPLICATION_DIR = File.join(openstudio_dir, "bin")
       load("openstudio/lib/PluginManager.rb")
     end
   rescue LoadError => e
