@@ -6,13 +6,15 @@ on:
 
 jobs:
   build:
-    runs-on: ruby:2.5-buster
+    runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
 
     - name: Run rubocop
       shell: bash
       run: |
+          apt update
+          apt install -y ruby
           which ruby
           which gem
           gem install rubocop -v 0.88
