@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ruby:2.5-buster
     steps:
     - uses: actions/checkout@v2
 
