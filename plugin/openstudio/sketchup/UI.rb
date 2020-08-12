@@ -27,12 +27,12 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-module UI
+module OpenStudio
 
   # This patch allows all file separators to be accepted and prints an error message if path does not exist.
   # Decided that the normal behavior of UI.openpanel should not be changed (even for the better).
-  # New alternative method is:  UI.open_panel
-  def UI.open_panel(*args)
+  # New alternative method is:  OpenStudio.open_panel
+  def OpenStudio.open_panel(*args)
     if (args[1])
       dir = args[1]
 
@@ -55,7 +55,7 @@ module UI
         end
 
         if (not File.directory?(dir))
-          puts "UI.open_panel received bad directory: " + dir
+          puts "OpenStudio.open_panel received bad directory: " + dir
           args[1] = ""
         else
           args[1] = dir
@@ -83,8 +83,8 @@ module UI
 
 
   # Decided that the normal behavior of UI.savepanel should not be changed (even for the better).
-  # New alternative method is:  UI.save_panel
-  def UI.save_panel(*args)
+  # New alternative method is:  OpenStudio.save_panel
+  def OpenStudio.save_panel(*args)
     if (args[1])
       dir = args[1]
 
@@ -107,7 +107,7 @@ module UI
         end
 
         if (not File.directory?(dir))
-          puts "UI.save_panel received bad directory: " + dir
+          puts "OpenStudio.save_panel received bad directory: " + dir
           args[1] = ""
         else
           args[1] = dir

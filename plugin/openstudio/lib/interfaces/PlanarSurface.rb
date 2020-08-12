@@ -915,10 +915,10 @@ module OpenStudio
         color = Sketchup::Color.new
         if (rendering_appearance == "COLOR")
           h = 240.0 * (range_max - value) / (range_max - range_min)
-          color.hsba = [h, 100, 100, 1.0]
+          OpenStudio::set_hsba(color, [h, 100, 100, 1.0])
         else  # Gray scale
           b = 90.0 - 70.0 * (range_max - value) / (range_max - range_min)
-          color.hsba = [0, 0, b, 1.0]
+          OpenStudio::set_hsba(color, [0, 0, b, 1.0])
         end
         texture = nil
       end
@@ -967,10 +967,10 @@ module OpenStudio
         color = Sketchup::Color.new
         if (rendering_appearance == "COLOR")
           h = 240.0 * (range_max - value) / (range_max - range_min)
-          color.hsba = [h, 100, 100, 1.0]
+          OpenStudio::set_hsba(color, [h, 100, 100, 1.0])
         else  # Gray scale
           b = 90.0 - 70.0 * (range_max - value) / (range_max - range_min)
-          color.hsba = [0, 0, b, 1.0]
+          OpenStudio::set_hsba(color, [0, 0, b, 1.0])
         end
         texture = nil
       end

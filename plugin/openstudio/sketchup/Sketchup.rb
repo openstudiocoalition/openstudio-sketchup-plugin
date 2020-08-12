@@ -63,6 +63,60 @@ module OpenStudio
     end
   end
 
+
+  def self.set_hsba(color, color_array)
+    h = color_array[0] / 360.to_f  # HSV values = 0 � 1
+    s = color_array[1] / 100.to_f
+    v = color_array[2] / 100.to_f
+    a = color_array[3]
+
+    if (s == 0)
+      color.red = v * 255
+      color.green = v * 255
+      color.blue = v * 255
+      color.alpha = a
+    else
+      var_h = h * 6
+      var_h = 0 if (var_h == 6)  # H must be < 1
+      var_i = var_h.floor
+      var_1 = v * (1 - s)
+      var_2 = v * (1 - s * (var_h - var_i))
+      var_3 = v * (1 - s * (1 - (var_h - var_i)))
+
+      if (var_i == 0)
+       var_r = v
+       var_g = var_3
+       var_b = var_1
+      elsif (var_i == 1)
+       var_r = var_2
+       var_g = v
+       var_b = var_1
+      elsif (var_i == 2)
+        var_r = var_1
+        var_g = v
+        var_b = var_3
+      elsif (var_i == 3)
+        var_r = var_1
+        var_g = var_2
+        var_b = v
+      elsif (var_i == 4)
+        var_r = var_3
+        var_g = var_1
+        var_b = v
+      else
+        var_r = v
+        var_g = var_1
+        var_b = var_2
+      end
+
+      color.red = (var_r * 255).to_i  # RGB results = 0 � 255
+      color.green = (var_g * 255).to_i
+      color.blue = (var_b * 255).to_i
+      color.alpha = a
+    end
+    return(color)
+  end
+  
 end
 
 
@@ -183,143 +237,6 @@ class Sketchup::Entity
   end
 
 end
-
-
-class Sketchup::Color
-  # There's still some work to be done here:
-  #  Add hue=, saturation=, brightness=
-  #  Need reference for the hsba calcs.
-  #  There is not a perfect symmetry when converting back and forth between what you put into hsba and what you get back.
-
-  def rgba
-    return [red, green, blue, alpha]
-  end
-
-
-  def rgba=(color_array)
-    # For some reason, the 'self' is required here or else it doesn't work.
-    self.red = color_array[0]
-    self.green = color_array[1]
-    self.blue = color_array[2]
-    self.alpha = color_array[3]
-    return(self)
-  end
-
-
-  def hsba
-    # HSB = Hue, Saturation, Brightness; identical to HSV = hue, brightness, value
-    var_R = red / 255.to_f  # RGB values = 0 � 255
-    var_G = green / 255.to_f
-    var_B = blue / 255.to_f
-
-    var_Min = [var_R, var_G, var_B].min  # value of RGB
-    var_Max = [var_R, var_G, var_B].max  # value of RGB
-    del_Max = var_Max - var_Min          # Delta RGB value
-
-    v = var_Max
-
-    if (del_Max == 0)
-      # This is a gray, no chroma...
-      h = 0  # HSV results = 0 � 1
-      s = 0
-    else
-      # Chromatic data...
-      s = del_Max / var_Max
-
-      del_R = ( ( ( var_Max - var_R ) / 6 ) + ( del_Max / 2 ) ) / del_Max
-      del_G = ( ( ( var_Max - var_G ) / 6 ) + ( del_Max / 2 ) ) / del_Max
-      del_B = ( ( ( var_Max - var_B ) / 6 ) + ( del_Max / 2 ) ) / del_Max
-
-      if (var_R == var_Max)
-        h = del_B - del_G
-      elsif (var_G == var_Max)
-        h = (1 / 3) + del_R - del_B
-      elsif (var_B == var_Max)
-        h = (2 / 3) + del_G - del_R
-      end
-
-      h += 1 if (h < 0)
-      h -= 1 if (h > 1)
-    end
-
-    return([(h * 360).to_i, (s * 100).to_i, (v * 100).to_i, alpha])
-  end
-
-
-  def hsba=(color_array)
-    h = color_array[0] / 360.to_f  # HSV values = 0 � 1
-    s = color_array[1] / 100.to_f
-    v = color_array[2] / 100.to_f
-    a = color_array[3]
-
-    if (s == 0)
-      self.red = v * 255
-      self.green = v * 255
-      self.blue = v * 255
-      self.alpha = a
-    else
-      var_h = h * 6
-      var_h = 0 if (var_h == 6)  # H must be < 1
-      var_i = var_h.floor
-      var_1 = v * (1 - s)
-      var_2 = v * (1 - s * (var_h - var_i))
-      var_3 = v * (1 - s * (1 - (var_h - var_i)))
-
-      if (var_i == 0)
-       var_r = v
-       var_g = var_3
-       var_b = var_1
-      elsif (var_i == 1)
-       var_r = var_2
-       var_g = v
-       var_b = var_1
-      elsif (var_i == 2)
-        var_r = var_1
-        var_g = v
-        var_b = var_3
-      elsif (var_i == 3)
-        var_r = var_1
-        var_g = var_2
-        var_b = v
-      elsif (var_i == 4)
-        var_r = var_3
-        var_g = var_1
-        var_b = v
-      else
-        var_r = v
-        var_g = var_1
-        var_b = var_2
-      end
-
-      self.red = (var_r * 255).to_i  # RGB results = 0 � 255
-      self.green = (var_g * 255).to_i
-      self.blue = (var_b * 255).to_i
-      self.alpha = a
-    end
-    return(self)
-  end
-
-
-  def hue
-    return hsba[0]
-  end
-
-
-  def saturation
-    return hsba[1]
-  end
-
-
-  def brightness
-    return hsba[2]
-  end
-
-
-  #def hue=(h)
-  #end
-
-end
-
 
 class Sketchup::Loop
 
