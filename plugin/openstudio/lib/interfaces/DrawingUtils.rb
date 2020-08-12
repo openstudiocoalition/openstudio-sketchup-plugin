@@ -42,7 +42,7 @@ module DrawingUtils
       # There are some precision issues with 'face.plane' however.
       if (entity.normal.parallel?(face_normal))
         # Detect if the vertices of the entity are a subset of this face.
-        if (face_points.is_subset_of?(entity.full_polygon.reduce.points))
+        if (OpenStudio::is_subset_of?(face_points, entity.full_polygon.reduce.points))
           return true
         end
       end
@@ -175,7 +175,7 @@ module DrawingUtils
 
     # in the swap case, new_entity is the base surface and old_entity is the sub surface
 
-    swap = old_face_points.is_subset_of?(new_face_points)
+    swap = OpenStudio::is_subset_of?(old_face_points, new_face_points)
 
     OpenStudio::Plugin.log(OpenStudio::Info, "swap = #{swap}")
 

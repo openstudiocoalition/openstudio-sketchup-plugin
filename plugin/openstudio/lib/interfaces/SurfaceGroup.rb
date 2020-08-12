@@ -64,7 +64,7 @@ module OpenStudio
         # set the transfomation
 #puts "update_model_object, self.coordinate_transformation = #{self.coordinate_transformation.to_a.join(',')}"
 #puts "update_model_object, @entity.transformation = #{@entity.transformation.to_a.join(',')}"
-        transformation = Geom::transformation_to_openstudio(self.coordinate_transformation)
+        transformation = OpenStudio::transformation_to_openstudio(self.coordinate_transformation)
 #puts "update_model_object, transformation = #{transformation.to_a.join(',')}"
         if not @model_object.setTransformation(transformation)
           # reject the changes and go back to ModelObject's origin and rotation
@@ -124,7 +124,7 @@ module OpenStudio
 #puts "update_entity, @model_object.transformation = #{@model_object.transformation.to_a}"
 #puts "update_entity, @entity.transformation = #{@entity.transformation.to_a.join(',')}"
 #puts "update_entity, self.coordinate_transformation = #{self.coordinate_transformation.to_a.join(',')}"
-        self.coordinate_transformation = Geom::transformation_from_openstudio(@model_object.transformation)
+        self.coordinate_transformation = OpenStudio::transformation_from_openstudio(@model_object.transformation)
 #puts "update_entity, @entity.transformation = #{@entity.transformation.to_a.join(',')}"
 #puts "********************"
 
@@ -243,7 +243,7 @@ module OpenStudio
 
 #puts "create_entity, @entity.transformation = #{@entity.transformation.to_a.join(',')}"
 #puts "create_entity, self.coordinate_transformation. = #{self.coordinate_transformation.to_a.join(',')}"
-      self.coordinate_transformation = Geom::transformation_from_openstudio(@model_object.transformation)
+      self.coordinate_transformation = OpenStudio::transformation_from_openstudio(@model_object.transformation)
 #puts "create_entity, @entity.transformation = #{@entity.transformation.to_a.join(',')}"
 #puts "********************"
 

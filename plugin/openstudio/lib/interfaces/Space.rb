@@ -163,7 +163,7 @@ module OpenStudio
               test_face_points = test_face.outer_polygon.reduce.points
               face_points = face.outer_polygon.reduce.points
 
-              if (test_face != face and test_face_points.is_same_set?(face_points))
+              if (test_face != face and OpenStudio.is_same_set?(test_face_points, face_points))
                 intended_face = test_face
                 inferred_face = face
                 found = true
@@ -178,7 +178,7 @@ module OpenStudio
                 test_face_points = test_face.outer_polygon.reduce.points
                 other_face_points = other_face.outer_polygon.reduce.points
 
-                if (test_face != other_face and test_face_points.is_same_set?(other_face_points))
+                if (test_face != other_face and OpenStudio.is_same_set?(test_face_points, other_face_points))
                   #puts "matched other face: " + test_face.to_s + ", " + face.to_s
                   intended_face = test_face
                   inferred_face = other_face

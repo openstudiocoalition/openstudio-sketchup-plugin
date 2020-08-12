@@ -163,7 +163,7 @@ module OpenStudio
       Plugin.log(OpenStudio::Trace, "#{current_method_name}")
 
       # to OpenStudio, building can have transformation
-      return Geom::transformation_from_openstudio(@model_object.transformation)
+      return OpenStudio::transformation_from_openstudio(@model_object.transformation)
     end
 
     def coordinate_transformation=(transform)

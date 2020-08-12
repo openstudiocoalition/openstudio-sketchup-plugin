@@ -402,7 +402,7 @@ module OpenStudio
 
         #puts "child_faces = #{child_faces}"
 
-        reduced_polygon = Geom::Polygon.new(@entity.full_polygon.outer_loop.reduce)  # Removes collinear points
+        reduced_polygon = Polygon.new(@entity.full_polygon.outer_loop.reduce)  # Removes collinear points
         new_points = []
         for point in reduced_polygon.points
 
@@ -427,7 +427,7 @@ module OpenStudio
           end
         end
 
-        return(Geom::Polygon.new(new_points))
+        return(Polygon.new(new_points))
       else
         puts "Surface.face_polygon:  entity not valid"
         return(nil)

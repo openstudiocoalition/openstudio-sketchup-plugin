@@ -27,18 +27,10 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-# This file adds new methods to native SketchUp classes.
+module OpenStudio
 
-
-# Can this class additions just go in the module below?
-class Geom::Point3d
-
-  def eql?(other_point)
-    return(self == other_point)  # This is standard Ruby behavior and probably should be implemented in the API
-  end
-
-
-  def on_line_segment?(line)
+  # check if point is on a line segment
+  def self.point_on_line_segment?(point, line)
 
     # In the SketchUp API:
     # A line can be represented as either an Array of a point and a vector, or as an Array of two points.
@@ -48,7 +40,7 @@ class Geom::Point3d
     # For the purposes of this method, the line MUST be defined as an array of two Point3d objects.
     # The Point3d/Vector3d version will not work.
 
-    if (not on_line?(line))
+    if (not point.on_line?(line))
       return(false)
     else
       start_point = line[0]
@@ -56,22 +48,22 @@ class Geom::Point3d
 
       # Check if the point is between the start point and the end point in each dimension
 # NOTE: This is similar code to Geom::BoundingBox.intersects?--can it be reused?
-      if ( (self.x >= start_point.x and self.x <= end_point.x) \
-        or (self.x <= start_point.x and self.x >= end_point.x) )
+      if ( (point.x >= start_point.x and point.x <= end_point.x) \
+        or (point.x <= start_point.x and point.x >= end_point.x) )
         intersects_in_x = true
       else
         intersects_in_x = false
       end
 
-      if ( (self.y >= start_point.y and self.y <= end_point.y) \
-        or (self.y <= start_point.y and self.y >= end_point.y) )
+      if ( (point.y >= start_point.y and point.y <= end_point.y) \
+        or (point.y <= start_point.y and point.y >= end_point.y) )
         intersects_in_y = true
       else
         intersects_in_y = false
       end
 
-      if ( (self.z >= start_point.z and self.z <= end_point.z) \
-        or (self.z <= start_point.z and self.z >= end_point.z) )
+      if ( (point.z >= start_point.z and point.z <= end_point.z) \
+        or (point.z <= start_point.z and point.z >= end_point.z) )
         intersects_in_z = true
       else
         intersects_in_z = false
@@ -81,548 +73,418 @@ class Geom::Point3d
     end
 
   end
-
-end
-
-
-
-class Geom::Vector3d
-
-  def scale(scalar)
-    vector = self.clone
-    vector.x *= scalar
-    vector.y *= scalar
-    vector.z *= scalar
-    return(vector)
+  
+  # return a Geom::Transformation from a OpenStudio::Transformation
+  def self.transformation_from_openstudio(t)
+    os_array = t.vector
+    skp_array = []
+    (0..11).each {|i| skp_array << os_array[i].to_f }
+    (12..14).each {|i| skp_array << os_array[i].to_f.m }
+    skp_array[15] = os_array[15].to_f
+    return Geom::Transformation.new(skp_array)
   end
 
-
-  def scale!(scalar)
-    self.x *= scalar
-    self.y *= scalar
-    self.z *= scalar
-    return(self)
+  # convert a Geom::Transformation to a OpenStudio::Transformation
+  def self.transformation_to_openstudio(t)
+    os_array = OpenStudio::Vector.new(16)
+    skp_array = t.to_a
+    (0..11).each {|i| os_array[i] = skp_array[i].to_f }
+    (12..14).each {|i| os_array[i] = skp_array[i].to_f.to_m }
+    os_array[15] = skp_array[15].to_f
+    return OpenStudio::Transformation.new(os_array)
   end
+  
 
-end
-
-
-
-class Geom::BoundingBox
-
-  def intersects?(other)
-    # Work-around because the native BoundingBox method 'intersects' does not work correctly.
-
-    # For two bounding boxes to intersect, they must overlap in x, y, and z dimensions.
-
-    # Check x dimension
-    if ( (self.corner(0).x >= other.corner(0).x and self.corner(0).x <= other.corner(7).x) \
-      or (other.corner(0).x >= self.corner(0).x and other.corner(0).x <= self.corner(7).x) )
-
-      intersects_in_x = true
-    else
-      intersects_in_x = false
-    end
-
-    # Check y dimension
-    if ( (self.corner(0).y >= other.corner(0).y and self.corner(0).y <= other.corner(7).y) \
-      or (other.corner(0).y >= self.corner(0).y and other.corner(0).y <= self.corner(7).y) )
-
-      intersects_in_y = true
-    else
-      intersects_in_y = false
-    end
-
-    # Check z dimension
-    if ( (self.corner(0).z >= other.corner(0).z and self.corner(0).z <= other.corner(7).z) \
-      or (other.corner(0).z >= self.corner(0).z and other.corner(0).z <= self.corner(7).z) )
-
-      intersects_in_z = true
-    else
-      intersects_in_z = false
-    end
-
-    return(intersects_in_x and intersects_in_y and intersects_in_z)
-  end
-
-end
-
-
-
-
-class Geom::PolygonLoop
   # This is a surrogate class for things I can't do directly with the regular Sketchup::Loop class.
   # The pure geometric analog of the Sketchup::Loop class.
+  class PolygonLoop
 
-  attr_writer :outer
-  attr_reader :points
+    attr_writer :outer
+    attr_reader :points
 
-  # Should PolygonLoop always provide a reduced set of points, from the instant it is created?
-  def initialize(arg1 = nil, arg2 = nil)
-    if (arg1.class == Array)
-      @points = arg1
-    else
-      @points = []
+    # Should PolygonLoop always provide a reduced set of points, from the instant it is created?
+    def initialize(arg1 = nil, arg2 = nil)
+      if (arg1.class == Array)
+        @points = arg1
+      else
+        @points = []
+      end
+
+      if (arg2 == true)
+        @outer = true
+      else
+        @outer = false
+      end
     end
 
-    if (arg2 == true)
-      @outer = true
-    else
+    def inspect
+      return(self)
+    end
+
+    # Vertices don't make sense for a polygon loop because it is not actually drawn by the API.
+    #def vertices=(arg)
+    #
+    #end
+
+    def points=(arg)
+      # must be an array or a Sketchup::Loop
+      if (arg.class == Array)
+        @points = arg
+
+        # check to make sure this is an array of Point3d objects?
+
+        return(arg)
+      else
+        # Or better: raise an exception
+        return(nil)
+      end
+    end
+
+    def outer?
+      return(@outer)
+    end
+
+    def clear
+      @points = []
       @outer = false
     end
-  end
 
-
-  def inspect
-    return(self)
-  end
-
-
-  # Vertices don't make sense for a polygon loop because it is not actually drawn by the API.
-  #def vertices=(arg)
-  #
-  #end
-
-
-  def points=(arg)
-    # must be an array or a Sketchup::Loop
-    if (arg.class == Array)
-      @points = arg
-
-      # check to make sure this is an array of Point3d objects?
-
-      return(arg)
-    else
-      # Or better: raise an exception
-      return(nil)
-    end
-  end
-
-
-  def outer?
-    return(@outer)
-  end
-
-
-  def clear
-    @points = []
-    @outer = false
-  end
-
-
-  def empty?
-    return(@points.empty?)
-  end
-
-
-  def valid?
-    reduced_points = self.reduce
-
-    if (reduced_points.length < 3)
-      raise ArgumentError, "polygon loop has less than 3 unique points"
+    def empty?
+      return(@points.empty?)
     end
 
-    # Verify that all of the points of the loop are in the plane
-    plane = self.plane
-    reduced_points.each { |point|
-      if (not point.on_plane?(plane))
-        raise ArgumentError, "not all points of the polygon loop are in the same plane"
+    def valid?
+      reduced_points = self.reduce
+
+      if (reduced_points.length < 3)
+        raise ArgumentError, "polygon loop has less than 3 unique points"
       end
-    }
-    return(true)
-  end
 
-
-  def reduce
-    # Returns a loop with all consecutive collinear and coincident points deleted
-
-    if (@points.empty?)
-      return(@points)
+      # Verify that all of the points of the loop are in the plane
+      plane = self.plane
+      reduced_points.each { |point|
+        if (not point.on_plane?(plane))
+          raise ArgumentError, "not all points of the polygon loop are in the same plane"
+        end
+      }
+      return(true)
     end
 
-    # Eliminate consecutive coincident points
-    non_coinc_points = []
-    for i in 0...@points.length
-      this_point = @points[i]
+    def reduce
+      # Returns a loop with all consecutive collinear and coincident points deleted
 
-      if (i == @points.length - 1)
-        next_point = @points.first
+      if (@points.empty?)
+        return(@points)
+      end
+
+      # Eliminate consecutive coincident points
+      non_coinc_points = []
+      for i in 0...@points.length
+        this_point = @points[i]
+
+        if (i == @points.length - 1)
+          next_point = @points.first
+        else
+          next_point = @points[i + 1]
+        end
+
+        # Check to make sure this point is not coincident with the next point
+        if (next_point != this_point)
+          non_coinc_points << this_point
+        else
+          puts "coincident point skipped"
+        end
+      end
+      if (non_coinc_points.empty?)  # All points are coincident
+        non_coinc_points = [ @points[0] ]
+      end
+
+  # another way
+      # Delete any consecutive duplicate points (duplicates that are not consecutive are okay)
+      #prev_point = points[0]
+      #for i in 1...points.length
+      #  if (points[i] == prev_point)
+      #    points[i] = nil
+      #    puts "deleting a duplicate point"
+      #  else
+      #    prev_point = points[i]
+      #  end
+      #end
+      #points = points.compact
+
+
+      # Eliminate consecutive collinear points
+      reduced_points = []
+      if (non_coinc_points.length < 3)
+        reduced_points = non_coinc_points
       else
-        next_point = @points[i + 1]
+        prev_vector = non_coinc_points.first - non_coinc_points.last
+        for i in 0...non_coinc_points.length
+          this_point = non_coinc_points[i]
+
+          if (i == non_coinc_points.length - 1)
+            next_point = non_coinc_points.first
+          else
+            next_point = non_coinc_points[i + 1]
+          end
+
+          this_vector = next_point - this_point
+
+          # Check to make sure this point is not collinear with the next point
+          if (not this_vector.samedirection?(prev_vector))
+            reduced_points << this_point
+          else
+            #puts "collinear point skipped"
+          end
+          prev_vector = this_vector
+        end
       end
 
-      # Check to make sure this point is not coincident with the next point
-      if (next_point != this_point)
-        non_coinc_points << this_point
+      return(reduced_points)
+    end
+
+    def reduce!
+      return(@points = self.reduce)
+    end
+
+    def normal
+      # Assume the loop is valid
+      reduced_points = self.reduce
+      if (not reduced_points.empty?)
+
+        # The algorithm below fails for concave polygons!
+        #normal_vector = reduced_points[0].vector_to(reduced_points[1]) * reduced_points[1].vector_to(reduced_points[2])
+        #return(normal_vector.normalize)
+
+        coefficients = self.plane  # self method already corrects for strange API precision error
+        return(Geom::Vector3d.new(coefficients[0..2]))
       else
-        puts "coincident point skipped"
-      end
-    end
-    if (non_coinc_points.empty?)  # All points are coincident
-      non_coinc_points = [ @points[0] ]
-    end
-
-# another way
-    # Delete any consecutive duplicate points (duplicates that are not consecutive are okay)
-    #prev_point = points[0]
-    #for i in 1...points.length
-    #  if (points[i] == prev_point)
-    #    points[i] = nil
-    #    puts "deleting a duplicate point"
-    #  else
-    #    prev_point = points[i]
-    #  end
-    #end
-    #points = points.compact
-
-
-
-    # Eliminate consecutive collinear points
-    reduced_points = []
-    if (non_coinc_points.length < 3)
-      reduced_points = non_coinc_points
-    else
-      prev_vector = non_coinc_points.first - non_coinc_points.last
-      for i in 0...non_coinc_points.length
-        this_point = non_coinc_points[i]
-
-        if (i == non_coinc_points.length - 1)
-          next_point = non_coinc_points.first
-        else
-          next_point = non_coinc_points[i + 1]
-        end
-
-        this_vector = next_point - this_point
-
-        # Check to make sure this point is not collinear with the next point
-        if (not this_vector.samedirection?(prev_vector))
-          reduced_points << this_point
-        else
-          #puts "collinear point skipped"
-        end
-        prev_vector = this_vector
+        puts "PolygonLoop.normal: loop has no points"
+        return(nil)
       end
     end
 
-    return(reduced_points)
-  end
-
-
-  def reduce!
-    return(@points = self.reduce)
-  end
-
-
-  def normal
-    # Assume the loop is valid
-    reduced_points = self.reduce
-    if (not reduced_points.empty?)
-
-      # The algorithm below fails for concave polygons!
-      #normal_vector = reduced_points[0].vector_to(reduced_points[1]) * reduced_points[1].vector_to(reduced_points[2])
-      #return(normal_vector.normalize)
-
-      coefficients = self.plane  # self method already corrects for strange API precision error
-      return(Geom::Vector3d.new(coefficients[0..2]))
-    else
-      puts "PolygonLoop.normal: loop has no points"
-      return(nil)
-    end
-  end
-
-
-  def reverse
-    return(Geom::PolygonLoop.new(@points.reverse, @outer))
-  end
-
-
-  def reverse!
-    @points.reverse!
-    return(self)
-  end
-
-
-  def plane
-    # Assume the loop is valid
-
-    # Something strange can happen here where the z component of the vector comes out as 1, not 1.0
-    # And this 1 is not equal to 1.0, yet both claim to be of class Float.
-    # That's why I'm using fit_plane_to_points instead.
-
-    #normal_vector = self.normal
-    #a = normal_vector.x.to_f
-    #b = normal_vector.y.to_f
-    #c = normal_vector.z.to_f
-    #d = - (a * @points[0].x.to_f) - (b * @points[0].y.to_f) - (c * @points[0].z.to_f)
-    #coefficients = [ a, b, c, d ]  # Equation of the plane
-
-    coefficients = Geom.fit_plane_to_points(@points)
-
-    # Check for values close to zero, like e-16...seems like API bug
-    for i in 0..3
-      if (coefficients[i].abs < 1e-8)
-        coefficients[i] = 0.0
-      end
-    end
-    return(coefficients)
-  end
-
-
-  def transform(transformation)
-    new_points = []
-    @points.each { |point| new_points << point.transform(transformation) }
-    return(Geom::PolygonLoop.new(new_points, @outer))
-  end
-
-
-  def transform!(transformation)
-    @points.each { |point| point.transform!(transformation) }
-    return(self)
-  end
-
-
-end
-
-
-
-# Not strictly a native class, but this gets used like a native class and helps extend the functionality
-# of some of the native geometry API classes.
-# Polygon is the purely geometric analog of the Face class, kind of like the way Point3d is to Vertex.
-class Geom::Polygon
-
-  attr_reader :loops, :outer_loop
-
-
-  def initialize(arg = nil)
-    clear
-    if (arg.class == Geom::PolygonLoop or arg.class == Array)
-      add_loop(arg)
-    end
-  end
-
-
-  def inspect
-    return(self)
-  end
-
-
-  def points
-    points_array = []
-    for polygon_loop in @loops
-      polygon_loop.points.each { |point| points_array << point }
-    end
-    return(points_array)
-  end
-
-
-  def add_loop(arg)
-    if (arg.class == Geom::PolygonLoop)
-      new_loop = arg
-    elsif (arg.class == Array)
-      new_loop = Geom::PolygonLoop.new(arg)
-    else
-      raise ArgumentError
+    def reverse
+      return(PolygonLoop.new(@points.reverse, @outer))
     end
 
-    # Check to make sure this loop is not already present?
-
-
-    if (@loops.empty?)
-      new_loop.outer = true
-      @outer_loop = new_loop
+    def reverse!
+      @points.reverse!
+      return(self)
     end
 
-    @loops << new_loop
+    def plane
+      # Assume the loop is valid
 
-    return(new_loop)
-  end
+      # Something strange can happen here where the z component of the vector comes out as 1, not 1.0
+      # And this 1 is not equal to 1.0, yet both claim to be of class Float.
+      # That's why I'm using fit_plane_to_points instead.
 
+      #normal_vector = self.normal
+      #a = normal_vector.x.to_f
+      #b = normal_vector.y.to_f
+      #c = normal_vector.z.to_f
+      #d = - (a * @points[0].x.to_f) - (b * @points[0].y.to_f) - (c * @points[0].z.to_f)
+      #coefficients = [ a, b, c, d ]  # Equation of the plane
 
-  def clear
-    @outer_loop = nil
-    @loops = []
-  end
+      coefficients = Geom.fit_plane_to_points(@points)
 
-
-  def reduce
-    new_polygon = Geom::Polygon.new
-    @loops.each { |polygon_loop| new_polygon.add_loop(polygon_loop.reduce) }
-    return(new_polygon)
-  end
-
-
-  def reduce!
-    @loops.each { |polygon_loop| polygon_loop.reduce! }
-    return(self)
-  end
-
-
-  def empty?
-    return(@loops.empty?)
-  end
-
-
-  def valid?
-    # check each loop, but then also check that inner loops are correct
-    @loops.each { |polygon_loop| polygon_loop.valid? }  # Raises an ArgumentError if not valid
-    return(true)
-  end
-
-
-  def normal
-    # Assume the polygon is valid
-    if (@outer_loop.nil?)
-      return(nil)
-    else
-      return(@outer_loop.normal)
-    end
-  end
-
-
-  def reverse
-    new_polygon = Geom::Polygon.new
-    @loops.each { |polygon_loop| new_polygon.add_loop(polygon_loop.reverse) }
-    return(new_polygon)
-  end
-
-
-  def reverse!
-    @loops.each { |polygon_loop| polygon_loop.reverse! }
-    return(self)
-  end
-
-
-  def plane
-    # Assume the polygon is valid
-    if (@outer_loop.nil?)
-      return(nil)
-    else
-      return(@outer_loop.plane)
-    end
-  end
-
-
-  def transform(transformation)
-    new_polygon = Geom::Polygon.new
-    @loops.each { |polygon_loop| new_polygon.add_loop(polygon_loop.transform(transformation)) }
-    return(new_polygon)
-  end
-
-
-  def transform!(transformation)
-    @loops.each { |polygon_loop| polygon_loop.transform!(transformation) }
-    return(self)
-  end
-
-
-  def eql?(other)
-
-    result = false
-
-    points1 = points
-    points2 = other.points
-
-    if (points1.length == points2.length)
-      result = true
-      points1.each_index do |i|
-        if points1[i] != points2[i]
-          result = false
-          break
+      # Check for values close to zero, like e-16...seems like API bug
+      for i in 0..3
+        if (coefficients[i].abs < 1e-8)
+          coefficients[i] = 0.0
         end
+      end
+      return(coefficients)
+    end
+
+    def transform(transformation)
+      new_points = []
+      @points.each { |point| new_points << point.transform(transformation) }
+      return(PolygonLoop.new(new_points, @outer))
+    end
+
+    def transform!(transformation)
+      @points.each { |point| point.transform!(transformation) }
+      return(self)
+    end
+
+  end # PolygonLoop
+
+
+  # Not strictly a native class, but this gets used like a native class and helps extend the functionality
+  # of some of the native geometry API classes.
+  # Polygon is the purely geometric analog of the Face class, kind of like the way Point3d is to Vertex.
+  class Polygon
+
+    attr_reader :loops, :outer_loop
+
+    def initialize(arg = nil)
+      clear
+      if (arg.class == PolygonLoop or arg.class == Array)
+        add_loop(arg)
       end
     end
 
-    return result
-  end
+    def inspect
+      return(self)
+    end
 
-  def ==(other)
-    return self.eql?(other)
-  end
+    def points
+      points_array = []
+      for polygon_loop in @loops
+        polygon_loop.points.each { |point| points_array << point }
+      end
+      return(points_array)
+    end
 
-  def circular_eql?(other)
-    result = false
+    def add_loop(arg)
+      if (arg.class == PolygonLoop)
+        new_loop = arg
+      elsif (arg.class == Array)
+        new_loop = PolygonLoop.new(arg)
+      else
+        raise ArgumentError
+      end
 
-    points1 = self.reduce.points
-    points2 = other.reduce.points
+      # Check to make sure this loop is not already present?
 
-    if (points1.length == points2.length)
-      for i in 0..points1.length-1
-        if i > 0
-          temp = points2[i..-1].concat(points2[0..i-1])
-        else
-          temp = points2
+      if (@loops.empty?)
+        new_loop.outer = true
+        @outer_loop = new_loop
+      end
+
+      @loops << new_loop
+
+      return(new_loop)
+    end
+
+    def clear
+      @outer_loop = nil
+      @loops = []
+    end
+
+    def reduce
+      new_polygon = Polygon.new
+      @loops.each { |polygon_loop| new_polygon.add_loop(polygon_loop.reduce) }
+      return(new_polygon)
+    end
+
+    def reduce!
+      @loops.each { |polygon_loop| polygon_loop.reduce! }
+      return(self)
+    end
+
+    def empty?
+      return(@loops.empty?)
+    end
+
+    def valid?
+      # check each loop, but then also check that inner loops are correct
+      @loops.each { |polygon_loop| polygon_loop.valid? }  # Raises an ArgumentError if not valid
+      return(true)
+    end
+
+    def normal
+      # Assume the polygon is valid
+      if (@outer_loop.nil?)
+        return(nil)
+      else
+        return(@outer_loop.normal)
+      end
+    end
+
+    def reverse
+      new_polygon = Polygon.new
+      @loops.each { |polygon_loop| new_polygon.add_loop(polygon_loop.reverse) }
+      return(new_polygon)
+    end
+
+    def reverse!
+      @loops.each { |polygon_loop| polygon_loop.reverse! }
+      return(self)
+    end
+
+    def plane
+      # Assume the polygon is valid
+      if (@outer_loop.nil?)
+        return(nil)
+      else
+        return(@outer_loop.plane)
+      end
+    end
+
+    def transform(transformation)
+      new_polygon = Polygon.new
+      @loops.each { |polygon_loop| new_polygon.add_loop(polygon_loop.transform(transformation)) }
+      return(new_polygon)
+    end
+
+    def transform!(transformation)
+      @loops.each { |polygon_loop| polygon_loop.transform!(transformation) }
+      return(self)
+    end
+
+    def eql?(other)
+
+      result = false
+
+      points1 = points
+      points2 = other.points
+
+      if (points1.length == points2.length)
+        result = true
+        points1.each_index do |i|
+          if points1[i] != points2[i]
+            result = false
+            break
+          end
         end
-        if temp[0] == points1[0]
-          result = true
-          points1.each_index do |j|
-            if points1[j] != temp[j]
-              result = false
-              break
+      end
+
+      return result
+    end
+
+    def ==(other)
+      return self.eql?(other)
+    end
+
+    def circular_eql?(other)
+      result = false
+
+      points1 = self.reduce.points
+      points2 = other.reduce.points
+
+      if (points1.length == points2.length)
+        for i in 0..points1.length-1
+          if i > 0
+            temp = points2[i..-1].concat(points2[0..i-1])
+          else
+            temp = points2
+          end
+          if temp[0] == points1[0]
+            result = true
+            points1.each_index do |j|
+              if points1[j] != temp[j]
+                result = false
+                break
+              end
             end
           end
         end
       end
+
+      return result
     end
 
-    return result
-  end
-
-  def intersect(other_polygon)
-    return(Geom.intersect_polygon_polygon(self, other_polygon))  # array of polygons
-  end
-
-end
-
-
-class Geom::Transformation
-
-  def to_openstudio_transformation
-    skp_array = self.to_a
-    os_matrix = OpenStudio::Matrix.new(4,4)
-    os_matrix[0,0] = skp_array[0].to_f
-    os_matrix[1,0] = skp_array[1].to_f
-    os_matrix[2,0] = skp_array[2].to_f
-    os_matrix[3,0] = skp_array[3].to_f
-    os_matrix[0,1] = skp_array[4].to_f
-    os_matrix[1,1] = skp_array[5].to_f
-    os_matrix[2,1] = skp_array[6].to_f
-    os_matrix[3,1] = skp_array[7].to_f
-    os_matrix[0,2] = skp_array[8].to_f
-    os_matrix[1,2] = skp_array[9].to_f
-    os_matrix[2,2] = skp_array[10].to_f
-    os_matrix[3,2] = skp_array[11].to_f
-    os_matrix[0,3] = skp_array[12].to_f.to_m
-    os_matrix[1,3] = skp_array[13].to_f.to_m
-    os_matrix[2,3] = skp_array[14].to_f.to_m
-    os_matrix[3,3] = skp_array[15].to_f
-    return OpenStudio::Transformation.new(os_matrix)
-  end
-
-end
-
-module Geom
-
-  def Geom.test(x, y, z, include_border)
-    p = Point3d.new(x, y, z)
-
-    concave = [ Point3d.new(0,0,0), Point3d.new(5,0,0), Point3d.new(5,5,0), Point3d.new(1,5,0), Point3d.new(1,10,0), Point3d.new(5,10,0), Point3d.new(5,15,0), Point3d.new(0,15,0) ]
-
-    square = [ Point3d.new(0,0,0), Point3d.new(5,0,0), Point3d.new(5,1,0), Point3d.new(5,5,0), Point3d.new(0,5,0) ]
-
-    degen = [ Point3d.new(0,0,0), Point3d.new(5,0,0), Point3d.new(5,0,0), Point3d.new(5,2,0), Point3d.new(5,2,1) ]
-
-    if (point_in_polygon(p, square, include_border))
-      puts "point is inside the polygon"
-    else
-      puts "point is outside the polygon"
+    def intersect(other_polygon)
+      return(Geom.intersect_polygon_polygon(self, other_polygon))  # array of polygons
     end
-  end
+
+  end # Polygon
 
 
-
-
-
-  def Geom.point_in_polygon_loop(point, polygon_loop, include_border = false)
+  def self.point_in_polygon_loop(point, polygon_loop, include_border = false)
 
     # tests that everything is in the plane, and has >3 vertices
     if (not polygon_loop.valid?)
@@ -637,7 +499,7 @@ module Geom
     end
 
     # DLM: wondering if point_in_polygon_2D is sufficiently solid to use now?
-    return Geom.point_in_polygon_2D(point, polygon_loop.points, include_border)
+    return self.point_in_polygon_2D(point, polygon_loop.points, include_border)
 
     # DLM: this is legacy code that was written when point_in_polygon_2D was not working right
 
@@ -670,7 +532,7 @@ module Geom
         end_point = polygon_loop.points[0]
       end
 
-      if (point.on_line_segment?( [ start_point, end_point ] ))
+      if (point_on_line_segment?(point, [ start_point, end_point ] ))
         #puts "point found on an edge"
 
         # The point is on the border--the test can conclude one way or the other
@@ -704,7 +566,7 @@ module Geom
 
       if (not intersection_point.nil?)  # nil means the lines are parallel
 
-        if (intersection_point.on_line_segment?(line))
+        if (point_on_line_segment?(intersection_point, line))
           #puts "crossing point found"
 
           crossing_vector = point.vector_to(intersection_point)
@@ -739,20 +601,20 @@ module Geom
     else
       return(true)  # Odd:  According to Crossing Number Algorithm => inside of polygon
     end
-  end
+    
+  end 
 
 
-
-
-  def Geom.point_in_polygon(point, polygon, include_border = false)
+  # check if a point is inside a polygon
+  def self.point_in_polygon(point, polygon, include_border = false)
 
     # Check if point is contained by the outer loop
-    if (Geom.point_in_polygon_loop(point, polygon.outer_loop, include_border))
+    if (point_in_polygon_loop(point, polygon.outer_loop, include_border))
 
       # Check if point is contained by an inner loop, a.k.a., a "hole" (and therefore not on the polygon)
       for this_loop in polygon.loops
         if (not this_loop.outer?)  # There is always only one outer loop
-          if (Geom.point_in_polygon_loop(point, this_loop, !include_border))  # NOTE: The border condition is inverted here
+          if (point_in_polygon_loop(point, this_loop, !include_border))  # NOTE: The border condition is inverted here
             return(false)
           end
         end
@@ -763,15 +625,12 @@ module Geom
     end
 
   end
-
-
-
-
-
+  
+  
   # Crossing Number version
   # This version is computationally faster, but has problems with multiple vertices on a shared edge.
   # That's why I'm trying the Midpoint Test version
-  def Geom.find_shared_line_segments_old(points1, points2)
+  def self.find_shared_line_segments_old(points1, points2)
     # If necessary, performance can be improved by doing only 2 point_in_polygon checks for the whole method,
     # one per polygon.  Right now, doing one per vertex of each polygon.
 
@@ -803,7 +662,7 @@ module Geom
         intersection_point = intersect_line_line(line1, line2)
 
         if (not intersection_point.nil?)  # nil means the lines are parallel
-          if (intersection_point.on_line_segment?(line1) and intersection_point.on_line_segment?(line2))
+          if (point_on_line_segment?(intersection_point, line1) and point_on_line_segment?(intersection_point, line2))
             puts "intersection found"
             intersections << [start_point.distance(intersection_point), intersection_point]
           end
@@ -842,12 +701,11 @@ module Geom
     return(line_segments)
 
   end
-
-
-
+  
+  
   # Midpoint Test version
   #
-  def Geom.find_shared_line_segments(polygon1, polygon2)
+  def self.find_shared_line_segments(polygon1, polygon2)
     # Find all the line segments from polygon 1 that are inside of polygon 2, works with holes
 
     line_segments = []
@@ -881,7 +739,7 @@ module Geom
             intersection_point = intersect_line_line(line1, line2)
 
             if (not intersection_point.nil?)  # nil means the lines are parallel
-              if (intersection_point.on_line_segment?(line1) and intersection_point.on_line_segment?(line2))
+              if (point_on_line_segment?(intersection_point, line1) and point_on_line_segment?(intersection_point, line2))
                 distance = start_point.distance(intersection_point)
                 if (distance > 0.0)
                   intersections << [distance, intersection_point]
@@ -920,9 +778,7 @@ module Geom
   end
 
 
-
-
-  def Geom.intersect_polygon_polygon(polygon1, polygon2)
+  def self.intersect_polygon_polygon(polygon1, polygon2)
     # Should be able to handle convex and concave polygons.
     # Partially handles holes in polygons, adds the "hole" polygons to the list, but they
     # should be added as inner loops to the returned polygons.
@@ -1026,18 +882,36 @@ module Geom
     end
     loops = loops.compact
 
-loops.each { |lp| puts "loop:"; puts lp }
-
+    loops.each { |lp| puts "loop:"; puts lp }
 
     polygons = []
-    loops.each { |this_loop| polygons << Geom::Polygon.new(this_loop) }
+    loops.each { |this_loop| polygons << Polygon.new(this_loop) }
 
     return(polygons)  # an array of polygons
   end
+  
+  
+
+  # the following are test methods which rely on the SketchUp API, they can be called manually
+
+  def self.test_point_in_polygon(x, y, z, include_border)
+    p = Point3d.new(x, y, z)
+
+    concave = [ Point3d.new(0,0,0), Point3d.new(5,0,0), Point3d.new(5,5,0), Point3d.new(1,5,0), Point3d.new(1,10,0), Point3d.new(5,10,0), Point3d.new(5,15,0), Point3d.new(0,15,0) ]
+
+    square = [ Point3d.new(0,0,0), Point3d.new(5,0,0), Point3d.new(5,1,0), Point3d.new(5,5,0), Point3d.new(0,5,0) ]
+
+    degen = [ Point3d.new(0,0,0), Point3d.new(5,0,0), Point3d.new(5,0,0), Point3d.new(5,2,0), Point3d.new(5,2,1) ]
+
+    if (point_in_polygon(p, square, include_border))
+      puts "point is inside the polygon"
+    else
+      puts "point is outside the polygon"
+    end
+  end
 
 
-
-  def Geom.test_intersect
+  def self.test_intersect
 
     faces = []
     Sketchup.active_model.selection.each { |element|
@@ -1079,33 +953,14 @@ loops.each { |lp| puts "loop:"; puts lp }
   end
 
 
-  def Geom.test2
-
-    polygon1 = Geom::Polygon.new( [ Point3d.new(0,0,0), Point3d.new(0,5,0), Point3d.new(5,5,0), Point3d.new(5,0,0) ] )
+  def self.test_intersect_polygon_polygon
+  
+    polygon1 = Polygon.new( [ Point3d.new(0,0,0), Point3d.new(0,5,0), Point3d.new(5,5,0), Point3d.new(5,0,0) ] )
     #points2 = [ Point3d.new(5,0,0), Point3d.new(5,5,0), Point3d.new(10,5,0), Point3d.new(10,0,0) ]
 
     return(Geom.intersect_polygon_polygon(polygon1, polygon1).points)
 
   end
 
-  # return a Geom::Transformation from a OpenStudio::Transformation
-  def Geom.transformation_from_openstudio(t)
-    os_array = t.vector
-    skp_array = []
-    (0..11).each {|i| skp_array << os_array[i].to_f }
-    (12..14).each {|i| skp_array << os_array[i].to_f.m }
-    skp_array[15] = os_array[15].to_f
-    return Geom::Transformation.new(skp_array)
-  end
-
-  # convert a Geom::Transformation to a OpenStudio::Transformation
-  def Geom.transformation_to_openstudio(t)
-    os_array = OpenStudio::Vector.new(16)
-    skp_array = t.to_a
-    (0..11).each {|i| os_array[i] = skp_array[i].to_f }
-    (12..14).each {|i| os_array[i] = skp_array[i].to_f.to_m }
-    os_array[15] = skp_array[15].to_f
-    return OpenStudio::Transformation.new(os_array)
-  end
 
 end

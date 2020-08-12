@@ -135,7 +135,7 @@ module OpenStudio
         # Could still be user preference to fix or not.
         # This is a problem because reveals are done as inset surface that are NOT in the same plane!
         watcher_enabled = @watcher.disable
-        self.surface_polygon = Geom::Polygon.new(coplanar_points)
+        self.surface_polygon = Polygon.new(coplanar_points)
         @watcher.enable if watcher_enabled
 
         if (not coplanar)

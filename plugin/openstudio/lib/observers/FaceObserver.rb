@@ -142,7 +142,7 @@ module OpenStudio
                 face_points = this_entity.outer_polygon.reduce.points
 
                 # Check to see if all drawing_object points are a subset of the face points.
-                if (drawing_interface_points.is_subset_of?(face_points))
+                if (OpenStudio::is_subset_of?(drawing_interface_points, face_points))
 
                   # @drawing_interface's model object is really associated with this_entity
 

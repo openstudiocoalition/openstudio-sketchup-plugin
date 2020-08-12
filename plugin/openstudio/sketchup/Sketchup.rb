@@ -30,13 +30,11 @@
 require("openstudio/sketchup/Geom")
 
 
-# This file adds new methods to native SketchUp classes.
+module OpenStudio
 
-class Array
+  def self.is_subset_of?(array, other)
 
-  def is_subset_of?(other)
-
-    for element in self
+    for element in array
 
       element_matched = false
 
@@ -57,8 +55,8 @@ class Array
   end
 
 
-  def is_same_set?(other)
-    if (self.length == other.length and self.is_subset_of?(other))
+  def self.is_same_set?(array, other)
+    if (array.length == other.length and self.is_subset_of?(array, other))
       return(true)
     else
       return(false)
@@ -68,18 +66,18 @@ class Array
 end
 
 
-class Float
+# class Float
 
-  def round_to(decimal_places = 0)
-    if (decimal_places > 0)
-      precision = (10**(decimal_places)).to_f
-      return((self * precision).round / precision)
-    else
-      return(self.round)
-    end
-  end
+  # def round_to(decimal_places = 0)
+    # if (decimal_places > 0)
+      # precision = (10**(decimal_places)).to_f
+      # return((self * precision).round / precision)
+    # else
+      # return(self.round)
+    # end
+  # end
 
-end
+# end
 
 
 class Sketchup::Model
@@ -335,7 +333,7 @@ class Sketchup::Loop
         points << vertex.position
       end
     end
-    return(Geom::PolygonLoop.new(points))
+    return(OpenStudio::PolygonLoop.new(points))
   end
 
 end
@@ -346,7 +344,7 @@ end
 class Sketchup::Face
 
   def outer_polygon
-    return(Geom::Polygon.new(self.outer_loop.polygon_loop))
+    return(OpenStudio::Polygon.new(self.outer_loop.polygon_loop))
   end
 
 
@@ -362,12 +360,12 @@ class Sketchup::Face
 
 
   def contains_point?(point, include_border = false)
-    return(Geom.point_in_polygon(point, self.full_polygon, include_border))
+    return(OpenStudio.point_in_polygon(point, self.full_polygon, include_border))
   end
 
 
   def intersect(other_face)
-    return(Geom.intersect_polygon_polygon(self.full_polygon, other_face.full_polygon))  # array of polygons
+    return(OpenStudio.intersect_polygon_polygon(self.full_polygon, other_face.full_polygon))  # array of polygons
   end
 
 end

@@ -54,7 +54,7 @@ $OPENSTUDIO_APPLICATION_DIR
 $OPENSTUDIO_VERSION = OpenStudio::openStudioVersion
 $OPENSTUDIO_SKETCHUPPLUGIN_DIR = File.dirname(__FILE__)
 
-$OPENSTUDIO_SKETCHUPPLUGIN_DEVELOPER_MENU = false # default is false, enable to see developer menu
+$OPENSTUDIO_SKETCHUPPLUGIN_DEVELOPER_MENU = true # default is false, enable to see developer menu
 $OPENSTUDIO_SKETCHUPPLUGIN_PROGRESS_DIALOGS = true # default is true, disable to speed up
 $OPENSTUDIO_SKETCHUPPLUGIN_CURRENT_METHOD_NAME = false # default is false, disable to speed up
 $OPENSTUDIO_SKETCHUPPLUGIN_LOGGING = false # default is false, disable to speed up

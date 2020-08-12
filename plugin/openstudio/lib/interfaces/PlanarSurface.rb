@@ -128,7 +128,7 @@ module OpenStudio
         # Check for more or less vertices than 'number of vertices' flag
         # Check that no crossing lines are formed (wrong order of vertices)
 
-        polygon = Geom::Polygon.new(new_points)
+        polygon = Polygon.new(new_points)
         polygon.reduce!  # Remove duplicate and collinear vertices
 
         watcher_enabled = @watcher.disable if @watcher
@@ -502,7 +502,7 @@ module OpenStudio
         if (variable and value)
           tooltip = name + "\n"
           tooltip += variable_name + "\n"
-          tooltip += value.round_to(6).to_s + " " + variable.units
+          tooltip += value.round(6).to_s + " " + variable.units
 
           if (@model_interface.results_interface.normalize)
             tooltip += "/m2"
@@ -677,7 +677,7 @@ module OpenStudio
         points << Geom::Point3d.new(vertex.x.m, vertex.y.m, vertex.z.m)
       end
       Plugin.log(OpenStudio::Info, "model_object_polygon, points = #{points}")
-      return(Geom::Polygon.new(points))
+      return(Polygon.new(points))
     end
 
     # Sets the vertices of the ModelObject as they appear in the input fields.
@@ -1026,7 +1026,7 @@ module OpenStudio
 
       #Plugin.log(OpenStudio::Info, "face_polygon, face_polygon = #{points}")
 
-      return(Geom::Polygon.new(points))
+      return(Polygon.new(points))
     end
 
   end

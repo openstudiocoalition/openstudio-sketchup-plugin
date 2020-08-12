@@ -253,14 +253,14 @@ module OpenStudio
     def model_object_transformation
       Plugin.log(OpenStudio::Trace, "#{current_method_name}")
 
-      return Geom.transformation_from_openstudio(@model_object.transformation)
+      return OpenStudio::transformation_from_openstudio(@model_object.transformation)
     end
 
     # Sets the transformation of the ModelObject as it literally appears in the input fields.
     def model_object_transformation=(transform)
       Plugin.log(OpenStudio::Trace, "#{current_method_name}")
 
-      @model_object.setTransformation(transform.to_openstudio_transformation)
+      @model_object.setTransformation(OpenStudio::transformation_from_openstudio(transform))
     end
 
   end
