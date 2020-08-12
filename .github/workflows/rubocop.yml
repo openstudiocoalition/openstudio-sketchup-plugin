@@ -13,12 +13,10 @@ jobs:
     - name: Run rubocop
       shell: bash
       run: |
-          apt update
-          apt install -y ruby
           which ruby
           which gem
-          gem install rubocop -v 0.88
-          gem install rubocop-sketchup
+          sudo gem install rubocop -v 0.88
+          sudo gem install rubocop-sketchup
           rubocop -f extension_review -o report.html
 
     - name: Upload rubocop results as artifact
