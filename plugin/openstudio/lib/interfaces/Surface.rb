@@ -392,7 +392,7 @@ module OpenStudio
         for face in @entity.all_connected
           if face.class == Sketchup::Face
             face_normal = face.normal
-            face_points = face.full_polygon.reduce.points
+            face_points = OpenStudio.get_full_polygon(face).reduce.points
             if DrawingUtils.is_base_face(face, face_normal, face_points, @entity)
               #puts "found child face->" + face.to_s
               child_faces << face
@@ -402,13 +402,13 @@ module OpenStudio
 
         #puts "child_faces = #{child_faces}"
 
-        reduced_polygon = Polygon.new(@entity.full_polygon.outer_loop.reduce)  # Removes collinear points
+        reduced_polygon = Polygon.new(OpenStudio.get_full_polygon(@entity).outer_loop.reduce)  # Removes collinear points
         new_points = []
         for point in reduced_polygon.points
 
           found = false
           for child in child_faces
-            for sub_point in child.full_polygon.points
+            for sub_point in OpenStudio.get_full_polygon(child).points
               if (point == sub_point)
                 #puts "sub face vertex subtracted"
                 found = true

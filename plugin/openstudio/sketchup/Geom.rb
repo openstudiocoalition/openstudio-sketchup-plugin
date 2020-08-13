@@ -927,7 +927,7 @@ module OpenStudio
       puts "face1.area=" + f1.area.to_s
       puts "face2.area=" + f2.area.to_s
 
-      polygons = f1.intersect(f2)
+      polygons = OpenStudio.intersect_faces(f1, f2)
 
       $polys = polygons
 

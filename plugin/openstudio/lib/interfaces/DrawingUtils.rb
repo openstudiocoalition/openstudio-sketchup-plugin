@@ -42,7 +42,7 @@ module DrawingUtils
       # There are some precision issues with 'face.plane' however.
       if (entity.normal.parallel?(face_normal))
         # Detect if the vertices of the entity are a subset of this face.
-        if (OpenStudio::is_subset_of?(face_points, entity.full_polygon.reduce.points))
+        if (OpenStudio::is_subset_of?(face_points, OpenStudio.get_full_polygon(entity).reduce.points))
           return true
         end
       end
@@ -68,7 +68,7 @@ module DrawingUtils
     end
 
     face_normal = face.normal
-    face_points = face.full_polygon.reduce.points
+    face_points = OpenStudio.get_full_polygon(face).reduce.points
 
     all_connected = face.all_connected
     if first_guess
@@ -163,8 +163,8 @@ module DrawingUtils
       return(false)
     end
 
-    new_face_points = entity.full_polygon.reduce.points
-    old_face_points = old_entity.full_polygon.reduce.points
+    new_face_points = OpenStudio.get_full_polygon(entity).reduce.points
+    old_face_points = OpenStudio.get_full_polygon(old_entity).reduce.points
 
     OpenStudio::Plugin.log(OpenStudio::Info, "new_face = #{entity}, entityID = #{entity.entityID}")
     OpenStudio::Plugin.log(OpenStudio::Info, "new_face_points = [#{new_face_points.join(',')}]")

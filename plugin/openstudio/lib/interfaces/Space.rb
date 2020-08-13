@@ -160,8 +160,8 @@ module OpenStudio
             for test_face in faces
               next if (not test_face.valid?)
 
-              test_face_points = test_face.outer_polygon.reduce.points
-              face_points = face.outer_polygon.reduce.points
+              test_face_points = OpenStudio.get_outer_polygon(test_face).reduce.points
+              face_points = OpenStudio.get_outer_polygon(face).reduce.points
 
               if (test_face != face and OpenStudio.is_same_set?(test_face_points, face_points))
                 intended_face = test_face
@@ -175,8 +175,8 @@ module OpenStudio
               for test_face in faces
                 next if (not test_face.valid?)
 
-                test_face_points = test_face.outer_polygon.reduce.points
-                other_face_points = other_face.outer_polygon.reduce.points
+                test_face_points = OpenStudio.get_outer_polygon(test_face).reduce.points
+                other_face_points = OpenStudio.get_outer_polygon(other_face).reduce.points
 
                 if (test_face != other_face and OpenStudio.is_same_set?(test_face_points, other_face_points))
                   #puts "matched other face: " + test_face.to_s + ", " + face.to_s

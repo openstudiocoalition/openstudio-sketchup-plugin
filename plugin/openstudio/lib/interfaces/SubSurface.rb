@@ -162,7 +162,7 @@ module OpenStudio
         # SubSurfaces which are equal to the base Surface will pass this test
         contained = true
         for point in surface_polygon.points
-          if (not @parent.entity.contains_point?(point, true))
+          if (not OpenStudio.face_contains_point?(@parent.entity, point, true))
             contained = false
             # Not sure how to fix this one without accidentally overlapping with another surface
             break
@@ -316,7 +316,7 @@ module OpenStudio
       # if check really fails, might be able to call Sketchup.undo.
 
 
-      #points = @entity.full_polygon.reduce.points
+      #points = OpenStudio.get_full_polygon(@entity).reduce.points
       #if (points.length > 4)
 
         #puts "Oops!  Too many vertices!"

@@ -139,7 +139,7 @@ module OpenStudio
             # containing_entity.entities will not return entity because it has been deleted
             containing_entity.entities.each { |this_entity|
               if ((this_entity.class == Sketchup::Face))
-                face_points = this_entity.outer_polygon.reduce.points
+                face_points = OpenStudio.get_outer_polygon(this_entity).reduce.points
 
                 # Check to see if all drawing_object points are a subset of the face points.
                 if (OpenStudio::is_subset_of?(drawing_interface_points, face_points))

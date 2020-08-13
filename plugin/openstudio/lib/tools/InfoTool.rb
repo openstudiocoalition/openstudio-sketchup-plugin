@@ -204,7 +204,7 @@ module OpenStudio
       #$f.vertices.each { |v| puts v.position.display }
       #puts
 
-      #if ($f.contains_point?(@ip.position, include_border = true))
+      #if (OpenStudio.face_contains_point?($f, @ip.position, include_border = true))
       #  puts "face contains point"
       #else
       #  puts "face DOES NOT contain point"

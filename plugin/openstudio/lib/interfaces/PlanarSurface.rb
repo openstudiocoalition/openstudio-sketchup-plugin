@@ -1021,8 +1021,8 @@ module OpenStudio
     def face_polygon
       Plugin.log(OpenStudio::Trace, "#{current_method_name}")
 
-      # can this just call @entity.outer_polygon?
-      points = @entity.full_polygon.outer_loop.reduce  # removes collinear points
+      # can this just call OpenStudio.get_outer_polygon(@entity)?
+      points = OpenStudio.get_full_polygon(@entity).outer_loop.reduce  # removes collinear points
 
       #Plugin.log(OpenStudio::Info, "face_polygon, face_polygon = #{points}")
 

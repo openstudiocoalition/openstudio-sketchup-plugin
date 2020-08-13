@@ -182,6 +182,40 @@ module OpenStudio
 
     entity.set_attribute('OpenStudio', 'Handle', handle.to_s)
   end
+  
+  def self.get_polygon_loop(loop)
+    points = []
+    loop.vertices.each do |vertex|
+      # DLM@20100920: weird bug in SU 8 that vertices can also return attribute dictionary for a loop's vertices
+      if vertex.class == Sketchup::Vertex
+        points << vertex.position
+      end
+    end
+    return(OpenStudio::PolygonLoop.new(points))
+  end
+  
+  def self.get_outer_polygon(face)
+    return(OpenStudio::Polygon.new(OpenStudio.get_polygon_loop(face.outer_loop)))
+  end
+
+  def self.get_full_polygon(face)
+    this_polygon = OpenStudio.get_outer_polygon(face)
+    for this_loop in face.loops
+      if (not this_loop.outer?)
+        this_polygon.add_loop(OpenStudio.get_polygon_loop(this_loop))
+      end
+    end
+    return(this_polygon)
+  end
+
+  def self.face_contains_point?(face, point, include_border = false)
+    return(OpenStudio.point_in_polygon(point, self.get_full_polygon(face), include_border))
+  end
+
+  def self.intersect_faces(face, other_face)
+    return(OpenStudio.intersect_polygon_polygon(self.get_full_polygon(face), self.get_full_polygon(other_face)))  # array of polygons
+  end
+  
 end
 
 
@@ -215,56 +249,6 @@ class Sketchup::Entity
   end
 
 end
-
-class Sketchup::Loop
-
-# should this return a polygon or a polygon loop?
-
-  def polygon_loop
-    points = []
-    self.vertices.each do |vertex|
-      # DLM@20100920: weird bug in SU 8 that vertices can also return attribute dictionary for a loop's vertices
-      if vertex.class == Sketchup::Vertex
-        points << vertex.position
-      end
-    end
-    return(OpenStudio::PolygonLoop.new(points))
-  end
-
-end
-
-
-
-
-class Sketchup::Face
-
-  def outer_polygon
-    return(OpenStudio::Polygon.new(self.outer_loop.polygon_loop))
-  end
-
-
-  def full_polygon
-    this_polygon = self.outer_polygon
-    for this_loop in self.loops
-      if (not this_loop.outer?)
-        this_polygon.add_loop(this_loop.polygon_loop.points)
-      end
-    end
-    return(this_polygon)
-  end
-
-
-  def contains_point?(point, include_border = false)
-    return(OpenStudio.point_in_polygon(point, self.full_polygon, include_border))
-  end
-
-
-  def intersect(other_face)
-    return(OpenStudio.intersect_polygon_polygon(self.full_polygon, other_face.full_polygon))  # array of polygons
-  end
-
-end
-
 
 
 class Sketchup::ShadowInfo
