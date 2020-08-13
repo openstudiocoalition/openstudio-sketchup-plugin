@@ -118,7 +118,11 @@ module OpenStudio
       @dir = File.dirname(__FILE__) + "/.."
       @profile_running = false
       
+      # rubocop:disable SketchupRequirements/GlobalVariables GlobalVariables
+      # this global variable is set by openstudio.rb
       @openstudio_application_dir = $OPENSTUDIO_APPLICATION_DIR
+      # rubocop:enable SketchupRequirements/GlobalVariables GlobalVariables
+      
       @disable_observers = OpenStudio::SKETCHUPPLUGIN_DISABLE_OBSERVERS
 
       @event_queue = []

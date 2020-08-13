@@ -59,7 +59,7 @@ module OpenStudio
   inv_expected_normal = Geom::Vector3d.new 0,0,1
   status = 0
   selection.each do |index|
-    if index.typename == "Face"
+    if index.is_a? Face
       if index.normal != expected_normal
         if index.normal == inv_expected_normal
           flip = index.reverse!

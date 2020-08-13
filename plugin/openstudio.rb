@@ -36,7 +36,7 @@ module OpenStudio
   SKETCHUPPLUGIN_LAUNCH_GETTING_STARTED_ON_START = false
 end
 
-ext = SketchupExtension.new("OpenStudio", "OpenStudio/Startup.rb")
+ext = SketchupExtension.new("OpenStudio", "OpenStudio/Startup")
 ext.name = OpenStudio::SKETCHUPPLUGIN_NAME
 ext.description = "Adds building energy modeling capabilities by coupling SketchUp to the OpenStudio suite of tools.  \r\n\r\nVisit openstudio.net for more information."
 ext.version = OpenStudio::SKETCHUPPLUGIN_VERSION
