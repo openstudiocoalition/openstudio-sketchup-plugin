@@ -178,7 +178,7 @@ module OpenStudio
             # Restore the drawing interface to the original face.
             # changes properties of swapped_face
             swapped_face.drawing_interface = @drawing_interface
-            swapped_face.model_object_handle = @drawing_interface.model_object.handle
+            OpenStudio.set_model_object_handle(swapped_face, @drawing_interface.model_object.handle)
 
             @drawing_interface.entity = swapped_face
             @drawing_interface.on_change_entity # changes properties via paint_entity

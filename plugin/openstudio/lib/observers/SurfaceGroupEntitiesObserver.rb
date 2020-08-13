@@ -239,7 +239,7 @@ module OpenStudio
 
                 original_surface.entity = entity
                 original_surface.entity.drawing_interface = original_surface
-                original_surface.entity.model_object_handle = original_surface.model_object.handle
+                OpenStudio.set_model_object_handle(original_surface.entity, original_surface.model_object.handle)
 
                 original_surface.on_change_entity  # Recalculates vertices and paints the entity.
                 original_surface.add_observers

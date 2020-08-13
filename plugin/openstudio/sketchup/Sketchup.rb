@@ -153,13 +153,13 @@ module OpenStudio
   
   def self.get_openstudio_entities(skp_model)
     result = []
-    skp_model.entities.each {|e| result << e if e.model_object_handle }
+    skp_model.entities.each {|e| result << e if self.get_model_object_handle(e) }
     return result
   end
   
   def self.get_openstudio_materials(skp_model)
     result = []
-    skp_model.materials.each {|m| result << m if m.model_object_handle }
+    skp_model.materials.each {|m| result << m if self.get_model_object_handle(m) }
     return result
   end
   
@@ -170,22 +170,22 @@ module OpenStudio
     skp_model.set_attribute('OpenStudio', 'ModelInterface', nil)
     skp_model.entities.erase_entities(skp_model.openstudio_entities)
   end
+  
+  # returns a string
+  def self.get_model_object_handle(entity)
+    return(entity.get_attribute('OpenStudio', 'Handle'))
+  end
+
+  # takes a OpenStudio::Handle or a string
+  def self.set_model_object_handle(entity, handle)
+    OpenStudio::Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+
+    entity.set_attribute('OpenStudio', 'Handle', handle.to_s)
+  end
 end
 
 
 class Sketchup::Entity
-
-  # returns a string
-  def model_object_handle
-    return(get_attribute('OpenStudio', 'Handle'))
-  end
-
-  # takes a OpenStudio::Handle or a string
-  def model_object_handle=(handle)
-    OpenStudio::Plugin.log(OpenStudio::Trace, "#{current_method_name}")
-
-    set_attribute('OpenStudio', 'Handle', handle.to_s)
-  end
 
   # returns the OpenStudio::DrawingInterface associated with this Entity
   def drawing_interface

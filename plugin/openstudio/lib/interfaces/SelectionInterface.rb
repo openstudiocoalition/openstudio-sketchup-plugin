@@ -138,7 +138,7 @@ module OpenStudio
             # Check for entities that have been copied into a non-OpenStudio group and clean them.
             if (entity.parent.class == Sketchup::ComponentDefinition and not entity.parent.instances.first.drawing_interface)
               entity.drawing_interface = nil
-              entity.model_object_handle = nil
+              OpenStudio.set_model_object_handle(entity, nil)
             end
 
             if drawing_interface.nil?

@@ -119,7 +119,7 @@ module DrawingUtils
     end
 
     entity.drawing_interface = nil
-    entity.model_object_handle = nil
+    OpenStudio.set_model_object_handle(entity, nil)
   end
 
 

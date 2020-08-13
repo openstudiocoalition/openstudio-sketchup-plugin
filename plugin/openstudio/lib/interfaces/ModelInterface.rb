@@ -834,28 +834,31 @@ module OpenStudio
         # intentioanlly does not include shadow_info because that entity is shared between building and site
 
         # spaces and exterior shading groups
-        if (entity.class == Sketchup::Group and entity.model_object_handle)
-          entity_hash[entity.model_object_handle.to_s] = entity
+        model_object_handle = OpenStudio.get_model_object_handle(entity)
+        if (entity.class == Sketchup::Group and model_object_handle)
+          entity_hash[model_object_handle.to_s] = entity
 
           # Iterate over surfaces in the group.
           for child_entity in entity.entities
-            if (child_entity.class == Sketchup::Face and child_entity.model_object_handle)
+            child_model_object_handle = OpenStudio.get_model_object_handle(child_entity)
+            if (child_entity.class == Sketchup::Face and child_model_object_handle)
               # shading surface, surface, or subsurface
-              entity_hash[child_entity.model_object_handle.to_s] = child_entity
+              entity_hash[child_model_object_handle.to_s] = child_entity
 
-            elsif (child_entity.class == Sketchup::ComponentInstance and child_entity.model_object_handle)
+            elsif (child_entity.class == Sketchup::ComponentInstance and child_model_object_handle)
               # daylighting controls or illuminance map
-              entity_hash[child_entity.model_object_handle.to_s] = child_entity
+              entity_hash[child_model_object_handle.to_s] = child_entity
 
-            elsif (child_entity.class == Sketchup::Group and child_entity.model_object_handle)
+            elsif (child_entity.class == Sketchup::Group and child_model_object_handle)
               # space shading or interior surface partition group
-              entity_hash[child_entity.model_object_handle.to_s] = child_entity
+              entity_hash[child_model_object_handle.to_s] = child_entity
 
               # Iterate over surfaces in the group.
               for grand_child_entity in child_entity.entities
-                if (grand_child_entity.class == Sketchup::Face and grand_child_entity.model_object_handle)
+                grand_child_model_object_handle = OpenStudio.get_model_object_handle(grand_child_entity)
+                if (grand_child_entity.class == Sketchup::Face and grand_child_model_object_handle)
                   # shading surface, or interior partition surface
-                  entity_hash[grand_child_entity.model_object_handle.to_s] = grand_child_entity
+                  entity_hash[grand_child_model_object_handle.to_s] = grand_child_entity
                 end
               end
             end
@@ -1368,7 +1371,7 @@ module OpenStudio
 
       for entity in @skp_model.entities
         next if (entity.class != Sketchup::Group)
-        return(true) if (entity.model_object_handle)
+        return(true) if (OpenStudio.get_model_object_handle(entity))
       end
       return(false)
     end
@@ -1787,7 +1790,7 @@ end
       # update handles in all existing sketchup entities
       entity_hash.each_pair do |old_handle, entity|
         if new_handle = handle_hash[old_handle]
-          entity.model_object_handle = new_handle
+          OpenStudio.set_model_object_handle(entity, new_handle)
           #puts "updated handle for #{entity} from #{old_handle} to #{new_handle}"
         else
           puts "failed to update handle for #{entity} with old handle #{old_handle}"

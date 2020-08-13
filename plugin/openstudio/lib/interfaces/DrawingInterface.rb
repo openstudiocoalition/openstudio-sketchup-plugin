@@ -176,7 +176,7 @@ module OpenStudio
 
         if (confirm_entity)
           @entity.drawing_interface = self
-          @entity.model_object_handle = @model_object.handle
+          OpenStudio.set_model_object_handle(@entity, @model_object.handle)
 
           paint_entity
           #update_model_object
@@ -506,7 +506,7 @@ module OpenStudio
         create_model_object
 
         if @model_object
-          @entity.model_object_handle = @model_object.handle
+          OpenStudio.set_model_object_handle(@entity, @model_object.handle)
 
           update_model_object
 
@@ -556,7 +556,7 @@ module OpenStudio
           @model_object = original_interface.model_object.clone(@model_interface.openstudio_model)
           @model_object = self.class.model_object_from_handle(@model_object.handle)
           @model_object.drawing_interface = self
-          @entity.model_object_handle = @model_object.handle
+          OpenStudio.set_model_object_handle(@entity, @model_object.handle)
 
           Plugin.log(OpenStudio::Info, "Cloning finished for #{self} with model_object #{@model_object}")
 
@@ -605,7 +605,7 @@ module OpenStudio
 
       @entity = entity
       @entity.drawing_interface = self
-      @entity.model_object_handle = @model_object.handle if (@model_object)
+      OpenStudio.set_model_object_handle(@entity, @model_object.handle) if (@model_object)
     end
 
 
@@ -702,7 +702,7 @@ module OpenStudio
       remove_observers
       if (valid_entity?)
         entity.drawing_interface = nil
-        entity.model_object_handle = nil
+        OpenStudio.set_model_object_handle(entity, nil)
       end
     end
 
@@ -794,7 +794,7 @@ module OpenStudio
       @model_object.drawing_interface = nil if @model_object
       @model_object = nil
 
-      old_handle = entity.model_object_handle
+      old_handle = OpenStudio.get_model_object_handle(entity)
 
       Plugin.log(OpenStudio::Info, "on_undelete_entity #{entity}, old_handle = #{old_handle}")
 
@@ -827,10 +827,10 @@ module OpenStudio
       @entity = entity  # The entity comes back with a different reference than it had originally.
       @entity.drawing_interface = self  # The reference to the drawing interface is lost when it is deleted.
       if (@model_object)
-        @entity.model_object_handle = @model_object.handle
+        OpenStudio.set_model_object_handle(@entity, @model_object.handle)
         add_watcher
       else
-        @entity.model_object_handle = nil
+        OpenStudio.set_model_object_handle(@entity, nil)
       end
 
       on_change_entity  # Restore the parent links, etc.

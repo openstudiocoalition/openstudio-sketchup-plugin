@@ -183,7 +183,7 @@ module OpenStudio
       #puts "Face=>       " + $f.to_s
       #puts "Interface=>  " + $f.drawing_interface.to_s
       #puts "EntityID=>   " + $f.entityID.to_s   # useless...always matched to the same Face
-      #puts "Key=>        " + $f.model_object_handle.to_s
+      #puts "Key=>        " + OpenStudio.get_model_object_handle($f).to_s
       #puts "Base Face=>  " + DrawingUtils.find_base_face($f).to_s   # this is not working right
       #puts
 
