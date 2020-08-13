@@ -715,7 +715,7 @@ module OpenStudio
 
       @update_cmd = UI::Command.new("Check For Update") { Plugin.update_manager = PluginUpdateManager.new(true) }
       @update_cmd.set_validation_proc {
-        if $OPENSTUDIO_UPDATE_MANAGER && Plugin.update_manager.nil?
+        if OpenStudio::UPDATE_MANAGER && Plugin.update_manager.nil?
           MF_ENABLED
         else
           MF_GRAYED
@@ -790,7 +790,7 @@ module OpenStudio
 
       id = @plugin_menu.add_item(@update_cmd)
       @plugin_menu.set_validation_proc(id) { 
-        if $OPENSTUDIO_UPDATE_MANAGER && Plugin.update_manager.nil?
+        if OpenStudio::UPDATE_MANAGER && Plugin.update_manager.nil?
           MF_ENABLED
         else
           MF_GRAYED
@@ -916,7 +916,7 @@ module OpenStudio
       end
 
 
-      if $OPENSTUDIO_SKETCHUPPLUGIN_DEVELOPER_MENU
+      if OpenStudio::SKETCHUPPLUGIN_DEVELOPER_MENU
         # add developer menu
         @developer_menu = UI.menu("Plugins").add_submenu(Plugin.name + " Developer")
         #@developer_menu.set_validation_proc { MF_ENABLED }

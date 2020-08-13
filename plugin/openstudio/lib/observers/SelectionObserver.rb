@@ -56,7 +56,7 @@ module OpenStudio
     #
     #  return if not @enabled
     #
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #
     #  http://www.thomthom.net/software/sketchup/observers/#note_SelectionObserver
     #  onSelectionBulkChange triggers instead of onSelectionAdded and onSelectionRemoved.
@@ -71,7 +71,7 @@ module OpenStudio
 
     def onSelectionBulkChange(selection)
 
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
 
       return if not @enabled
 
@@ -88,7 +88,7 @@ module OpenStudio
 
     def onSelectionCleared(selection)
 
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
 
       return if not @enabled
 
@@ -108,7 +108,7 @@ module OpenStudio
     #
     #  return if not @enabled
     #
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #
     #  # Not sure when this is called.
     #end

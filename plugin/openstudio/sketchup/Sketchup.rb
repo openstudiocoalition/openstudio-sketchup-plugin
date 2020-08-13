@@ -120,7 +120,7 @@ module OpenStudio
   end
 
   def self.set_openstudio_path(skp_model, path)
-    OpenStudio::Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    OpenStudio::Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
     skp_model.set_attribute('OpenStudio', 'OpenStudioPath', path)
   end
@@ -144,7 +144,7 @@ module OpenStudio
   end
 
   def self.set_model_interface(skp_model, object)
-    OpenStudio::Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    OpenStudio::Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
     skp_model.set_attribute('OpenStudio', 'ModelInterface', object.object_id.to_s)
   end
@@ -176,7 +176,7 @@ module OpenStudio
 
   # takes a OpenStudio::Handle or a string
   def self.set_model_object_handle(entity, handle)
-    OpenStudio::Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    OpenStudio::Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
     entity.set_attribute('OpenStudio', 'Handle', handle.to_s)
   end
@@ -203,7 +203,7 @@ module OpenStudio
   end
 
   def self.set_drawing_interface(entity, object)
-    OpenStudio::Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    OpenStudio::Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
     entity.set_attribute('OpenStudio', 'DrawingInterface', object.object_id.to_s)
   end

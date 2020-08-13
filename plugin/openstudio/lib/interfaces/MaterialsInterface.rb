@@ -67,7 +67,7 @@ module OpenStudio
     attr_accessor :observer
 
     def initialize(model_interface)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @model_interface = model_interface
       @materials = @model_interface.skp_model.materials
@@ -206,7 +206,7 @@ module OpenStudio
     end
 
     def destroy
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @model_interface = nil
       @materials = nil
@@ -214,15 +214,15 @@ module OpenStudio
     end
 
     def valid_entity?
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return((not @materials.nil?) and (not @materials.deleted?) and @materials.valid? and (@materials.entityID > 0))
     end
 
     def add_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
-      if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+      if Plugin.disable_observers
         if not @observer_added
           @materials.add_observer(@observer)
           @observer_added = true
@@ -241,11 +241,11 @@ module OpenStudio
     end
 
     def remove_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       had_observers = false
       if (valid_entity?)
-        if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+        if Plugin.disable_observers
           if @observer_added
             had_observers = @observer.disable
           end
@@ -265,12 +265,12 @@ module OpenStudio
     end
 
     def destroy_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = false
       if @observer
         if (valid_entity?)
-          if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+          if Plugin.disable_observers
             # actually do remove here
             @materials.remove_observer(@observer)
             @observer.disable
@@ -295,7 +295,7 @@ module OpenStudio
     end
 
     def get_material(name, color)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       material = @model_interface.skp_model.materials[name]
       if (material.nil?)
@@ -307,14 +307,14 @@ module OpenStudio
     end
 
     def render_defaults
-      #Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return @render_defaults
     end
 
     # DLM: can we remove this?
     #def render_defaults=(render_defaults)
-    #  #Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #
     #  @render_defaults = render_defaults
     #
@@ -322,13 +322,13 @@ module OpenStudio
     #end
 
     def rendering_mode
-      #Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return @rendering_mode
     end
 
     def rendering_mode=(rendering_mode)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if rendering_mode == RenderByConstruction or rendering_mode == RenderBySpaceType
         if @rendering_mode == rendering_mode

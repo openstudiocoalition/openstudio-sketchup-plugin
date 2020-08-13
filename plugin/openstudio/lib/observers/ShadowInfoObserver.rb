@@ -59,7 +59,7 @@ module OpenStudio
 
     def onShadowInfoChanged(shadow_info, arg2)
 
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
 
       return if not @enabled
 

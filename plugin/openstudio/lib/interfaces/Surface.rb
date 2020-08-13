@@ -35,7 +35,7 @@ module OpenStudio
   class Surface < PlanarSurface
 
     def initialize
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
     end
 
@@ -43,7 +43,7 @@ module OpenStudio
 ##### Begin override methods for the input object #####
 
     def self.model_object_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_object = Plugin.model_manager.model_interface.openstudio_model.getSurface(handle)
       if not model_object.empty?
@@ -56,7 +56,7 @@ module OpenStudio
     end
 
     def self.new_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       drawing_interface = Surface.new
       model_object = model_object_from_handle(handle)
@@ -67,7 +67,7 @@ module OpenStudio
     end
 
     def create_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # need to get parents transformation
       update_parent_from_entity
@@ -87,7 +87,7 @@ module OpenStudio
     end
 
     def check_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (super)
         surfaceType = @model_object.surfaceType.upcase
@@ -209,7 +209,7 @@ module OpenStudio
 
     # Updates the ModelObject with new information from the SketchUp entity.
     def update_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super  # PlanarSurface superclass updates the vertices
 
       if (valid_entity?)
@@ -227,7 +227,7 @@ module OpenStudio
 
     # Returns the parent drawing interface according to the input object.
     def parent_from_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       parent = nil
       if (@model_object)
@@ -247,7 +247,7 @@ module OpenStudio
 
     # Deletes the model object and marks the drawing interface when the SketchUp entity is erased.
     def delete_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # duplicates code in Surface::remove
       if not @model_object.adjacentSurface.empty?
@@ -263,13 +263,13 @@ module OpenStudio
 
     # Error checks, finalization, or cleanup needed after the entity is drawn.
     def confirm_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
     end
 
     # Undelete happens when an entity is restored after an Undo event.
     def on_undelete_entity(entity)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
 
       # there may be subsurfaces that need to be re-parented to this
@@ -282,7 +282,7 @@ module OpenStudio
 ##### Begin override methods for the interface #####
 
     def paint_surface_type(info=nil)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if @model_object.isAirWall
         @entity.material = @model_interface.materials_interface.air_wall
@@ -310,7 +310,7 @@ module OpenStudio
     end
 
     def paint_boundary(info=nil)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       outsideBoundaryCondition = @model_object.outsideBoundaryCondition.upcase
       if (outsideBoundaryCondition == "SURFACE")
@@ -379,7 +379,7 @@ module OpenStudio
     # Returns the polygon of the SketchUp Face in SketchUp coordinates.
     # Purpose is to remove collinear points and vertices of sub surfaces (overridden in Surface)
     def face_polygon
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (valid_entity?)
         # Get list of children based on actual faces that share vertices with the base face.
@@ -438,13 +438,13 @@ module OpenStudio
 ##### Begin new methods for the interface #####
 
     def exterior?
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return (@model_object.outsideBoundaryCondition == "OUTDOORS" or @model_object.isGroundSurface)
     end
 
     def in_selection?(selection)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return (selection.contains?(@entity) or selection.contains?(@parent.entity))
     end

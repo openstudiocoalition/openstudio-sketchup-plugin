@@ -35,7 +35,7 @@ module OpenStudio
   class ShadingSurfaceGroup < SurfaceGroup
 
     def initialize
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super
     end
@@ -43,7 +43,7 @@ module OpenStudio
 ##### Begin override methods for the input object #####
 
     def self.model_object_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_object = Plugin.model_manager.model_interface.openstudio_model.getShadingSurfaceGroup(handle)
       if not model_object.empty?
@@ -57,7 +57,7 @@ module OpenStudio
 
 
     def self.new_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       drawing_interface = ShadingSurfaceGroup.new
       model_object = model_object_from_handle(handle)
@@ -69,7 +69,7 @@ module OpenStudio
 
 
     def create_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_watcher_enabled = @model_interface.model_watcher.disable
       @model_object = OpenStudio::Model::ShadingSurfaceGroup.new(@model_interface.openstudio_model)
@@ -78,7 +78,7 @@ module OpenStudio
     end
 
     def check_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # Look up the parent drawing interface (might fail if the reference is bad)
       if (not parent_from_model_object)
@@ -92,7 +92,7 @@ module OpenStudio
 
     # Updates the ModelObject with new information from the SketchUp entity.
     def update_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
 
       if (valid_entity?)
@@ -117,7 +117,7 @@ module OpenStudio
 
     # The parent interface is the model interface for building and site shading, it is the space for space shading
     def parent_from_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       parent = nil
       if (@model_object)
@@ -141,7 +141,7 @@ module OpenStudio
     # Called from ShadingSurfaceGroup.new_from_entity(entity).
     # Needed for recreating the Group when a shading surface is reassociated.
     def create_from_entity(entity)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @entity = entity
       OpenStudio.get_drawing_interface(@entity, self)
@@ -163,7 +163,7 @@ module OpenStudio
     end
 
     def create_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super
 
@@ -171,7 +171,7 @@ module OpenStudio
     end
 
     def coordinate_transformation
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = super
 
@@ -185,7 +185,7 @@ module OpenStudio
     end
 
     def coordinate_transformation=(transform)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # result is in site coordinates, transform to SketchUp/building coordinates
       # x = Tx * s = Tx * Tb^-1 * b
@@ -199,7 +199,7 @@ module OpenStudio
 ##### Begin override methods for the interface #####
 
     def set_entity_name
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (@model_object.name.empty?)
         @entity.name = "Shading Surface Group:  " + "(Untitled)"
@@ -213,7 +213,7 @@ module OpenStudio
 
     # surface area in in^2
     def surface_area
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       area = 0.0
       for child in @children
@@ -224,14 +224,14 @@ module OpenStudio
 
 
     def shading_surface_type
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return @model_object.shadingSurfaceType
     end
 
 
     def shading_surface_type=(type)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if type.upcase == "SITE"
         @model_object.setShadingSurfaceType("Site")

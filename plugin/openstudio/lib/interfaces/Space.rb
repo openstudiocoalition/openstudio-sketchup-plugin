@@ -36,14 +36,14 @@ module OpenStudio
   class Space < SurfaceGroup
 
     def initialize
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
     end
 
 ##### Begin override methods for the input object #####
 
     def self.model_object_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_object = Plugin.model_manager.model_interface.openstudio_model.getSpace(handle)
       if not model_object.empty?
@@ -56,7 +56,7 @@ module OpenStudio
     end
 
     def self.new_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       drawing_interface = Space.new
       model_object = model_object_from_handle(handle)
@@ -67,7 +67,7 @@ module OpenStudio
     end
 
     def create_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_watcher_enabled = @model_interface.model_watcher.disable
       @model_object = OpenStudio::Model::Space.new(@model_interface.openstudio_model)
@@ -88,7 +88,7 @@ module OpenStudio
 
     # The parent interface is the model interface.
     def parent_from_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return @model_interface.building
     end
@@ -102,7 +102,7 @@ module OpenStudio
     #
     # For spaces, check for any problems with its faces.
     def cleanup_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super
 
@@ -236,7 +236,7 @@ module OpenStudio
 ##### Begin override methods for the interface #####
 
     def add_watcher
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (@model_object)
         @watcher = RenderableModelObjectWatcher.new(self, self, [2, 3, 9, 10], [RenderBySpaceType, RenderByConstruction, RenderByBuildingStory, RenderByThermalZone])
@@ -244,7 +244,7 @@ module OpenStudio
     end
 
     def set_entity_name
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @entity.name = "Space:  " + @model_object.name.get
     end

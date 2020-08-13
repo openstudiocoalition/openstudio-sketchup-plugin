@@ -36,7 +36,7 @@ module OpenStudio
     attr_accessor :dialog_interfaces, :inspector_dialog
 
     def initialize
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @dialog_interfaces = Set.new
 
@@ -49,7 +49,7 @@ module OpenStudio
     end
 
     def save_state
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       interface_names = @dialog_interfaces.collect { |interface| interface.class.to_s[12..-1] }  # Clip the "OpenStudio::" part
       Plugin.write_pref('Open Dialogs', interface_names.to_a.join(','))
@@ -58,7 +58,7 @@ module OpenStudio
     end
 
     def restore_state
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       interface_names = Plugin.read_pref('Open Dialogs').split(',')
       interface_names.each do |interface_name|
@@ -80,7 +80,7 @@ module OpenStudio
     end
 
     def active_interface(interface_class)
-      #Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if interface_class == PluginInspectorDialog
         return @inspector_dialog
@@ -89,7 +89,7 @@ module OpenStudio
     end
 
     def show(interface_class)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (not interface = active_interface(interface_class))
         interface = interface_class.new
@@ -101,7 +101,7 @@ module OpenStudio
     end
 
     def validate(interface_class)
-      #Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = MF_GRAYED
       if model_manager = Plugin.model_manager
@@ -118,7 +118,7 @@ module OpenStudio
 
 
     def update(interface_class)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (interface = active_interface(interface_class))
         interface.update
@@ -127,20 +127,20 @@ module OpenStudio
 
 
     def update_all
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @inspector_dialog.update
       @dialog_interfaces.each { |interface| interface.update }
     end
 
     def units_system
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return @units_system
     end
 
     def update_units
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       puts "current @units_system = #{@units_system}"
 
@@ -157,7 +157,7 @@ module OpenStudio
     end
 
     def remove(interface)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @dialog_interfaces.delete(interface)
       save_state
@@ -165,7 +165,7 @@ module OpenStudio
 
 
     def close_all
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       save_state
 
@@ -179,7 +179,7 @@ module OpenStudio
 
 
     def selection_changed
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       was_dialog_enabled = @inspector_dialog.disable
 

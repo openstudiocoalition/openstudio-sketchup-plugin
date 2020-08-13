@@ -37,7 +37,7 @@ module OpenStudio
     attr_reader :model_interface, :observer, :selection
 
     def initialize(model_interface)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @model_interface = model_interface
       @selection = @model_interface.skp_model.selection
@@ -47,7 +47,7 @@ module OpenStudio
     end
 
     def destroy
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @model_interface = nil
       @selection = nil
@@ -55,9 +55,9 @@ module OpenStudio
     end
 
     def add_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
-      if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+      if Plugin.disable_observers
         if not @observer_added
           @selection.add_observer(@observer)
           @observer_added = true
@@ -71,10 +71,10 @@ module OpenStudio
     end
 
     def remove_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       had_observers = false
-      if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+      if Plugin.disable_observers
         if @observer_added
           had_observers = @observer.disable
         end
@@ -88,11 +88,11 @@ module OpenStudio
     end
 
     def destroy_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = false
       if @observer
-        if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+        if Plugin.disable_observers
           # actually do remove here
           @selection.remove_observer(@observer)
           @observer.disable
@@ -113,7 +113,7 @@ module OpenStudio
     # gets the drawing_interface which is actually selected, not render mode aware
     # render mode is applied in DialogManager::selection_changed
     def selected_drawing_interface
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       drawing_interface = nil
       if (@selection.empty?)
@@ -173,7 +173,7 @@ module OpenStudio
     end
 
     def select_drawing_interfaces(handles)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @selection.clear
 

@@ -36,13 +36,13 @@ module OpenStudio
   class Building < DrawingInterface
 
     def initialize
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
       @observer = ShadowInfoObserver.new(self)
     end
 
     def self.model_object_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_object = Plugin.model_manager.model_interface.openstudio_model.getOptionalBuilding
       if not model_object.empty? and (handle.to_s == model_object.get.handle.to_s)
@@ -55,7 +55,7 @@ module OpenStudio
     end
 
     def self.new_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       drawing_interface = Building.new
       model_object = model_object_from_handle(handle)
@@ -66,7 +66,7 @@ module OpenStudio
     end
 
     def create_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_watcher_enabled = @model_interface.model_watcher.disable
       @model_object = @model_interface.openstudio_model.getBuilding
@@ -76,7 +76,7 @@ module OpenStudio
 
     # Updates the ModelObject with new information from the SketchUp entity.
     def update_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
 
       if (valid_entity?)
@@ -93,7 +93,7 @@ module OpenStudio
     end
 
     def parent_from_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return @model_interface
     end
@@ -101,7 +101,7 @@ module OpenStudio
     # Building is unlike other drawing interface because it does not actually create the entity.
     # Instead it gets the current ShadowInfo object.
     def create_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @entity = @model_interface.skp_model.shadow_info
     end
@@ -109,14 +109,14 @@ module OpenStudio
     # Drawing interfaces that don't correspond directly to a SketchUp entity (SurfaceGeometry, Building)
     # should return false here.
     def check_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(false)
     end
 
     # Updates the SketchUp entity with new information from the ModelObject.
     def update_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       north_angle = -@model_object.northAxis
       if north_angle < 0
@@ -138,21 +138,21 @@ module OpenStudio
     end
 
     def on_change_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       update_model_object
       #paint_entity # do not paint
     end
 
     def parent_from_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return @model_interface
     end
 
 
     def add_watcher
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (@model_object)
         @watcher = RenderableModelObjectWatcher.new(self, @model_interface, [5, 6], [RenderBySpaceType, RenderByConstruction])
@@ -160,14 +160,14 @@ module OpenStudio
     end
 
     def coordinate_transformation
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # to OpenStudio, building can have transformation
       return OpenStudio::transformation_from_openstudio(@model_object.transformation)
     end
 
     def coordinate_transformation=(transform)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # nothing to do
     end

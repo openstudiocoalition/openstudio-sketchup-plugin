@@ -27,6 +27,22 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
+module OpenStudio
+  
+  # Module constants
+  SKETCHUPPLUGIN_DIR = File.dirname(__FILE__)
+  SKETCHUPPLUGIN_DEVELOPER_MENU = true # default is false, enable to see developer menu
+  SKETCHUPPLUGIN_PROGRESS_DIALOGS = true # default is true, disable to speed up
+  SKETCHUPPLUGIN_CURRENT_METHOD_NAME = false # default is false, disable to speed up
+  SKETCHUPPLUGIN_LOGGING = false # default is false, disable to speed up
+  SKETCHUPPLUGIN_DISABLE_OBSERVERS = true # default is true, disables observers rather than adding/removing as SketchUp does not handle that well
+  SKETCHUPPLUGIN_DISABLE_OPERATIONS = false # default is false, enabling operations speeds things up but might introduce problems
+
+  Platform_Unknown = 0
+  Platform_Windows = 1
+  Platform_Mac = 2
+end
+
 require("openstudio")
 require("openstudio/lib/AnimationManager")
 require("openstudio/lib/CommandManager")
@@ -35,67 +51,56 @@ require("openstudio/lib/MenuManager")
 require("openstudio/lib/ModelManager")
 #require("openstudio/lib/SimulationManager")
 require("openstudio/lib/ConflictManager")
-begin
-  require("openstudio/lib/UpdateManager")
-  $OPENSTUDIO_UPDATE_MANAGER = true
-rescue LoadError, NameError
-  $OPENSTUDIO_UPDATE_MANAGER = false
-end
 require("openstudio/lib/WorkspaceObject")
 require("openstudio/lib/PluginUserScriptRunner")
-
 require("openstudio/sketchup/UI")
 require("openstudio/sketchup/Sketchup")
 require("openstudio/sketchup/Geom")
 
 require("fileutils")
 
-
-
-$OPENSTUDIO_SKETCHUPPLUGIN_DEVELOPER_MENU = true # default is false, enable to see developer menu
-$OPENSTUDIO_SKETCHUPPLUGIN_PROGRESS_DIALOGS = true # default is true, disable to speed up
-$OPENSTUDIO_SKETCHUPPLUGIN_CURRENT_METHOD_NAME = false # default is false, disable to speed up
-$OPENSTUDIO_SKETCHUPPLUGIN_LOGGING = false # default is false, disable to speed up
-$OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS = true # default is true, disables observers rather than adding/removing as SketchUp does not handle that well
-$OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OPERATIONS = false # default is false, enabling operations speeds things up but might introduce problems
-
-if defined?(OpenStudio::Modeleditor::PathWatcher)
-  $OpenStudioApplicationClass = OpenStudio::Modeleditor::Application
-else
-  $OpenStudioApplicationClass = OpenStudio::Application
-end
-
-if $OPENSTUDIO_SKETCHUPPLUGIN_CURRENT_METHOD_NAME
-  # function to return current method name
-  def current_method_name
-    caller[0]=~/`(.*?)'/
-    return "#{self.class}::#{$1}"
-    #return "#{self.class}::#{$1}, #{Thread.current}"
+begin
+  require("openstudio/lib/UpdateManager")
+  module OpenStudio
+    UPDATE_MANAGER = true
   end
-
-  def current_call_stack
-    result = ""
-    caller.each {|c| result += "#{c}\n"}
-    return result
-  end
-else
-  def current_method_name
-    return ""
-  end
-
-  def current_call_stack
-    return ""
+rescue LoadError, NameError
+  module OpenStudio
+    UPDATE_MANAGER = false
   end
 end
 
 module OpenStudio
 
-  SKETCHUPPLUGIN_DIR = File.dirname(__FILE__)
-  
-  Platform_Unknown = 0
-  Platform_Windows = 1
-  Platform_Mac = 2
+  if defined?(OpenStudio::Modeleditor::PathWatcher)
+     ApplicationClass = OpenStudio::Modeleditor::Application
+  else
+     ApplicationClass = OpenStudio::Application
+  end
 
+  if OpenStudio::SKETCHUPPLUGIN_CURRENT_METHOD_NAME
+    # function to return current method name
+    def self.current_method_name
+      caller[0]=~/`(.*?)'/
+      return "#{self.class}::#{$1}"
+      #return "#{self.class}::#{$1}, #{Thread.current}"
+    end
+
+    def self.current_call_stack
+      result = ""
+      caller.each {|c| result += "#{c}\n"}
+      return result
+    end
+  else
+    def self.current_method_name
+      return ""
+    end
+
+    def self.current_call_stack
+      return ""
+    end
+  end
+  
   # PluginManager is an App level class, its members correspond to global variables
   class PluginManager
 
@@ -105,6 +110,7 @@ module OpenStudio
 
     attr_accessor :model_manager, :command_manager, :menu_manager, :dialog_manager, :animation_manager, :simulation_manager, :preferences
     attr_accessor :update_manager, :conflict_manager, :load_components, :user_script_runner
+    attr_accessor :disable_observers
 
     def initialize
       @name = OpenStudio::SKETCHUPPLUGIN_NAME
@@ -113,6 +119,7 @@ module OpenStudio
       @profile_running = false
       
       @openstudio_application_dir = $OPENSTUDIO_APPLICATION_DIR
+      @disable_observers = OpenStudio::SKETCHUPPLUGIN_DISABLE_OBSERVERS
 
       @event_queue = []
 
@@ -123,7 +130,7 @@ module OpenStudio
       # this is needed for profiling results, etc
       FileUtils.mkdir_p(log_dir)
 
-      if $OPENSTUDIO_SKETCHUPPLUGIN_LOGGING
+      if OpenStudio::SKETCHUPPLUGIN_LOGGING
         # set up logging
         OpenStudio::Logger::instance.standardOutLogger.disable
         @log_file = OpenStudio::FileLogSink.new(OpenStudio::Path.new(self.log_path))
@@ -181,7 +188,7 @@ module OpenStudio
       @user_script_runner.discover_user_scripts
 
       @update_manager = nil
-      if $OPENSTUDIO_UPDATE_MANAGER && Plugin.read_pref("Check For Update #{self.version}")
+      if OpenStudio::UPDATE_MANAGER && Plugin.read_pref("Check For Update #{self.version}")
         @update_manager = PluginUpdateManager.new(false)
       end
 
@@ -198,7 +205,7 @@ module OpenStudio
     end
 
     def add_event(proc)
-      self.log(OpenStudio::Trace, "#{current_method_name}")
+      self.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       self.log(OpenStudio::Debug, "Adding proc #{proc} to event queue")
 
@@ -209,7 +216,7 @@ module OpenStudio
     end
 
     def process_events
-      #Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       #if @last_model != Sketchup.active_model
       #  @last_model = Sketchup.active_model
@@ -228,7 +235,7 @@ module OpenStudio
 
       # process events in OpenStudio Model
       # this may add events to the Plugin event_queue
-      $OpenStudioApplicationClass.instance.processEvents
+      OpenStudio::ApplicationClass.instance.processEvents
 
       @model_manager.model_interfaces.each do |model_interface|
         model_interface.model_watcher.processAddedObjects
@@ -296,7 +303,7 @@ module OpenStudio
     end
 
     def start_event_processing
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = false
       if not @process_events_timer_id
@@ -308,7 +315,7 @@ module OpenStudio
     end
 
     def stop_event_processing
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = false
       if @process_events_timer_id
@@ -477,7 +484,7 @@ module OpenStudio
       return(log_dir + "/SketchUpPlugin.log")
     end
 
-    if $OPENSTUDIO_SKETCHUPPLUGIN_LOGGING
+    if OpenStudio::SKETCHUPPLUGIN_LOGGING
 
       def logging_enabled
         return @log_file.isEnabled
@@ -517,14 +524,14 @@ module OpenStudio
 
   end
 
-  if $OPENSTUDIO_SKETCHUPPLUGIN_DEVELOPER_MENU
+  if OpenStudio::SKETCHUPPLUGIN_DEVELOPER_MENU
     # Show the Ruby Console at startup so we can
     # see any programming errors we may make.
     SKETCHUP_CONSOLE.show
   end
 
   # will not get new model on start up
-  if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+  if OpenStudio::SKETCHUPPLUGIN_DISABLE_OBSERVERS
     # only ever add one of these, never removed
     Sketchup.add_observer(AppObserver.new)
   else
@@ -532,13 +539,13 @@ module OpenStudio
   end
 
   # initialize QApplication
-  $OpenStudioApplicationClass::instance.application(true)
-  $OpenStudioApplicationClass::instance.application.setOrganizationName("NREL")
-  $OpenStudioApplicationClass::instance.application.setOrganizationDomain("nrel.gov")
-  $OpenStudioApplicationClass::instance.application.setApplicationName("OpenStudio")
+  OpenStudio::ApplicationClass::instance.application(true)
+  OpenStudio::ApplicationClass::instance.application.setOrganizationName("NREL")
+  OpenStudio::ApplicationClass::instance.application.setOrganizationDomain("nrel.gov")
+  OpenStudio::ApplicationClass::instance.application.setApplicationName("OpenStudio")
 
   # get SketchUp Qt Widget if possible
-  SketchUpWidget = $OpenStudioApplicationClass::instance.sketchUpWidget
+  SketchUpWidget = OpenStudio::ApplicationClass::instance.sketchUpWidget
   SketchUpWidget.hide if SketchUpWidget
 
   # Create a module constant to reference the plugin object anywhere within the module.

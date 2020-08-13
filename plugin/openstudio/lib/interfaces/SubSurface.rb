@@ -36,13 +36,13 @@ module OpenStudio
   class SubSurface < PlanarSurface
 
     def initialize
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super
     end
 
     def self.model_object_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_object = Plugin.model_manager.model_interface.openstudio_model.getSubSurface(handle)
       if not model_object.empty?
@@ -55,7 +55,7 @@ module OpenStudio
     end
 
     def self.new_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       drawing_interface = SubSurface.new
       model_object = model_object_from_handle(handle)
@@ -66,7 +66,7 @@ module OpenStudio
     end
 
     def create_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # need to get parents transformation
       update_parent_from_entity
@@ -87,7 +87,7 @@ module OpenStudio
 
 
     def check_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # All base surfaces should already be drawn.
 
@@ -260,7 +260,7 @@ module OpenStudio
 
     # Updates the ModelObject with new information from the SketchUp entity.
     def update_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super  # PlanarSurface superclass updates the vertices
 
       if (valid_entity?)
@@ -277,7 +277,7 @@ module OpenStudio
 
     # Returns the parent drawing interface according to the input object.
     def parent_from_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       parent = nil
       if (@model_object)
@@ -291,7 +291,7 @@ module OpenStudio
 
     # Deletes the model object and marks the drawing interface when the SketchUp entity is erased.
     def delete_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # duplicates code in SubSurface::remove
       if not @model_object.adjacentSubSurface.empty?
@@ -306,7 +306,7 @@ module OpenStudio
 
     # Error checks, finalization, or cleanup needed after the entity is drawn.
     def confirm_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(super)
 
@@ -332,7 +332,7 @@ module OpenStudio
 
     # Erases the entity when the input object is deleted, or in preparation for a re-draw.
     def erase_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       remove_observers(true)
       if (valid_entity?)
@@ -360,7 +360,7 @@ module OpenStudio
 
     # Returns the parent drawing interface according to the entity.
     def parent_from_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (valid_entity?)
         if (base_face = DrawingUtils.detect_base_face(@entity))
@@ -374,7 +374,7 @@ module OpenStudio
     end
 
     def containing_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = nil
       if @parent.parent
@@ -389,13 +389,13 @@ module OpenStudio
 ##### Begin new methods for the interface #####
 
     def in_selection?(selection)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return (selection.contains?(@entity) or selection.contains?(@parent.entity) or (not @parent.parent.nil? and selection.contains?(@parent.parent.entity)))
     end
 
     def paint_surface_type(info=nil)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if @model_object.isAirWall
         @entity.material = @model_interface.materials_interface.air_wall
@@ -413,7 +413,7 @@ module OpenStudio
     end
 
     def paint_boundary(info=nil)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if @model_object.adjacentSubSurface.empty?
         @entity.material = @model_interface.materials_interface.subext_ext

@@ -44,7 +44,7 @@ module OpenStudio
     end
 
     def onPathChanged
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # ignore any further signals until we finish processing
       disable

@@ -57,7 +57,7 @@ module OpenStudio
     # Vertices of the enclosed entities DO NOT change...instead a transformation is applied to the Group.
     def onChangeEntity(entity)
 
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
 
       return if not @enabled
 
@@ -82,7 +82,7 @@ module OpenStudio
     # onEraseEntity IS subsequently triggered for the enclosed entities.
     def onEraseEntity(entity)
 
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
 
       return if not @enabled
 

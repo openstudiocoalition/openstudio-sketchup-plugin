@@ -40,7 +40,7 @@ module OpenStudio
     attr_accessor :instance_observer, :entities_observer
 
     def initialize
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super
       @observer = SurfaceGroupObserver.new(self)
@@ -54,7 +54,7 @@ module OpenStudio
 
     # Updates the ModelObject with new information from the SketchUp entity.
     def update_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
 
       if (valid_entity?)
@@ -93,13 +93,13 @@ module OpenStudio
 
     # Override in sub classes
     def parent_from_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       return(nil)
     end
 
     # Called by the model object watcher
     def on_change_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
 
       # to_a seems to be important here, maybe because it dup's the objects
@@ -112,7 +112,7 @@ module OpenStudio
 
     # Updates the SketchUp entity with new information from the ModelObject.
     def update_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
 
       if (valid_entity?)
@@ -175,7 +175,7 @@ module OpenStudio
     #end
 
     def create_from_entity_copy(entity)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
 
       had_observers = remove_observers
@@ -224,7 +224,7 @@ module OpenStudio
     end
 
     def create_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (@parent.nil?)
         # how did this happen?
@@ -267,7 +267,7 @@ module OpenStudio
     # Error checks and cleanup before an entity is accepted by the interface.
     # Return false if the entity cannot be used.
     def check_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (super)
         if (@entity.class == Sketchup::Group)
@@ -284,7 +284,7 @@ module OpenStudio
 
     # Error checks, finalization, or cleanup needed after the entity is drawn.
     def confirm_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (super)
         return(true)
@@ -300,7 +300,7 @@ module OpenStudio
     # For SurfaceGroups, cleanup any leftover orphan edges that might remain after some faces were deleted.
     # If anyone wants the edges to persist, this could be a user preference.
     def cleanup_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super
 
@@ -323,13 +323,13 @@ module OpenStudio
 
 
     def clean_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
       @entity.name = @model_object.name.to_s
     end
 
     def parent_from_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       parent = nil
       if @entity.parent.is_a?(Sketchup::Model)
@@ -343,7 +343,7 @@ module OpenStudio
     end
 
     def containing_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = nil
       if @entity.parent.is_a?(Sketchup::Model)
@@ -358,7 +358,7 @@ module OpenStudio
 
     # Undelete happens when an entity is restored after an Undo event.
     def on_undelete_entity(entity)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
 
       had_observers = remove_observers
@@ -377,12 +377,12 @@ module OpenStudio
 ##### Begin override methods for the interface #####
 
     def add_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super(recursive) # takes care of @observer only, also handles recursive argument
 
       if (valid_entity?)
-        if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+        if Plugin.disable_observers
           if not @instance_observer_added
             @entity.add_observer(@instance_observer)
             @entity.entities.add_observer(@entities_observer)
@@ -401,12 +401,12 @@ module OpenStudio
     end
 
     def remove_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       had_observers = super(recursive) # takes care of @observer only, also handles recursive argument
 
       if (valid_entity?)
-        if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+        if Plugin.disable_observers
           if @instance_observer_added
             @instance_observer.disable
             @entities_observer.disable
@@ -424,13 +424,13 @@ module OpenStudio
     end
 
     def destroy_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = super(recursive) # takes care of @observer only, also handles recursive argument
 
       if @instance_observer
         if (valid_entity?)
-          if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+          if Plugin.disable_observers
             # actually do remove here
             @entity.remove_observer(@instance_observer)
             @entity.entities.remove_observer(@entities_observer)
@@ -459,7 +459,7 @@ module OpenStudio
 
     # override in subclasses
     def set_entity_name
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     end
 
   end
