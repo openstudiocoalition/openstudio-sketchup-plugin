@@ -112,7 +112,7 @@ module OpenStudio
         UI.messagebox(message, MB_OK)
 
         # remove all OpenStudio content so user is not confused
-        skp_model.start_operation("Remove all OpenStudio Content", true)
+        skp_model.start_operation("Remove OpenStudio Content", true)
         OpenStudio.delete_openstudio_entities(skp_model)
         openstudio_materials.each {|m| skp_model.materials.remove(m)}
         skp_model.commit_operation
