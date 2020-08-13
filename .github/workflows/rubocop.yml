@@ -17,6 +17,7 @@ jobs:
           which gem
           sudo gem install rubocop -v 0.88
           sudo gem install rubocop-sketchup
+          cd plugin
           rubocop -f extension_review -o report.html
 
     - name: Upload rubocop results as artifact
@@ -24,4 +25,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
           name: Rubocop-${{ github.sha }}-report.html
-          path: report.html
+          path: plugin/report.html
