@@ -180,6 +180,33 @@ module OpenStudio
 
     entity.set_attribute('OpenStudio', 'Handle', handle.to_s)
   end
+
+  # returns the OpenStudio::DrawingInterface associated with this Entity
+  def self.get_drawing_interface(entity)
+    object = nil
+    if (id_string = entity.get_attribute('OpenStudio', 'DrawingInterface'))
+      begin
+        object = ObjectSpace._id2ref(id_string.to_i)
+      rescue
+        # The id_string does not reference an existing object!  Ignore the exception.
+      ensure
+        # Sometimes a bad reference can turn into a real object...but a random one, not the one we want.
+        if (object and not object.is_a?(OpenStudio::DrawingInterface))
+          puts "OpenStudio.get_drawing_interface:  bad object reference"
+          object = nil
+          # To detect copy-paste between SketchUp sessions, could set 'object' to a value that can be detected on the
+          # receiving end by whichever Observer the entity is pasted into.
+        end
+      end
+    end
+    return(object)
+  end
+
+  def self.set_drawing_interface(entity, object)
+    OpenStudio::Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+
+    entity.set_attribute('OpenStudio', 'DrawingInterface', object.object_id.to_s)
+  end
   
   def self.get_polygon_loop(loop)
     points = []
@@ -252,46 +279,4 @@ module OpenStudio
     a = (time - time.utc_offset).to_a
     return( ::Time.utc(a[0], a[1], a[2], a[3], a[4], ::Time.now.year, a[6], a[7], a[8], a[9]) )
   end
-end
-
-
-class Sketchup::Entity
-
-  # returns the OpenStudio::DrawingInterface associated with this Entity
-  def drawing_interface
-    object = nil
-    if (id_string = get_attribute('OpenStudio', 'DrawingInterface'))
-      begin
-        object = ObjectSpace._id2ref(id_string.to_i)
-      rescue
-        # The id_string does not reference an existing object!  Ignore the exception.
-      ensure
-        # Sometimes a bad reference can turn into a real object...but a random one, not the one we want.
-        if (object and not object.is_a?(OpenStudio::DrawingInterface))
-          puts "Entity.drawing_interface:  bad object reference"
-          object = nil
-          # To detect copy-paste between SketchUp sessions, could set 'object' to a value that can be detected on the
-          # receiving end by whichever Observer the entity is pasted into.
-        end
-      end
-    end
-    return(object)
-  end
-
-  def drawing_interface=(object)
-    OpenStudio::Plugin.log(OpenStudio::Trace, "#{current_method_name}")
-
-    set_attribute('OpenStudio', 'DrawingInterface', object.object_id.to_s)
-  end
-
-end
-
-
-class Sketchup::ShadowInfo
-
-  # Still need to reconcile daylight saving time between EnergyPlus and SketchUp
-
-
-  
-
 end
