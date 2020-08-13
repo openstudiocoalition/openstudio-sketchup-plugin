@@ -611,7 +611,7 @@ module OpenStudio
                planar_surface.parent.entity.visible = true
 
                # unhide space
-               planar_surface.parent.parent.entity.visible = true if planar_surface.parent.parent.entity
+               planar_surface.parent.parent.entity.visible = true if planar_surface.parent.parent.is_a?(Space)
 
                # add to report
                @last_report << "#{model_object.iddObject.name.to_s}, #{model_object.name.to_s}\n"
