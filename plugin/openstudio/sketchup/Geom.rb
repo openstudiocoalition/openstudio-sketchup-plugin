@@ -929,8 +929,6 @@ module OpenStudio
 
       polygons = OpenStudio.intersect_faces(f1, f2)
 
-      $polys = polygons
-
       if (polygons.length > 0)
         puts "intersection"
 

@@ -551,6 +551,5 @@ module OpenStudio
   # Create a module constant to reference the plugin object anywhere within the module.
   Plugin = PluginManager.new
   Plugin.start
-  $p = Plugin
 
 end

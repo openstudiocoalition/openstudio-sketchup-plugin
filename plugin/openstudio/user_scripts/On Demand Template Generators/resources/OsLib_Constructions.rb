@@ -27,6 +27,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
+module OpenStudio
 module OsLib_Constructions
 
   # infer insulation layer from a construction
@@ -382,4 +383,5 @@ module OsLib_Constructions
     return result
   end # end of OsLib_Constructions.reportConstructionSetConstructions
 
+end
 end

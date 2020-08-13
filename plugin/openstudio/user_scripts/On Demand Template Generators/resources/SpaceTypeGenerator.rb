@@ -32,6 +32,8 @@ require 'json'
 require 'fileutils'
 require 'openstudio'
 
+module OpenStudio
+
 class SpaceTypeGenerator
 
 def initialize(path_to_standards_json, path_to_master_schedules_library)
@@ -501,3 +503,4 @@ end #end generate_space_type
 
 end #end class SpaceTypeGenerator
 
+end

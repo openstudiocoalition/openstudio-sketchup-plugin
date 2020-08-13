@@ -27,6 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
+module OpenStudio
+
 class SetRectangularFloorPlan < OpenStudio::Ruleset::ModelUserScript
 
   # override name to return the name of your script
@@ -269,3 +271,5 @@ class SetRectangularFloorPlan < OpenStudio::Ruleset::ModelUserScript
 end
 
 SetRectangularFloorPlan.new.registerWithApplication
+
+end

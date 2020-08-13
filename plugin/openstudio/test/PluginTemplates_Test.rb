@@ -31,6 +31,8 @@ require 'openstudio'
 
 require 'minitest/autorun'
 
+module OpenStudio
+
 class PluginTemplates_Test < MiniTest::Unit::TestCase
 
   def test_Templates
@@ -63,3 +65,4 @@ class PluginTemplates_Test < MiniTest::Unit::TestCase
 
 end
 
+end

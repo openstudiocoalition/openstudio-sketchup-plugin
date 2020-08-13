@@ -32,6 +32,8 @@ require 'json'
 require 'fileutils'
 require 'openstudio'
 
+module OpenStudio
+
 class ConstructionSetGenerator
 
 def initialize(path_to_standards_json)
@@ -437,3 +439,4 @@ end #end generate_construction_set
 
 end #end class ConstructionSetGenerator
 
+end
