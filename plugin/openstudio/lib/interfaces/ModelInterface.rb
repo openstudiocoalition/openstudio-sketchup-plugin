@@ -81,8 +81,8 @@ module OpenStudio
       @skp_model_guid = skp_model.guid
       @openstudio_model = openstudio_model
 
-      @skp_model.model_interface = self
-      @skp_model.openstudio_path = openstudio_path
+      OpenStudio.set_model_interface(@skp_model, self)
+      OpenStudio.set_openstudio_path(@skp_model, openstudio_path)
 
       if (openstudio_path)
         @model_temp_dir = OpenStudio::Model::initializeModel(openstudio_model, OpenStudio::Path.new(openstudio_path))
@@ -340,7 +340,7 @@ module OpenStudio
     def openstudio_path
       Plugin.log(OpenStudio::Trace, "#{current_method_name}")
 
-      return @skp_model.openstudio_path
+      return OpenStudio.get_openstudio_path(@skp_model)
     end
 
     # path to OpenStudio file that has already been saved
@@ -357,7 +357,7 @@ module OpenStudio
       # destroy current watcher
       destroy_path_watcher
 
-      @skp_model.openstudio_path = path
+      OpenStudio.set_openstudio_path(@skp_model, path)
 
       # add a new path watcher
       add_path_watcher
@@ -1115,7 +1115,7 @@ module OpenStudio
       @results_interface.destroy
 
       # remove references to objects no longer needed
-      @skp_model.model_interface = nil
+      OpenStudio.set_model_interface(@skp_model, nil)
       @skp_model = nil
       @model_observer = nil
       @entities_observer = nil

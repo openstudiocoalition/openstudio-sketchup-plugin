@@ -117,41 +117,19 @@ module OpenStudio
     return(color)
   end
   
-end
-
-
-# class Float
-
-  # def round_to(decimal_places = 0)
-    # if (decimal_places > 0)
-      # precision = (10**(decimal_places)).to_f
-      # return((self * precision).round / precision)
-    # else
-      # return(self.round)
-    # end
-  # end
-
-# end
-
-
-class Sketchup::Model
-
-  # This attribute is a persistent string reference to an input file.
-  # It allows a SketchUp file to be reassociated with the correct input file.
-  def openstudio_path
-    return(get_attribute('OpenStudio', 'OpenStudioPath'))
+  def self.get_openstudio_path(skp_model)
+    return(skp_model.get_attribute('OpenStudio', 'OpenStudioPath'))
   end
 
-  def openstudio_path=(path)
+  def self.set_openstudio_path(skp_model, path)
     OpenStudio::Plugin.log(OpenStudio::Trace, "#{current_method_name}")
 
-    set_attribute('OpenStudio', 'OpenStudioPath', path)
+    skp_model.set_attribute('OpenStudio', 'OpenStudioPath', path)
   end
-
-  # returns the OpenStudio::ModelInterface associated with this Model
-  def model_interface
+  
+  def self.get_model_interface(skp_model)
     object = nil
-    if (id_string = get_attribute('OpenStudio', 'ModelInterface'))
+    if (id_string = skp_model.get_attribute('OpenStudio', 'ModelInterface'))
       begin
         object = ObjectSpace._id2ref(id_string.to_i)
       rescue
@@ -159,7 +137,7 @@ class Sketchup::Model
       ensure
         # Sometimes a bad reference can turn into a real object...but a random one, not the one we want.
         if (object and not object.is_a?(OpenStudio::ModelInterface))
-          puts "Model.model_interface:  bad object reference"
+          puts "OpenStudio.get_model_interface:  bad object reference"
           object = nil
         end
       end
@@ -167,33 +145,33 @@ class Sketchup::Model
     return(object)
   end
 
-  def model_interface=(object)
+  def self.set_model_interface(skp_model, object)
     OpenStudio::Plugin.log(OpenStudio::Trace, "#{current_method_name}")
 
-    set_attribute('OpenStudio', 'ModelInterface', object.object_id.to_s)
+    skp_model.set_attribute('OpenStudio', 'ModelInterface', object.object_id.to_s)
   end
-
-  def openstudio_entities
+  
+  def self.get_openstudio_entities(skp_model)
     result = []
-    entities.each {|e| result << e if e.model_object_handle }
+    skp_model.entities.each {|e| result << e if e.model_object_handle }
     return result
   end
   
-  def openstudio_materials
+  def self.get_openstudio_materials(skp_model)
     result = []
-    materials.each {|m| result << m if m.model_object_handle }
+    skp_model.materials.each {|m| result << m if m.model_object_handle }
     return result
   end
   
-  def delete_openstudio_entities
+  def self.delete_openstudio_entities(skp_model)
     # DLM: for some reason there is no delete_attribute for SketchUp::Model
     # delete_attribute('OpenStudio') # deletes entire attribute dictionary
-    set_attribute('OpenStudio', 'OpenStudioPath', nil)
-    set_attribute('OpenStudio', 'ModelInterface', nil)
-    entities.erase_entities(openstudio_entities)
+    skp_model.set_attribute('OpenStudio', 'OpenStudioPath', nil)
+    skp_model.set_attribute('OpenStudio', 'ModelInterface', nil)
+    skp_model.entities.erase_entities(skp_model.openstudio_entities)
   end
-
 end
+
 
 class Sketchup::Entity
 

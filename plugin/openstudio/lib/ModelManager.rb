@@ -99,9 +99,9 @@ module OpenStudio
 
       # DLM: previously, we tried to find the linked OSM, open it, and reattach it
 
-      openstudio_path = skp_model.openstudio_path
-      openstudio_entities = skp_model.openstudio_entities
-      openstudio_materials = skp_model.openstudio_materials
+      openstudio_path = OpenStudio.get_openstudio_path(skp_model)
+      openstudio_entities = OpenStudio.get_openstudio_entities(skp_model)
+      openstudio_materials = OpenStudio.get_openstudio_materials(skp_model)
       
       if (openstudio_path && !openstudio_path.empty?) || (openstudio_entities.size > 0) || (openstudio_materials.size > 0)
 
@@ -113,7 +113,7 @@ module OpenStudio
 
         # remove all OpenStudio content so user is not confused
         skp_model.start_operation("Remove all OpenStudio Content", true)
-        skp_model.delete_openstudio_entities
+        OpenStudio.delete_openstudio_entities(skp_model)
         openstudio_materials.each {|m| skp_model.materials.remove(m)}
         skp_model.commit_operation
       end

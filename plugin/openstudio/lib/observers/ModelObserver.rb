@@ -88,7 +88,7 @@ module OpenStudio
 
       return if not @enabled
 
-      if model && model_interface = model.model_interface
+      if model && model_interface = OpenStudio.get_model_interface(model)
         model_interface.skp_model_guid = model.guid
       end
 
