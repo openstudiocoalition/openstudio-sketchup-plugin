@@ -1593,7 +1593,7 @@ module OpenStudio
 
       @paint_requested = false
 
-      time = @skp_model.shadow_info.time
+      time = OpenStudio.get_time(@skp_model.shadow_info)
 
       # hash of information used for paint data, this is kind of kludgy but don't want to recompute time for each surface
       info = Hash.new

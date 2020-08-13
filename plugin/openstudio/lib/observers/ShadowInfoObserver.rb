@@ -34,8 +34,8 @@ module OpenStudio
     def initialize(drawing_interface)
       @drawing_interface = drawing_interface  # This is the Building or Site drawing interface
       @shadow_info = @drawing_interface.model_interface.skp_model.shadow_info
-      @north_angle = @shadow_info.north_angle
-      @shadow_time = @shadow_info.time
+      @north_angle = OpenStudio.get_north_angle(@shadow_info)
+      @shadow_time = OpenStudio.get_time(@shadow_info)
       @enabled = false
     end
 
@@ -79,7 +79,7 @@ module OpenStudio
         end
 
         # Turn on Daylight Saving Time.  Appears that SketchUp does not automatically turn it on.
-        if (@shadow_info.time.dst?)
+        if (OpenStudio.get_time(@shadow_info).dst?)
           @shadow_info['DaylightSavings'] = true
         else
           @shadow_info['DaylightSavings'] = false
@@ -91,8 +91,8 @@ module OpenStudio
         if (@drawing_interface.class == Site)
 
           # Only repaint if shadow_time has changed
-          if (@shadow_time != @shadow_info.time)
-            @shadow_time = @shadow_info.time
+          if (@shadow_time != OpenStudio.get_time(@shadow_info))
+            @shadow_time = OpenStudio.get_time(@shadow_info)
             if (@drawing_interface.model_interface.materials_interface.rendering_mode == RenderByDataValue)
               @drawing_interface.model_interface.request_paint
             end
@@ -102,8 +102,8 @@ module OpenStudio
         elsif (@drawing_interface.class == Building)
 
           # Only repaint if north_angle has changed
-          if (@north_angle != @shadow_info.north_angle)
-            @north_angle = @shadow_info.north_angle
+          if (@north_angle != OpenStudio.get_north_angle(@shadow_info))
+            @north_angle = OpenStudio.get_north_angle(@shadow_info)
             @drawing_interface.model_interface.request_paint
           end
 

@@ -54,7 +54,6 @@ module OpenStudio
     return(true)
   end
 
-
   def self.is_same_set?(array, other)
     if (array.length == other.length and self.is_subset_of?(array, other))
       return(true)
@@ -62,7 +61,6 @@ module OpenStudio
       return(false)
     end
   end
-
 
   def self.set_hsba(color, color_array)
     h = color_array[0] / 360.to_f  # HSV values = 0 � 1
@@ -216,6 +214,44 @@ module OpenStudio
     return(OpenStudio.intersect_polygon_polygon(self.get_full_polygon(face), self.get_full_polygon(other_face)))  # array of polygons
   end
   
+  def self.get_time(shadow_info)
+    # API bug:  ShadowTime is returning the hour incorrectly in UTC/GMT time, but the time zone is (correctly) the local one.
+    #           Also year is ALWAYS 2002.
+    # Example:  Noon on Nov 8 returns Fri Nov 08 04:50:11 Mountain Standard Time 2002
+    # SUBTRACT the utc offset to get the correct local time.
+    return(self.convert_to_utc(shadow_info['ShadowTime']))
+  end
+
+  def self.set_time(shadow_info, new_time)
+    # API bug:  ShadowTime is returning the hour incorrectly in UTC/GMT time, but the time zone is (correctly) the local one.
+    #           Also year is ALWAYS 2002.
+    # Example:  Noon on Nov 8 returns Fri Nov 08 04:50:11 Mountain Standard Time 2002
+    # ADD the utc offset to set the correct local time.
+    shadow_info['ShadowTime'] = new_time + new_time.utc_offset
+    # if ShadowTime is already in UTC, this won't do anything...offset = 0
+    return(time)
+  end
+
+  def self.get_sunrise(shadow_info)
+    return(self.convert_to_utc(shadow_info['SunRise']))
+  end
+
+  def self.get_sunset(shadow_info)
+    return(self.convert_to_utc(shadow_info['SunSet']))
+  end
+  
+  def self.get_north_angle(shadow_info)
+    return(shadow_info['NorthAngle'])
+  end
+
+  def self.convert_to_utc(time)
+    # API bug:  ShadowTime is returning the hour incorrectly in UTC/GMT time, but the time zone is (correctly) the local one.
+    #           Also year is ALWAYS 2002.
+    # Example:  Noon on Nov 8 returns Fri Nov 08 04:50:11 Mountain Standard Time 2002
+    # SUBTRACT the utc offset to get the correct local time.
+    a = (time - time.utc_offset).to_a
+    return( ::Time.utc(a[0], a[1], a[2], a[3], a[4], ::Time.now.year, a[6], a[7], a[8], a[9]) )
+  end
 end
 
 
@@ -256,62 +292,6 @@ class Sketchup::ShadowInfo
   # Still need to reconcile daylight saving time between EnergyPlus and SketchUp
 
 
-  def time
-    # API bug:  ShadowTime is returning the hour incorrectly in UTC/GMT time, but the time zone is (correctly) the local one.
-    #           Also year is ALWAYS 2002.
-    # Example:  Noon on Nov 8 returns Fri Nov 08 04:50:11 Mountain Standard Time 2002
-    # SUBTRACT the utc offset to get the correct local time.
-    return(convert_to_utc(self['ShadowTime']))
-  end
-
-
-  def time=(new_time)
-    # API bug:  ShadowTime is returning the hour incorrectly in UTC/GMT time, but the time zone is (correctly) the local one.
-    #           Also year is ALWAYS 2002.
-    # Example:  Noon on Nov 8 returns Fri Nov 08 04:50:11 Mountain Standard Time 2002
-    # ADD the utc offset to set the correct local time.
-    self['ShadowTime'] = new_time + new_time.utc_offset
-    # if ShadowTime is already in UTC, this won't do anything...offset = 0
-    return(time)
-  end
-
-
-  def dst?
-    return(time.dst?)
-  end
-
-
-  def sunrise
-    return(convert_to_utc(self['SunRise']))
-  end
-
-
-  def sunset
-    return(convert_to_utc(self['SunSet']))
-  end
-
-
-  def zone_offset=(new_zone_offset)
-    # Sets the time zone in hours offset from UTC/GMT.  NOTE:  Negative numbers indicate Western hemisphere.
-    # API bug:  Setting ShadowTime['TZOffset'] alone does not set this.
-    self['TZOffset'] = new_zone_offset
-    # No way to change the time zone for the Time object in Ruby...?
-    # Might consider putting all time as UTC, handle daylight savings myself.
-    return(nil)
-  end
-
-  def north_angle
-    return(self['NorthAngle'])
-  end
-
-private
-  def convert_to_utc(time)
-    # API bug:  ShadowTime is returning the hour incorrectly in UTC/GMT time, but the time zone is (correctly) the local one.
-    #           Also year is ALWAYS 2002.
-    # Example:  Noon on Nov 8 returns Fri Nov 08 04:50:11 Mountain Standard Time 2002
-    # SUBTRACT the utc offset to get the correct local time.
-    a = (time - time.utc_offset).to_a
-    return( Time.utc(a[0], a[1], a[2], a[3], a[4], Time.now.year, a[6], a[7], a[8], a[9]) )
-  end
+  
 
 end
