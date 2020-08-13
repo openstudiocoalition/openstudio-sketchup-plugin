@@ -44,15 +44,13 @@ def initialize(path_to_standards_json, path_to_master_schedules_library)
   @climate_zone_sets = @standards["climate_zone_sets"]
   @climate_zones = @standards["climate_zones"]
   if @spc_types.nil? or @climate_zone_sets.nil? or @climate_zones.nil?
-    puts "The space types json file did not load correctly."
-    exit
+    raise "The space types json file did not load correctly."
   end
 
   #check that the data was loaded correctly
   check_data = @spc_types["189.1-2009"]["ClimateZone 1-3"]["Hospital"]["Radiology"]["lighting_w_per_area"]
   unless (check_data-0.36).abs < 0.0000001
-    puts "The space types json file does not have expected content."
-    exit
+    raise "The space types json file does not have expected content."
   end
 
   #load up the osm with all the reference building schedules
@@ -199,8 +197,7 @@ def generate_space_type(template, clim, building_type, spc_type, model = nil)
     sch = @schedule_library.getObjectByTypeAndName("OS_Schedule_Ruleset".to_IddObjectType, sch_name)
 
     if sch.empty?
-      puts "schedule called '#{sch_name}' not found in master schedule library"
-      exit
+      raise "schedule called '#{sch_name}' not found in master schedule library"
     end
     #clone the space type from the library model into the space type model
     clone_of_sch = sch.get.to_Schedule.get.clone(model)

@@ -32,6 +32,7 @@ require("openstudio/sketchup/Geom")
 
 
 # Everything in this module should be strictly based on entities and not drawing interfaces.
+module OpenStudio
 module DrawingUtils
 
   # returns true if entity is the base face of face
@@ -188,11 +189,9 @@ module DrawingUtils
     end
   end
 
-
-
   def DrawingUtils.swapped_face_on_pushpull?(entity)   # swal_on_pushpull?
     return(false)
   end
 
-
+end
 end

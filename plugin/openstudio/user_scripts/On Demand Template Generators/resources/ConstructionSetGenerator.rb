@@ -46,8 +46,7 @@ def initialize(path_to_standards_json)
   @climate_zone_sets = @standards["climate_zone_sets"]
   @climate_zones = @standards["climate_zones"]
   if @construction_sets.nil? or @constructions.nil? or @materials.nil? or @climate_zone_sets.nil? or @climate_zones.nil?
-    puts "The standards json file did not load correctly."
-    exit
+    raise "The standards json file did not load correctly."
   end
 
   @created_names = []
@@ -196,8 +195,7 @@ def make_material(material_name, data, model)
     end
 
   else
-    puts "Unknown material type #{material_type}"
-    exit
+    raise "Unknown material type #{material_type}"
   end
 
   return material
@@ -326,8 +324,7 @@ def generate_construction_set(template, clim, building_type, spc_type, model = n
   end
 
   if not data
-    puts "Cannot find construction set for #{template} #{clim} #{building_type} #{spc_type}"
-    exit
+    raise "Cannot find construction set for #{template} #{clim} #{building_type} #{spc_type}"
   end
 
   name = make_name(template, clim, building_type, spc_type)
