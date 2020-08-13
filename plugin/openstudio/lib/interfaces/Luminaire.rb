@@ -227,7 +227,7 @@ module OpenStudio
         # entity class will be a ComponentInstance
         # parent class will be a ComponentDefinition with one instance
         if (@entity.parent.class == Sketchup::ComponentDefinition)
-          parent = @entity.parent.instances.first.drawing_interface
+          parent = OpenStudio.get_drawing_interface(@entity.parent.instances.first)
         else
           # Somehow got outside of a ComponentInstance--maybe the ComponentInstance was exploded.
         end
@@ -260,7 +260,7 @@ module OpenStudio
     def model_object_transformation=(transform)
       Plugin.log(OpenStudio::Trace, "#{current_method_name}")
 
-      @model_object.setTransformation(OpenStudio::transformation_from_openstudio(transform))
+      @model_object.setTransformation(OpenStudio::transformation_to_openstudio(transform))
     end
 
   end

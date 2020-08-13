@@ -64,7 +64,7 @@ module OpenStudio
       parent = @model_interface.skp_model.active_entities.parent
       if (parent.class == Sketchup::ComponentDefinition)
         # Gets the SurfaceGroup interface that is currently open for editing
-        drawing_interface = parent.instances.first.drawing_interface
+        drawing_interface = OpenStudio.get_drawing_interface(parent.instances.first)
         if drawing_interface.is_a?(SurfaceGroup)
           drawing_interface.delete_initial_box
         end

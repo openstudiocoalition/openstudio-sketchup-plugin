@@ -203,7 +203,7 @@ module OpenStudio
         return nil
       end
 
-      group = containing_entity.drawing_interface if containing_entity
+      group = OpenStudio.get_drawing_interface(containing_entity) if containing_entity
       group_had_observers = group.remove_observers if group
 
       begin
@@ -228,7 +228,7 @@ module OpenStudio
 
       # The existence of 'drawing_interface' is a sign that an existing face was divided by the new face (which is true for all subsurfaces).
       # This is a prerequisite for a swap and helps eliminate some extra searching.
-      if (@entity.drawing_interface)
+      if (OpenStudio.get_drawing_interface(@entity))
 
         # if this entity is a new face (face B) split from an existing face (face A)
         # then both face A and face B will reference the same drawing_interface, indeterminate which entity will
@@ -240,9 +240,9 @@ module OpenStudio
 
         for face in faces
           # if the face's drawing interface does not reference the face as it's entity
-          if (face.drawing_interface.entity != face)
+          if (OpenStudio.get_drawing_interface(face).entity != face)
             # Fix the swap--surprisingly this seems to be sufficient.
-            face.drawing_interface.entity = face
+            OpenStudio.get_drawing_interface(face).entity = face
             puts "Surface.create_entity:  fixed swap for " + face.to_s
           end
         end
@@ -254,7 +254,7 @@ module OpenStudio
           # if the child references @entity
           if child.entity and child.entity == @entity
             # if @entity references child
-            if child.entity.drawing_interface == child
+            if OpenStudio.get_drawing_interface(child.entity) == child
               # we don't want to steal this from the other interface
               @model_interface.add_error("Error:  " + @model_object.name.to_s + "\n")
               @model_interface.add_error("This planar surface shares the same SketchUp face as #{child.model_object.name}.\n")
@@ -335,7 +335,7 @@ module OpenStudio
           Plugin.log(OpenStudio::Info, "redraw polygon")
 
           # do the erasing now
-          group = self.containing_entity.drawing_interface
+          group = self.OpenStudio.get_drawing_interface(containing_entity)
           group_had_observers = group.remove_observers if group
           all_children = recurse_children
           erase_entity
@@ -376,13 +376,13 @@ module OpenStudio
       if (valid_entity?)
         had_observers = remove_observers
 
-        group = self.containing_entity.drawing_interface
+        group = OpenStudio.get_drawing_interface(self.containing_entity)
         group_had_observers = group.remove_observers if group
 
-        material_interface = @entity.material.drawing_interface if @entity.material
+        material_interface = OpenStudio.get_drawing_interface(@entity.material) if @entity.material
         material_interface_had_observers = material_interface.remove_observers if material_interface
 
-        back_material_interface = @entity.back_material.drawing_interface if @entity.back_material
+        back_material_interface = OpenStudio.get_drawing_interface(@entity.back_material) if @entity.back_material
         back_material_interface_had_observers = back_material_interface.remove_observers if back_material_interface
 
         materials_interface_had_observers = @model_interface.materials_interface.remove_observers
@@ -656,7 +656,7 @@ module OpenStudio
       parent = nil
       if (valid_entity?)
         if (@entity.parent.is_a?(Sketchup::ComponentDefinition))
-          parent = @entity.parent.instances.first.drawing_interface
+          parent = OpenStudio.get_drawing_interface(@entity.parent.instances.first)
         else
           # Somehow the surface got outside of a Group--maybe the Group was exploded.
         end

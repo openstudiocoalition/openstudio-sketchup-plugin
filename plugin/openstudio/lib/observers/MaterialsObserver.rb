@@ -64,8 +64,8 @@ module OpenStudio
       return if not @enabled
 
       proc = Proc.new {
-        if !material.deleted? and material.drawing_interface
-          material.drawing_interface.update_model_object
+        if !material.deleted? and OpenStudio.get_drawing_interface(material)
+          OpenStudio.get_drawing_interface(material).update_model_object
         end
       }
       Plugin.add_event( proc )

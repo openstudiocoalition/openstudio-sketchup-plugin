@@ -111,7 +111,7 @@ module OpenStudio
       # API Bug:  the 'entity' argument passed in to this callback appears to be a dummy Face object,
       # unrelated to the deleted Face (all of the Face data is gone, except entityID which is now negative.)
 
-      # Which is why @drawing_interface is used to store the interface.  Otherwise, entity.drawing_interface is nil.
+      # Which is why @drawing_interface is used to store the interface.  Otherwise, OpenStudio.get_drawing_interface(entity) is nil.
 
       proc = Proc.new {
 
@@ -146,7 +146,7 @@ module OpenStudio
 
                   # @drawing_interface's model object is really associated with this_entity
 
-                  if @drawing_interface == this_entity.drawing_interface
+                  if @drawing_interface == OpenStudio.get_drawing_interface(this_entity)
                     # maybe this happens when one entity is copied to another entity?  should we really be cloning drawing interface here?
                     #Plugin.log(OpenStudio::Trace, "#{entity} and #{this_entity} both refer to #{@drawing_interface}, how did this happen?")
                   else
@@ -170,14 +170,14 @@ module OpenStudio
             #Plugin.log(OpenStudio::Trace, "#{current_method_name}, remove current swapped_face.drawing_interface.entity = #{swapped_face.drawing_interface.entity}, swapped_face = #{swapped_face}")
 
             # Detach the drawing interface from the swapped surface.
-            removed_interface = swapped_face.drawing_interface
+            removed_interface = OpenStudio.get_drawing_interface(swapped_face)
             removed_interface.remove_observers
             removed_interface.on_erase_entity
             removed_interface.detach_entity # changes properties via clean_entity
 
             # Restore the drawing interface to the original face.
             # changes properties of swapped_face
-            swapped_face.drawing_interface = @drawing_interface
+            OpenStudio.set_drawing_interface(swapped_face, @drawing_interface)
             OpenStudio.set_model_object_handle(swapped_face, @drawing_interface.model_object.handle)
 
             @drawing_interface.entity = swapped_face

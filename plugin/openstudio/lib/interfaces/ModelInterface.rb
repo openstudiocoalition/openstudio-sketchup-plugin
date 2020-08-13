@@ -903,7 +903,7 @@ module OpenStudio
         entity_hash = make_entity_hash
 
         # Clean drawing interface refereces.  The old object references are all invalid, but keep the model object handle.
-        entity_hash.each_value {|value| value.drawing_interface = nil }
+        entity_hash.each_value {|value| OpenStudio.set_drawing_interface(value, nil) }
 
         # Loop through the input file and create an interface for each drawable input object.
         # Input objects that do not have a corresponding drawing interface are ignored.
@@ -1171,7 +1171,7 @@ module OpenStudio
         entity_to_drawing_interfaces[entity].each do |drawing_interface|
 
           # keep the interface that the entity is pointing to
-          next if drawing_interface == entity.drawing_interface
+          next if drawing_interface == OpenStudio.get_drawing_interface(entity)
 
           # duplicates code in DrawingInterface::draw_entity if check_model_object fails
           drawing_interface.destroy_observers

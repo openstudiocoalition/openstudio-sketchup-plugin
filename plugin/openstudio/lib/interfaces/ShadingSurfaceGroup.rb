@@ -144,7 +144,7 @@ module OpenStudio
       Plugin.log(OpenStudio::Trace, "#{current_method_name}")
 
       @entity = entity
-      @entity.drawing_interface = self
+      OpenStudio.get_drawing_interface(@entity, self)
 
       if (check_entity)
         #create_model_object

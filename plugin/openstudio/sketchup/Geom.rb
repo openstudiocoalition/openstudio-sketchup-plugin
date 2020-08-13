@@ -499,7 +499,7 @@ module OpenStudio
     end
 
     # DLM: wondering if point_in_polygon_2D is sufficiently solid to use now?
-    return self.point_in_polygon_2D(point, polygon_loop.points, include_border)
+    return Geom.point_in_polygon_2D(point, polygon_loop.points, include_border)
 
     # DLM: this is legacy code that was written when point_in_polygon_2D was not working right
 

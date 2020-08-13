@@ -175,7 +175,7 @@ module OpenStudio
         end
 
         if (confirm_entity)
-          @entity.drawing_interface = self
+          OpenStudio.set_drawing_interface(@entity, self)
           OpenStudio.set_model_object_handle(@entity, @model_object.handle)
 
           paint_entity
@@ -472,7 +472,7 @@ module OpenStudio
     #def self.accept_entity?(entity)
     #  if (self.valid_entity?(entity))
     #    return(false)
-    #  if (entity.drawing_interface)
+    #  if (OpenStudio.get_drawing_interface(entity))
     #    puts self.to_s + ".check_entity:  entity already has drawing interface"
     #    return(false)
     #  else
@@ -495,7 +495,7 @@ module OpenStudio
       Plugin.log(OpenStudio::Trace, "#{current_method_name}")
 
       @entity = entity
-      @entity.drawing_interface = self
+      OpenStudio.set_drawing_interface(@entity, self)
 
       if (check_entity)  # class.check_entity(entity)   # should check before the interface accepts the entity
         remove_observers
@@ -537,10 +537,10 @@ module OpenStudio
     def create_from_entity_copy(entity)
       Plugin.log(OpenStudio::Trace, "#{current_method_name}")
 
-      original_interface = entity.drawing_interface
+      original_interface = OpenStudio.get_drawing_interface(entity)
 
       @entity = entity
-      @entity.drawing_interface = self
+      OpenStudio.set_drawing_interface(entity, self)
 
       if (check_entity)
         # object will have no observers
@@ -604,7 +604,7 @@ module OpenStudio
       Plugin.log(OpenStudio::Trace, "#{current_method_name}")
 
       @entity = entity
-      @entity.drawing_interface = self
+      OpenStudio.set_drawing_interface(@entity, self)
       OpenStudio.set_model_object_handle(@entity, @model_object.handle) if (@model_object)
     end
 
@@ -701,7 +701,7 @@ module OpenStudio
 
       remove_observers
       if (valid_entity?)
-        entity.drawing_interface = nil
+        OpenStudio.set_drawing_interface(entity, nil)
         OpenStudio.set_model_object_handle(entity, nil)
       end
     end
@@ -741,7 +741,7 @@ module OpenStudio
               @model_interface.add_observers if had_observers
             elsif ((not containing_entity.deleted?) and (containing_entity.entityID > 0))
               Plugin.log(OpenStudio::Debug, "containing_entity not deleted")
-              containing_interface = containing_entity.drawing_interface
+              containing_interface = OpenStudio.get_drawing_interface(containing_entity)
               had_observers = containing_interface.remove_observers if containing_interface
 
               #Plugin.log(OpenStudio::Debug, "attempting to remove entity #{@entity} from containing_entity #{containing_entity}")
@@ -825,7 +825,7 @@ module OpenStudio
       end
 
       @entity = entity  # The entity comes back with a different reference than it had originally.
-      @entity.drawing_interface = self  # The reference to the drawing interface is lost when it is deleted.
+      OpenStudio.set_drawing_interface(@entity, self)  # The reference to the drawing interface is lost when it is deleted.
       if (@model_object)
         OpenStudio.set_model_object_handle(@entity, @model_object.handle)
         add_watcher

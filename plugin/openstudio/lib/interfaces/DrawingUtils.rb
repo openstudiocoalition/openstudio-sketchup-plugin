@@ -57,7 +57,7 @@ module DrawingUtils
     first_guess = nil
 
     # try the current parent as a first guess
-    if drawing_interface = face.drawing_interface
+    if drawing_interface = OpenStudio.get_drawing_interface(face)
       if drawing_interface.class == OpenStudio::SubSurface
         if parent = drawing_interface.parent
           if temp = parent.entity and temp.class == Sketchup::Face
@@ -98,7 +98,7 @@ module DrawingUtils
         #    check_entity(entity)  ...test before continuing
         #
         #    @entity = entity
-        #    @entity.drawing_interface = self
+        #    OpenStudio.set_drawing_interface(@entity, self)
         #    @entity.model_object_key = @model_object.key
         #      ? maybe call on_changed_entity
         #    ##add_observers  (optional)  or do externally
@@ -114,11 +114,11 @@ module DrawingUtils
   def DrawingUtils.clean_entity(entity)
     # This could be added as a method on Face and Group.
 
-    if (entity.drawing_interface)
-      entity.drawing_interface.remove_observers
+    if (OpenStudio.get_drawing_interface(entity))
+      OpenStudio.get_drawing_interface(entity).remove_observers
     end
 
-    entity.drawing_interface = nil
+    OpenStudio.set_drawing_interface(entity, nil)
     OpenStudio.set_model_object_handle(entity, nil)
   end
 
@@ -140,7 +140,7 @@ module DrawingUtils
       raise("entity.deleted? is true")
     end
 
-    drawing_interface = entity.drawing_interface
+    drawing_interface = OpenStudio.get_drawing_interface(entity)
     if drawing_interface.nil? or drawing_interface.deleted?
       raise("drawing_interface.nil? or drawing_interface.deleted? is true")
     end

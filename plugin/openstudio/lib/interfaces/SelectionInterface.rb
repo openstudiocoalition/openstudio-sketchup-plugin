@@ -122,7 +122,7 @@ module OpenStudio
         parent = @model_interface.skp_model.active_entities.parent
         if (parent.class == Sketchup::ComponentDefinition)
           # Gets the SurfaceGroup interface that is currently open for editing
-          drawing_interface = parent.instances.first.drawing_interface
+          drawing_interface = OpenStudio.get_drawing_interface(parent.instances.first)
 
           Plugin.log(OpenStudio::Debug, "selected_drawing_interface = #{drawing_interface}")
         else
@@ -133,16 +133,16 @@ module OpenStudio
 
       else
         @selection.each do |entity|
-          if (entity.drawing_interface and not entity.drawing_interface.deleted? and (entity.class == Sketchup::Group or entity.class == Sketchup::Face or entity.class == Sketchup::ComponentInstance))
+          if (OpenStudio.get_drawing_interface(entity) and not OpenStudio.get_drawing_interface(entity).deleted? and (entity.class == Sketchup::Group or entity.class == Sketchup::Face or entity.class == Sketchup::ComponentInstance))
 
             # Check for entities that have been copied into a non-OpenStudio group and clean them.
-            if (entity.parent.class == Sketchup::ComponentDefinition and not entity.parent.instances.first.drawing_interface)
-              entity.drawing_interface = nil
+            if (entity.parent.class == Sketchup::ComponentDefinition and not OpenStudio.get_drawing_interface(entity.parent.instances.first))
+              OpenStudio.set_drawing_interface(entity, nil)
               OpenStudio.set_model_object_handle(entity, nil)
             end
 
             if drawing_interface.nil?
-              drawing_interface = entity.drawing_interface
+              drawing_interface = OpenStudio.get_drawing_interface(entity)
 
               Plugin.log(OpenStudio::Debug, "selected_drawing_interface = #{drawing_interface}")
             else
@@ -154,7 +154,7 @@ module OpenStudio
               parent = @model_interface.skp_model.active_entities.parent
               if (parent.class == Sketchup::ComponentDefinition)
                 # Gets the SurfaceGroup interface that is currently open for editing
-                drawing_interface = parent.instances.first.drawing_interface
+                drawing_interface = OpenStudio.get_drawing_interface(parent.instances.first)
 
                 Plugin.log(OpenStudio::Debug, "selected_drawing_interface = #{drawing_interface}")
               else

@@ -115,7 +115,7 @@ module OpenStudio
 
       for face in faces
         # Check for any faces that were somehow added and did not get a drawing interface (should never happen).
-        if (face.drawing_interface.nil?)
+        if (OpenStudio.get_drawing_interface(face).nil?)
           puts "Space.cleanup_entity:  missing a drawing interface for " + face.to_s
         else
 
@@ -123,11 +123,11 @@ module OpenStudio
           # THIS SHOULD NEVER HAPPEN!  THIS IS NOW BEING TRAPPED BY EACH SURFACE AS IT IS CREATED.
           # THIS PASS SHOULD BE COMPLETELY REDUNDANT.
           # This can happen when the SketchUp 'add_face' method adds two faces when only one was specified (see below).
-          if (face.drawing_interface.entity != face)
+          if (OpenStudio.get_drawing_interface(face).entity != face)
             puts "Space.cleanup_entity:  unhandled swap for " + face.to_s
 
             # Fix the swap--surprisingly this seems to be sufficient.
-            face.drawing_interface.entity = face
+            OpenStudio.get_drawing_interface(face).entity = face
           end
         end
       end
@@ -141,7 +141,7 @@ module OpenStudio
           next if (not face.valid? or not other_face.valid?)
           next if (face.area == 0 or other_face.area == 0)
 
-          if (other_face.drawing_interface == face.drawing_interface and other_face != face)
+          if (OpenStudio.get_drawing_interface(other_face) == OpenStudio.get_drawing_interface(face) and other_face != face)
             puts "Space.cleanup_entity:  duplicate drawing interface for " + face.to_s + ", " + other_face.to_s
 
             # Occasionally the SketchUp 'add_face' method will (accidentally?) add two faces when only one was specified.
@@ -199,11 +199,11 @@ module OpenStudio
               #puts "intended" + intended_face.to_s + " " + intended_face.vertices.length.to_s
               #puts "inferred" + inferred_face.to_s + " " + inferred_face.vertices.length.to_s
 
-
-              inferred_face.drawing_interface = intended_face.drawing_interface
-              inferred_face.drawing_interface.entity = inferred_face
-              inferred_face.drawing_interface.surface_polygon = inferred_face.drawing_interface.face_polygon
-              inferred_face.drawing_interface.paint_entity
+              drawing_interface = OpenStudio.get_drawing_interface(intended_face)
+              OpenStudio.set_drawing_interface(inferred_face, drawing_interface)
+              drawing_interface.entity = inferred_face
+              drawing_interface.surface_polygon = drawing_interface.face_polygon
+              drawing_interface.paint_entity
 
               @entity.entities.erase_entities(intended_face)
 
@@ -211,10 +211,10 @@ module OpenStudio
               # This can happen if a face was unintentionally subdivided when another face was drawn.
               #puts "Could not find a coincident face for the duplicate--will create new object"
 
-              if (other_face.drawing_interface.class == Surface)
+              if (OpenStudio.get_drawing_interface(other_face).class == Surface)
                 new_surface = Surface.new_from_entity(other_face)
 
-              elsif (other_face.drawing_interface.class == SubSurface)
+              elsif (OpenStudio.get_drawing_interface(other_face).class == SubSurface)
                 new_surface = SubSurface.new_from_entity(other_face)
 
               else # attached shading, detached shading

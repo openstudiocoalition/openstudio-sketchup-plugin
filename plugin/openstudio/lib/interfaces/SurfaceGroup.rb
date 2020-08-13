@@ -83,8 +83,8 @@ module OpenStudio
     def update_child_model_objects
       if @entity.is_a? Sketchup::Group
         for entity in @entity.entities
-          if (entity.drawing_interface)
-            entity.drawing_interface.update_model_object
+          if (OpenStudio.get_drawing_interface(entity))
+            OpenStudio.get_drawing_interface(entity).update_model_object
           end
         end
       end
@@ -137,7 +137,7 @@ module OpenStudio
 
     def update_child_entities
       @entity.entities.each do |entity|
-        if drawing_interface = entity.drawing_interface
+        if drawing_interface = OpenStudio.get_drawing_interface(entity)
           drawing_interface.update_parent_from_entity
           drawing_interface.update_entity
         end
@@ -151,7 +151,7 @@ module OpenStudio
     #  # find if have visible children
     #  has_child_interface = false
     #  @entity.entities.each do |entity|
-    #    if drawing_interface = entity.drawing_interface
+    #    if drawing_interface = OpenStudio.get_drawing_interface(entity)
     #      has_child_interface = true
     #      break
     #    end
@@ -186,13 +186,13 @@ module OpenStudio
       # Copy all of the Group child interfaces.
       # (OR could recurse the children of this SurfaceGroup interface.)
       for child_entity in entity.entities
-        if (child_entity.drawing_interface)
-          original_interface = child_entity.drawing_interface
+        if (OpenStudio.get_drawing_interface(child_entity))
+          original_interface = OpenStudio.get_drawing_interface(child_entity)
           original_class = original_interface.class
 
           drawing_interface = original_class.new_from_entity_copy(child_entity)
 
-          child_entity.drawing_interface = drawing_interface
+          OpenStudio.set_drawing_interface(child_entity, drawing_interface)
           drawing_interface.entity = child_entity
         end
       end
@@ -337,7 +337,7 @@ module OpenStudio
         parent = @model_interface.building
       else
         # space shading or interior partition
-        parent = @entity.parent.instances[0].drawing_interface
+        parent = OpenStudio.get_drawing_interface(@entity.parent.instances[0])
       end
       return(parent)
     end
@@ -365,8 +365,8 @@ module OpenStudio
 
       # Undelete all of the child interfaces.
       for child_entity in entity.entities
-        if (child_entity.drawing_interface)
-          child_entity.drawing_interface.on_undelete_entity(child_entity)
+        if (OpenStudio.get_drawing_interface(child_entity))
+          OpenStudio.get_drawing_interface(child_entity).on_undelete_entity(child_entity)
         end
       end
 

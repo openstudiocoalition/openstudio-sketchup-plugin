@@ -60,8 +60,8 @@ module OpenStudio
       if (!entity.deleted? and entity.class == Sketchup::Group)
         #puts "ModelEntities.onElementAdded:" + entity.to_s
 
-        if (entity.drawing_interface)
-          if (entity.drawing_interface.deleted?)
+        if (OpenStudio.get_drawing_interface(entity))
+          if (OpenStudio.get_drawing_interface(entity).deleted?)
             # This is a cut-paste/delete-undo event.
 
             # Important to have put Timers here inside the if-then logic, rather
@@ -73,7 +73,7 @@ module OpenStudio
 
               # DLM: what if entity is deleted now?
 
-              entity.drawing_interface.on_undelete_entity(entity)
+              OpenStudio.get_drawing_interface(entity).on_undelete_entity(entity)
             }
 
             Plugin.add_event( proc )
@@ -97,7 +97,7 @@ module OpenStudio
               cpoint = entity.entities.add_cpoint(Geom::Point3d.new(0,0,0))
               cpoint.erase!
 
-              if drawing_interface = entity.drawing_interface
+              if drawing_interface = OpenStudio.get_drawing_interface(entity)
 
                 need_to_remove = false
                 already_exists = false
@@ -172,7 +172,7 @@ module OpenStudio
       else
         # A class other than Group was added to the Model.
 
-        if (!entity.deleted? and entity.drawing_interface)
+        if (!entity.deleted? and OpenStudio.get_drawing_interface(entity))
           # An EnergyPlus object was pasted outside of a Space or Shading Group.
 
           proc = Proc.new {

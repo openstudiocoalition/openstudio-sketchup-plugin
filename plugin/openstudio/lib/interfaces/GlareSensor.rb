@@ -221,7 +221,7 @@ module OpenStudio
         # entity class will be a ComponentInstance
         # parent class will be a ComponentDefinition with one instance
         if (@entity.parent.class == Sketchup::ComponentDefinition)
-          parent = @entity.parent.instances.first.drawing_interface
+          parent = OpenStudio.get_drawing_interface(@entity.parent.instances.first)
         else
           # Somehow got outside of a ComponentInstance--maybe the ComponentInstance was exploded.
         end

@@ -349,7 +349,7 @@ module OpenStudio
             end
           end
 
-          containing_interface = containing_entity.drawing_interface
+          containing_interface = OpenStudio.get_drawing_interface(containing_entity)
           had_observers = containing_interface.remove_observers if containing_interface
           containing_entity.entities.erase_entities(entities)
           containing_interface.add_observers if had_observers
@@ -364,7 +364,7 @@ module OpenStudio
 
       if (valid_entity?)
         if (base_face = DrawingUtils.detect_base_face(@entity))
-          return(base_face.drawing_interface)
+          return(OpenStudio.get_drawing_interface(base_face))
         else
           return(super)  # Return the space interface
         end
