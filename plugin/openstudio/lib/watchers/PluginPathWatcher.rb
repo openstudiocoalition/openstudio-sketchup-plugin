@@ -27,15 +27,16 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-if defined?(OpenStudio::Modeleditor::PathWatcher)
-  $OpenStudioPathWatcherClass = OpenStudio::Modeleditor::PathWatcher
-else
-  $OpenStudioPathWatcherClass = OpenStudio::PathWatcher
-end
 
 module OpenStudio
 
-  PluginPathWatcher = Class.new($OpenStudioPathWatcherClass) do
+  if defined?(OpenStudio::Modeleditor::PathWatcher)
+    OpenStudioPathWatcherClass = OpenStudio::Modeleditor::PathWatcher
+  else
+    OpenStudioPathWatcherClass = OpenStudio::PathWatcher
+  end
+
+  PluginPathWatcher = Class.new(OpenStudio::OpenStudioPathWatcherClass) do
   
     def initialize(model_interface, path)
       super(path)
