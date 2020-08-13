@@ -148,7 +148,7 @@ module OpenStudio
       end
 
       # add component definition
-      path = "#{$OPENSTUDIO_SKETCHUPPLUGIN_DIR}/resources/components/OpenStudio_DaylightingControl.skp"
+      path = "#{OpenStudio::SKETCHUPPLUGIN_DIR}/resources/components/OpenStudio_DaylightingControl.skp"
       definition = Sketchup.active_model.definitions.load(path)
 
       # parent entity is first a Sketchup::Group corresponding to a space
@@ -185,11 +185,11 @@ module OpenStudio
         had_observers = remove_observers
 
         # set definition
-        path = "#{$OPENSTUDIO_SKETCHUPPLUGIN_DIR}/resources/components/OpenStudio_DaylightingControl.skp"
+        path = "#{OpenStudio::SKETCHUPPLUGIN_DIR}/resources/components/OpenStudio_DaylightingControl.skp"
         if @model_object.isPrimaryDaylightingControl
-          path = "#{$OPENSTUDIO_SKETCHUPPLUGIN_DIR}/resources/components/OpenStudio_PrimaryDaylightingControl.skp"
+          path = "#{OpenStudio::SKETCHUPPLUGIN_DIR}/resources/components/OpenStudio_PrimaryDaylightingControl.skp"
         elsif @model_object.isSecondaryDaylightingControl
-          path = "#{$OPENSTUDIO_SKETCHUPPLUGIN_DIR}/resources/components/OpenStudio_SecondaryDaylightingControl.skp"
+          path = "#{OpenStudio::SKETCHUPPLUGIN_DIR}/resources/components/OpenStudio_SecondaryDaylightingControl.skp"
         end
         @entity.definition = Sketchup.active_model.definitions.load(path)
 

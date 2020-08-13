@@ -70,7 +70,7 @@ module OpenStudio
         space.model_object.setYOrigin(initial_position.y.to_m)
         space.model_object.setZOrigin(initial_position.z.to_m)
         space.draw_entity
-        space.create_initial_box("#{$OPENSTUDIO_SKETCHUPPLUGIN_DIR}/resources/components/OpenStudio_NewSpace.skp")
+        space.create_initial_box("#{OpenStudio::SKETCHUPPLUGIN_DIR}/resources/components/OpenStudio_NewSpace.skp")
         space.add_observers
         space.add_watcher
 

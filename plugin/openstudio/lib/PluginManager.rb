@@ -50,9 +50,7 @@ require("openstudio/sketchup/Geom")
 
 require("fileutils")
 
-$OPENSTUDIO_APPLICATION_DIR
-$OPENSTUDIO_VERSION = OpenStudio::openStudioVersion
-$OPENSTUDIO_SKETCHUPPLUGIN_DIR = File.dirname(__FILE__)
+
 
 $OPENSTUDIO_SKETCHUPPLUGIN_DEVELOPER_MENU = true # default is false, enable to see developer menu
 $OPENSTUDIO_SKETCHUPPLUGIN_PROGRESS_DIALOGS = true # default is true, disable to speed up
@@ -92,6 +90,8 @@ end
 
 module OpenStudio
 
+  SKETCHUPPLUGIN_DIR = File.dirname(__FILE__)
+  
   Platform_Unknown = 0
   Platform_Windows = 1
   Platform_Mac = 2
@@ -101,15 +101,18 @@ module OpenStudio
 
     attr_reader :name, :version, :dir, :profile_running
     attr_reader :event_queue
+    attr_reader :openstudio_application_dir
 
     attr_accessor :model_manager, :command_manager, :menu_manager, :dialog_manager, :animation_manager, :simulation_manager, :preferences
     attr_accessor :update_manager, :conflict_manager, :load_components, :user_script_runner
 
     def initialize
-      @name = $OPENSTUDIO_SKETCHUPPLUGIN_NAME
-      @version = $OPENSTUDIO_SKETCHUPPLUGIN_VERSION
+      @name = OpenStudio::SKETCHUPPLUGIN_NAME
+      @version = OpenStudio::SKETCHUPPLUGIN_VERSION
       @dir = File.dirname(__FILE__) + "/.."
       @profile_running = false
+      
+      @openstudio_application_dir = $OPENSTUDIO_APPLICATION_DIR
 
       @event_queue = []
 
@@ -135,7 +138,7 @@ module OpenStudio
       end
 
       self.log(OpenStudio::Info, "OpenStudio Plugin started")
-      self.log(OpenStudio::Info, "OpenStudio Plugin Version is #{$OPENSTUDIO_SKETCHUPPLUGIN_VERSION}")
+      self.log(OpenStudio::Info, "OpenStudio Plugin Version is #{@version}")
       self.log(OpenStudio::Info, "SketchUp version is #{Sketchup.version}")
 
       lastversion = read_pref("Plugin Version");
@@ -186,7 +189,7 @@ module OpenStudio
       proc = Proc.new { @conflict_manager.check_for_conflicts }
       add_event( proc )
 
-      if $OPENSTUDIO_SKETCHUPPLUGIN_LAUNCH_GETTING_STARTED_ON_START
+      if OpenStudio::SKETCHUPPLUGIN_LAUNCH_GETTING_STARTED_ON_START
         UI.openURL("http://nrel.github.io/OpenStudio-user-documentation/reference/sketchup_plugin_interface/")
       end
 

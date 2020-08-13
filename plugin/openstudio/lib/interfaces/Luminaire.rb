@@ -158,7 +158,7 @@ module OpenStudio
       end
 
       # add the component definition
-      path = "#{$OPENSTUDIO_SKETCHUPPLUGIN_DIR}/resources/components/OpenStudio_Luminaire.skp"
+      path = "#{OpenStudio::SKETCHUPPLUGIN_DIR}/resources/components/OpenStudio_Luminaire.skp"
       definition = Sketchup.active_model.definitions.load(path)
 
       # parent entity is first a Sketchup::Group corresponding to a space
