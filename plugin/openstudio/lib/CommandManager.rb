@@ -261,14 +261,14 @@ module OpenStudio
     end
 
     def import_space_types
-      dir = Plugin.read_pref("Last Space Loads Import Dir")
+      dir = Plugin.read_pref("Last Space Types Import Dir")
       if not dir
         dir = Plugin.model_manager.model_interface.openstudio_dir
       end
 
-      if (path = UI.open_panel("Import Space Loads", dir, "*.osm"))  # bug in SU7 prevents file filters from working
+      if (path = UI.open_panel("Import Space Types", dir, "*.osm"))  # bug in SU7 prevents file filters from working
         # Save the dir so we can start here next time
-        Plugin.write_pref("Last Space Loads Import Dir", File.dirname(path))
+        Plugin.write_pref("Last Space Types Import Dir", File.dirname(path))
 
         success = false
         openstudio_model = Plugin.model_manager.model_from_openstudio_path(path)
