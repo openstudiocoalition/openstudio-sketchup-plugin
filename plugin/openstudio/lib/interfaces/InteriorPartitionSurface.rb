@@ -104,7 +104,7 @@ module OpenStudio
       super  # PlanarSurface superclass updates the vertices
 
       if (valid_entity?)
-        if (@parent.class == InteriorPartitionSurfaceGroup)
+        if (@parent.is_a? InteriorPartitionSurfaceGroup)
           watcher_enabled = disable_watcher
 
           @model_object.setInteriorPartitionSurfaceGroup(@parent.model_object)  # Parent should already have been updated.

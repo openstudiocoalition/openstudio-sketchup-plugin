@@ -212,7 +212,7 @@ module OpenStudio
     points = []
     loop.vertices.each do |vertex|
       # DLM@20100920: weird bug in SU 8 that vertices can also return attribute dictionary for a loop's vertices
-      if vertex.class == Sketchup::Vertex
+      if vertex.is_a? Sketchup::Vertex
         points << vertex.position
       end
     end

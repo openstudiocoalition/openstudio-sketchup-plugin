@@ -120,7 +120,7 @@ module OpenStudio
         Plugin.log(OpenStudio::Debug, "selection is empty")
 
         parent = @model_interface.skp_model.active_entities.parent
-        if (parent.class == Sketchup::ComponentDefinition)
+        if (parent.is_a? Sketchup::ComponentDefinition)
           # Gets the SurfaceGroup interface that is currently open for editing
           drawing_interface = OpenStudio.get_drawing_interface(parent.instances.first)
 
@@ -133,10 +133,10 @@ module OpenStudio
 
       else
         @selection.each do |entity|
-          if (OpenStudio.get_drawing_interface(entity) and not OpenStudio.get_drawing_interface(entity).deleted? and (entity.class == Sketchup::Group or entity.class == Sketchup::Face or entity.class == Sketchup::ComponentInstance))
+          if (OpenStudio.get_drawing_interface(entity) and not OpenStudio.get_drawing_interface(entity).deleted? and (entity.is_a? Sketchup::Group or entity.is_a? Sketchup::Face or entity.is_a? Sketchup::ComponentInstance))
 
             # Check for entities that have been copied into a non-OpenStudio group and clean them.
-            if (entity.parent.class == Sketchup::ComponentDefinition and not OpenStudio.get_drawing_interface(entity.parent.instances.first))
+            if (entity.parent.is_a? Sketchup::ComponentDefinition and not OpenStudio.get_drawing_interface(entity.parent.instances.first))
               OpenStudio.set_drawing_interface(entity, nil)
               OpenStudio.set_model_object_handle(entity, nil)
             end
@@ -152,7 +152,7 @@ module OpenStudio
 
               # try to revert back to group or building here
               parent = @model_interface.skp_model.active_entities.parent
-              if (parent.class == Sketchup::ComponentDefinition)
+              if (parent.is_a? Sketchup::ComponentDefinition)
                 # Gets the SurfaceGroup interface that is currently open for editing
                 drawing_interface = OpenStudio.get_drawing_interface(parent.instances.first)
 
@@ -184,16 +184,16 @@ module OpenStudio
 
       for child in @model_interface.recurse_children
 
-        if child.class == DaylightingControl or
-           child.class == IlluminanceMap or
-           child.class == InteriorPartitionSurface or
-           child.class == InteriorPartitionSurfaceGroup or
-           child.class == Luminaire or
-           child.class == ShadingSurface or
-           child.class == ShadingSurfaceGroup or
-           child.class == Space or
-           child.class == SubSurface or
-           child.class == Surface
+        if child.is_a? DaylightingControl or
+           child.is_a? IlluminanceMap or
+           child.is_a? InteriorPartitionSurface or
+           child.is_a? InteriorPartitionSurfaceGroup or
+           child.is_a? Luminaire or
+           child.is_a? ShadingSurface or
+           child.is_a? ShadingSurfaceGroup or
+           child.is_a? Space or
+           child.is_a? SubSurface or
+           child.is_a? Surface
 
           if child.model_object
             if handles.include?(child.model_object.handle)

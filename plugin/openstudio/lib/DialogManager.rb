@@ -85,7 +85,7 @@ module OpenStudio
       if interface_class == PluginInspectorDialog
         return @inspector_dialog
       end
-      return(@dialog_interfaces.find { |interface| interface.class == interface_class })
+      return(@dialog_interfaces.find { |interface| interface.is_a? interface_class })
     end
 
     def show(interface_class)

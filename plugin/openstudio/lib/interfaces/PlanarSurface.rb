@@ -236,7 +236,7 @@ module OpenStudio
 
         # Loop through all other faces in the Group to fix any swapped faces.
         # This is not an efficient technique, but it seems fast enough.
-        faces = containing_entity.entities.find_all { |this_entity| this_entity.class == Sketchup::Face and this_entity != @entity}
+        faces = containing_entity.entities.find_all { |this_entity| this_entity.is_a? Sketchup::Face and this_entity != @entity}
 
         for face in faces
           # if the face's drawing interface does not reference the face as it's entity

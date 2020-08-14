@@ -37,7 +37,7 @@ module DrawingUtils
 
   # returns true if entity is the base face of face
   def DrawingUtils.is_base_face(face, face_normal, face_points, entity)
-    if (entity.class == Sketchup::Face and not entity.equal?(face))
+    if (entity.is_a? Sketchup::Face and not entity.equal?(face))
       # Eliminate faces that are not parallel.
       # Another test would be to check if both are in the same plane.
       # There are some precision issues with 'face.plane' however.
@@ -59,9 +59,9 @@ module DrawingUtils
 
     # try the current parent as a first guess
     if drawing_interface = OpenStudio.get_drawing_interface(face)
-      if drawing_interface.class == OpenStudio::SubSurface
+      if drawing_interface.is_a? OpenStudio::SubSurface
         if parent = drawing_interface.parent
-          if temp = parent.entity and temp.class == Sketchup::Face
+          if temp = parent.entity and temp.is_a? Sketchup::Face
             first_guess = temp
           end
         end

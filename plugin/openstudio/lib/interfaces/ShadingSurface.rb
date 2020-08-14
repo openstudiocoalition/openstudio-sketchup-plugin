@@ -104,7 +104,7 @@ module OpenStudio
       super  # PlanarSurface superclass updates the vertices
 
       if (valid_entity?)
-        if (@parent.class == ShadingSurfaceGroup)
+        if (@parent.is_a? ShadingSurfaceGroup)
           watcher_enabled = disable_watcher
 
           @model_object.setShadingSurfaceGroup(@parent.model_object)

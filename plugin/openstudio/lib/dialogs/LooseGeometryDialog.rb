@@ -69,7 +69,7 @@ module OpenStudio
     def on_project_all
       # select all
       model = Plugin.model_manager.model_interface.skp_model
-      model.entities.each {|e| model.selection.add(e)}
+      model.selection.add(model.entities.to_a)
 
       project(model.selection)
     end
@@ -85,9 +85,9 @@ module OpenStudio
 
       # only top level loose geometry can be intersected
       skp_model.entities.each do |ent|
-        if ent.is_a? ComponentInstance
+        if ent.is_a? Sketchup::ComponentInstance
           selection.remove(ent)
-        elsif ent.is_a? Group
+        elsif ent.is_a? Sketchup::Group
           selection.remove(ent)
         end
       end

@@ -88,7 +88,7 @@ module OpenStudio
         # does not call paint
         @drawing_interface.on_change_entity
 
-        if (@drawing_interface.class == Site)
+        if (@drawing_interface.is_a? Site)
 
           # Only repaint if shadow_time has changed
           if (@shadow_time != OpenStudio.get_time(@shadow_info))
@@ -99,7 +99,7 @@ module OpenStudio
           end
 
 
-        elsif (@drawing_interface.class == Building)
+        elsif (@drawing_interface.is_a? Building)
 
           # Only repaint if north_angle has changed
           if (@north_angle != OpenStudio.get_north_angle(@shadow_info))

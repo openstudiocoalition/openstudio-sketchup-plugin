@@ -111,7 +111,7 @@ module OpenStudio
         return nil
       end
 
-      faces = @entity.entities.find_all { |this_entity| this_entity.class == Sketchup::Face }
+      faces = @entity.entities.find_all { |this_entity| this_entity.is_a? Sketchup::Face }
 
       for face in faces
         # Check for any faces that were somehow added and did not get a drawing interface (should never happen).
@@ -211,10 +211,10 @@ module OpenStudio
               # This can happen if a face was unintentionally subdivided when another face was drawn.
               #puts "Could not find a coincident face for the duplicate--will create new object"
 
-              if (OpenStudio.get_drawing_interface(other_face).class == Surface)
+              if (OpenStudio.get_drawing_interface(other_face).is_a? Surface)
                 new_surface = Surface.new_from_entity(other_face)
 
-              elsif (OpenStudio.get_drawing_interface(other_face).class == SubSurface)
+              elsif (OpenStudio.get_drawing_interface(other_face).is_a? SubSurface)
                 new_surface = SubSurface.new_from_entity(other_face)
 
               else # attached shading, detached shading

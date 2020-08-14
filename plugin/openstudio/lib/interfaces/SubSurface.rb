@@ -264,7 +264,7 @@ module OpenStudio
       super  # PlanarSurface superclass updates the vertices
 
       if (valid_entity?)
-        if (@parent.class == Surface)
+        if (@parent.is_a? Surface)
           watcher_enabled = disable_watcher
 
           @model_object.setSurface(@parent.model_object)  # Parent should already have been updated.

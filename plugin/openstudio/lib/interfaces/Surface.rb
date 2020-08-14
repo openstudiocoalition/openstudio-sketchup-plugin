@@ -213,7 +213,7 @@ module OpenStudio
       super  # PlanarSurface superclass updates the vertices
 
       if (valid_entity?)
-        if (@parent.class == Space)
+        if (@parent.is_a? Space)
           watcher_enabled = disable_watcher
 
           @model_object.setSpace(@parent.model_object)  # Parent should already have been updated.
@@ -390,7 +390,7 @@ module OpenStudio
 
         # DLM: detect_base_face can be expensive, do we have to search all_connected?  is there a way to cache the result of detect_base_face?
         for face in @entity.all_connected
-          if face.class == Sketchup::Face
+          if face.is_a? Sketchup::Face
             face_normal = face.normal
             face_points = OpenStudio.get_full_polygon(face).reduce.points
             if DrawingUtils.is_base_face(face, face_normal, face_points, @entity)
@@ -454,7 +454,7 @@ module OpenStudio
     def glazing_area
       area = 0.0
       for child in @children
-        if (child.class == SubSurface and (child.surface_type.upcase == "WINDOW" or child.surface_type.upcase == "GLASSDOOR"))
+        if (child.is_a? SubSurface and (child.surface_type.upcase == "WINDOW" or child.surface_type.upcase == "GLASSDOOR"))
           area += child.area # includes multiplier
         end
       end

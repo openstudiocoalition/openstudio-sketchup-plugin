@@ -59,7 +59,7 @@ module OpenStudio
   inv_expected_normal = Geom::Vector3d.new 0,0,1
   status = 0
   selection.each do |index|
-    if index.is_a? Face
+    if index.is_a? Sketchup::Face
       if index.normal != expected_normal
         if index.normal == inv_expected_normal
           flip = index.reverse!
@@ -130,7 +130,7 @@ module OpenStudio
         progress_dialog = ProgressDialog.new("Creating Spaces from Floorprint")
 
         faces = []
-        sel_sort.each { |entity| faces << entity if entity.class == Sketchup::Face }
+        sel_sort.each { |entity| faces << entity if entity.is_a? Sketchup::Face }
 
         num_total = faces.size * num_floors
         num_complete = 0

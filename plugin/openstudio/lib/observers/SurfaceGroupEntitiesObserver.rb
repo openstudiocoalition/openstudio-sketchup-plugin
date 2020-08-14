@@ -63,24 +63,24 @@ module OpenStudio
 
         Plugin.log(OpenStudio::Info, "SurfaceGroupEntitiesObserver.onElementAdded: adding #{entity} to #{@drawing_interface.entity}")
 
-        if (!entity.deleted? and entity.class == Sketchup::Face)  # In SU7, deleted entities get passed in sometimes.
+        if (!entity.deleted? and entity.is_a? Sketchup::Face)  # In SU7, deleted entities get passed in sometimes.
 
           Plugin.log(OpenStudio::Info, "entityID = #{entity.entityID}")
 
           # Prevent copy-paste between a space group and a detached shading group, etc
           # Clean any entities that appear with the wrong class for this group.
           if (OpenStudio.get_drawing_interface(entity))
-            if (@drawing_interface.class == Space)
+            if (@drawing_interface.is_a? Space)
               if (OpenStudio.get_drawing_interface(entity).class != Surface and OpenStudio.get_drawing_interface(entity).class != SubSurface)
                 Plugin.log(OpenStudio::Info, "Cleaning entity " + entity.to_s + " pasted in Space")
                 DrawingUtils.clean_entity(entity)
               end
-            elsif (@drawing_interface.class == ShadingSurfaceGroup)
+            elsif (@drawing_interface.is_a? ShadingSurfaceGroup)
               if (OpenStudio.get_drawing_interface(entity).class != ShadingSurface)
                 Plugin.log(OpenStudio::Info, "Cleaning entity " + entity.to_s + " pasted in ShadingSurfaceGroup")
                 DrawingUtils.clean_entity(entity)
               end
-            elsif (@drawing_interface.class == InteriorPartitionSurfaceGroup)
+            elsif (@drawing_interface.is_a? InteriorPartitionSurfaceGroup)
               if (OpenStudio.get_drawing_interface(entity).class != InteriorPartitionSurface)
                 Plugin.log(OpenStudio::Info, "Cleaning entity " + entity.to_s + " pasted in InteriorPartitionSurfaceGroup")
                 DrawingUtils.clean_entity(entity)
@@ -90,7 +90,7 @@ module OpenStudio
 
           if (OpenStudio.get_drawing_interface(entity).nil?)
             #  This is a brand new surface or a copy that had to be cleaned.
-            if (@drawing_interface.class == Space)
+            if (@drawing_interface.is_a? Space)
 
               base_face = DrawingUtils.detect_base_face(entity)
 
@@ -126,10 +126,10 @@ module OpenStudio
 
               end
 
-            elsif (@drawing_interface.class == ShadingSurfaceGroup)
+            elsif (@drawing_interface.is_a? ShadingSurfaceGroup)
               Plugin.log(OpenStudio::Info, "New ShadingSurface in ShadingSurfaceGroup")
               ShadingSurface.new_from_entity(entity)
-            elsif (@drawing_interface.class == InteriorPartitionSurfaceGroup)
+            elsif (@drawing_interface.is_a? InteriorPartitionSurfaceGroup)
               Plugin.log(OpenStudio::Info, "New InteriorPartitionSurface in InteriorPartitionSurfaceGroup")
               InteriorPartitionSurface.new_from_entity(entity)
             else
@@ -180,7 +180,7 @@ module OpenStudio
             Plugin.log(OpenStudio::Info, "swapped = " + swapped.to_s)
 
             base_face = nil
-            if (@drawing_interface.class == Space)
+            if (@drawing_interface.is_a? Space)
               if (swapped)
                 base_face = DrawingUtils.detect_base_face(OpenStudio.get_drawing_interface(entity).entity)
               else
@@ -276,10 +276,10 @@ module OpenStudio
             has_children = false
             error_message = ""
 
-            if (drawing_interface.class == DaylightingControl)
+            if (drawing_interface.is_a? DaylightingControl)
               Plugin.log(OpenStudio::Info, "New DaylightingControl")
 
-              if (@drawing_interface.class == Space)
+              if (@drawing_interface.is_a? Space)
                 # see if we already have this object
                 Plugin.model_manager.model_interface.daylighting_controls.each do |daylighting_control|
                   if daylighting_control.entity == entity
@@ -293,10 +293,10 @@ module OpenStudio
                 error_message = "Can only add DaylightingControl to a Space"
               end
 
-            elsif(drawing_interface.class == IlluminanceMap)
+            elsif(drawing_interface.is_a? IlluminanceMap)
               Plugin.log(OpenStudio::Info, "New IlluminanceMap")
 
-              if (@drawing_interface.class == Space)
+              if (@drawing_interface.is_a? Space)
                 # see if we already have this object
                 Plugin.model_manager.model_interface.illuminance_maps.each do |illuminance_map|
                   if illuminance_map.entity == entity
@@ -310,10 +310,10 @@ module OpenStudio
                 error_message = "Can only add IlluminanceMap to a Space"
               end
 
-            elsif(drawing_interface.class == Luminaire)
+            elsif(drawing_interface.is_a? Luminaire)
               Plugin.log(OpenStudio::Info, "New Luminaire")
 
-              if (@drawing_interface.class == Space)
+              if (@drawing_interface.is_a? Space)
                 # see if we already have this object
                 Plugin.model_manager.model_interface.luminaires.each do |luminaire|
                   if luminaire.entity == entity
@@ -327,12 +327,12 @@ module OpenStudio
                 error_message = "Can only add Luminaire to a Space"
               end
 
-            elsif(drawing_interface.class == ShadingSurfaceGroup)
+            elsif(drawing_interface.is_a? ShadingSurfaceGroup)
               Plugin.log(OpenStudio::Info, "New ShadingSurfaceGroup")
 
               has_children = true
 
-              if (@drawing_interface.class == Space)
+              if (@drawing_interface.is_a? Space)
                 # see if we already have this object
                 Plugin.model_manager.model_interface.shading_surface_groups.each do |shading_surface_group|
                   if shading_surface_group.entity == entity
@@ -346,12 +346,12 @@ module OpenStudio
                 error_message = "Can only add ShadingSurfaceGroup at Space or Building level"
               end
 
-            elsif(drawing_interface.class == InteriorPartitionSurfaceGroup)
+            elsif(drawing_interface.is_a? InteriorPartitionSurfaceGroup)
               Plugin.log(OpenStudio::Info, "New InteriorPartitionSurfaceGroup")
 
               has_children = true
 
-              if (@drawing_interface.class == Space)
+              if (@drawing_interface.is_a? Space)
                 # see if we already have this object
                 Plugin.model_manager.model_interface.interior_partition_surface_groups.each do |interior_partition_surface_group|
                   if interior_partition_surface_group.entity == entity
@@ -365,7 +365,7 @@ module OpenStudio
                 error_message = "Can only add InteriorPartitionSurfaceGroup at Space level"
               end
 
-            elsif(drawing_interface.class == Space)
+            elsif(drawing_interface.is_a? Space)
               Plugin.log(OpenStudio::Info, "New Space")
 
               has_children = true

@@ -62,7 +62,7 @@ module OpenStudio
       #Plugin.dialog_manager.selection_changed
 
       parent = @model_interface.skp_model.active_entities.parent
-      if (parent.class == Sketchup::ComponentDefinition)
+      if (parent.is_a? Sketchup::ComponentDefinition)
         # Gets the SurfaceGroup interface that is currently open for editing
         drawing_interface = OpenStudio.get_drawing_interface(parent.instances.first)
         if drawing_interface.is_a?(SurfaceGroup)

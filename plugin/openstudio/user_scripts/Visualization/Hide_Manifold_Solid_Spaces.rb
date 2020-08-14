@@ -71,9 +71,9 @@ class HideManifoldSolidSpaces < OpenStudio::Ruleset::ModelUserScript
 
           # loop through all child entities in the space
           entity.entities.each do |child_entity|
-            if child_entity.is_a? Face
+            if child_entity.is_a? Sketchup::Face
               temp_group.entities.add_face(child_entity.outer_loop.vertices)
-            elsif child_entity.is_a? == Edge
+            elsif child_entity.is_a? == Sketchup::Edge
               temp_group.entities.add_line(child_entity.vertices)
             end
           end

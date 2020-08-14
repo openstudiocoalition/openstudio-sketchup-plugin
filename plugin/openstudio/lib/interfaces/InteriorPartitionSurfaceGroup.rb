@@ -97,7 +97,7 @@ module OpenStudio
       super
 
       if (valid_entity?)
-        if (@parent.class == Space)
+        if (@parent.is_a? Space)
           watcher_enabled = disable_watcher
 
           @model_object.setSpace(@parent.model_object)  # Parent should already have been updated.

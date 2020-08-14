@@ -97,7 +97,7 @@ module OpenStudio
       super
 
       if (valid_entity?)
-        if (@parent.class == Space)
+        if (@parent.is_a? Space)
           watcher_enabled = disable_watcher
 
           @model_object.setSpace(@parent.model_object)  # Parent should already have been updated.
@@ -225,7 +225,7 @@ module OpenStudio
       if (valid_entity?)
         # entity class will be a ComponentInstance
         # parent class will be a ComponentDefinition with one instance
-        if (@entity.parent.class == Sketchup::ComponentDefinition)
+        if (@entity.parent.is_a? Sketchup::ComponentDefinition)
           parent = OpenStudio.get_drawing_interface(@entity.parent.instances.first)
         else
           # Somehow got outside of a ComponentInstance--maybe the ComponentInstance was exploded.

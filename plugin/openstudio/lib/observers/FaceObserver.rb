@@ -128,7 +128,7 @@ module OpenStudio
 
           # Check for swapping of face entities if the erased face was a Surface.
           # (Swapping never seems to happen when @drawing_interface is a SubSurface.)
-          if (@drawing_interface.class == Surface)
+          if (@drawing_interface.is_a? Surface)
 
             #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @drawing_interface = #{@drawing_interface.class} check for swapping")
 
@@ -138,7 +138,7 @@ module OpenStudio
             # search all entities in containing_entity for surface that matches these vertices
             # containing_entity.entities will not return entity because it has been deleted
             containing_entity.entities.each { |this_entity|
-              if ((this_entity.class == Sketchup::Face))
+              if ((this_entity.is_a? Sketchup::Face))
                 face_points = OpenStudio.get_outer_polygon(this_entity).reduce.points
 
                 # Check to see if all drawing_object points are a subset of the face points.

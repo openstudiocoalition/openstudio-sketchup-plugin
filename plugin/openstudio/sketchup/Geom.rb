@@ -104,7 +104,7 @@ module OpenStudio
 
     # Should PolygonLoop always provide a reduced set of points, from the instant it is created?
     def initialize(arg1 = nil, arg2 = nil)
-      if (arg1.class == Array)
+      if (arg1.is_a? Array)
         @points = arg1
       else
         @points = []
@@ -128,7 +128,7 @@ module OpenStudio
 
     def points=(arg)
       # must be an array or a Sketchup::Loop
-      if (arg.class == Array)
+      if (arg.is_a? Array)
         @points = arg
 
         # check to make sure this is an array of Point3d objects?
@@ -321,7 +321,7 @@ module OpenStudio
 
     def initialize(arg = nil)
       clear
-      if (arg.class == PolygonLoop or arg.class == Array)
+      if (arg.is_a? PolygonLoop or arg.is_a? Array)
         add_loop(arg)
       end
     end
@@ -339,9 +339,9 @@ module OpenStudio
     end
 
     def add_loop(arg)
-      if (arg.class == PolygonLoop)
+      if (arg.is_a? PolygonLoop)
         new_loop = arg
-      elsif (arg.class == Array)
+      elsif (arg.is_a? Array)
         new_loop = PolygonLoop.new(arg)
       else
         raise ArgumentError
@@ -915,7 +915,7 @@ module OpenStudio
 
     faces = []
     Sketchup.active_model.selection.each { |element|
-      if (element.class == Sketchup::Face)
+      if (element.is_a? Sketchup::Face)
         faces << element
       end
     }

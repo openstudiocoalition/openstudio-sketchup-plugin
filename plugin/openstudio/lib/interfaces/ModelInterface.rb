@@ -835,28 +835,28 @@ module OpenStudio
 
         # spaces and exterior shading groups
         model_object_handle = OpenStudio.get_model_object_handle(entity)
-        if (entity.class == Sketchup::Group and model_object_handle)
+        if (entity.is_a? Sketchup::Group and model_object_handle)
           entity_hash[model_object_handle.to_s] = entity
 
           # Iterate over surfaces in the group.
           for child_entity in entity.entities
             child_model_object_handle = OpenStudio.get_model_object_handle(child_entity)
-            if (child_entity.class == Sketchup::Face and child_model_object_handle)
+            if (child_entity.is_a? Sketchup::Face and child_model_object_handle)
               # shading surface, surface, or subsurface
               entity_hash[child_model_object_handle.to_s] = child_entity
 
-            elsif (child_entity.class == Sketchup::ComponentInstance and child_model_object_handle)
+            elsif (child_entity.is_a? Sketchup::ComponentInstance and child_model_object_handle)
               # daylighting controls or illuminance map
               entity_hash[child_model_object_handle.to_s] = child_entity
 
-            elsif (child_entity.class == Sketchup::Group and child_model_object_handle)
+            elsif (child_entity.is_a? Sketchup::Group and child_model_object_handle)
               # space shading or interior surface partition group
               entity_hash[child_model_object_handle.to_s] = child_entity
 
               # Iterate over surfaces in the group.
               for grand_child_entity in child_entity.entities
                 grand_child_model_object_handle = OpenStudio.get_model_object_handle(grand_child_entity)
-                if (grand_child_entity.class == Sketchup::Face and grand_child_model_object_handle)
+                if (grand_child_entity.is_a? Sketchup::Face and grand_child_model_object_handle)
                   # shading surface, or interior partition surface
                   entity_hash[grand_child_model_object_handle.to_s] = grand_child_entity
                 end

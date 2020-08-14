@@ -232,7 +232,7 @@ module OpenStudio
         return nil
       end
 
-      if @parent.class == Space
+      if @parent.is_a? Space
         @entity = @parent.entity.entities.add_group
       else
         @entity = Sketchup.active_model.entities.add_group
@@ -270,7 +270,7 @@ module OpenStudio
       Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (super)
-        if (@entity.class == Sketchup::Group)
+        if (@entity.is_a? Sketchup::Group)
           return(true)
         else
           puts "SurfaceGroup.check_entity:  wrong class of entity"
@@ -311,7 +311,7 @@ module OpenStudio
 
       orphan_edges = []
       for this_entity in @entity.entities
-        if (this_entity.class == Sketchup::Edge)
+        if (this_entity.is_a? Sketchup::Edge)
           if (this_entity.faces.empty?)
             # Be careful: looks like calling edge.find_faces will make edge.faces become non-empty
             orphan_edges << this_entity

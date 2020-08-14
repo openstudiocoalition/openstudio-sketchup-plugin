@@ -57,7 +57,7 @@ module OpenStudio
 
       return if not @enabled
 
-      if (!entity.deleted? and entity.class == Sketchup::Group)
+      if (!entity.deleted? and entity.is_a? Sketchup::Group)
         #puts "ModelEntities.onElementAdded:" + entity.to_s
 
         if (OpenStudio.get_drawing_interface(entity))
@@ -104,7 +104,7 @@ module OpenStudio
                 has_children = false
                 error_message = ""
 
-                if(drawing_interface.class == Space)
+                if(drawing_interface.is_a? Space)
                   Plugin.log(OpenStudio::Info, "New Space")
 
                   has_children = true
@@ -117,7 +117,7 @@ module OpenStudio
                     end
                   end
 
-                elsif(drawing_interface.class == ShadingSurfaceGroup)
+                elsif(drawing_interface.is_a? ShadingSurfaceGroup)
                   Plugin.log(OpenStudio::Info, "New ShadingSurfaceGroup")
 
                   has_children = true
@@ -130,7 +130,7 @@ module OpenStudio
                     end
                   end
 
-                elsif(drawing_interface.class == InteriorPartitionSurfaceGroup)
+                elsif(drawing_interface.is_a? InteriorPartitionSurfaceGroup)
                   Plugin.log(OpenStudio::Info, "New InteriorPartitionSurfaceGroup")
 
                   has_children = true
