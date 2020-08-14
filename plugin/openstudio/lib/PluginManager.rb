@@ -444,7 +444,7 @@ module OpenStudio
       write_pref("Last OpenStudio Dir", nil)
       write_pref("Last OpenStudio Import Dir", nil)
       write_pref("Last Schedules Import Dir", nil)
-      write_pref("Last Space Loads Import Dir", nil)
+      write_pref("Last Space Types Import Dir", nil)
       write_pref("Open Dialogs", nil)
       write_pref("Warn on Idf Export", nil)
       write_pref("Warn on gbXML Export", nil)
