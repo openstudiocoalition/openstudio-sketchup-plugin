@@ -179,7 +179,7 @@ module OpenStudio
       @import_schedules_cmd = UI::Command.new("Import Schedules") { Plugin.command_manager.import_schedules }
       @import_schedules_cmd.set_validation_proc { enable_if_model_interface }
 
-      @import_space_types_cmd = UI::Command.new("Import Space Loads") { Plugin.command_manager.import_space_types }
+      @import_space_types_cmd = UI::Command.new("Import Space Types") { Plugin.command_manager.import_space_types }
       @import_space_types_cmd.set_validation_proc { enable_if_model_interface }
 
       @import_idf_cmd = UI::Command.new("Import EnergyPlus Idf") { Plugin.command_manager.import_idf }
@@ -307,13 +307,6 @@ module OpenStudio
       @loose_geometry_cmd.tooltip = "Project Loose Geometry"
       @loose_geometry_cmd.status_bar_text = "Project loose geometry onto OpenStudio surfaces"
       @loose_geometry_cmd.set_validation_proc { Plugin.dialog_manager.validate(LooseGeometryInterface) if (Plugin.dialog_manager) }
-
-      @space_loads_cmd = UI::Command.new("Space Loads") { } #Plugin.dialog_manager.show(SpaceLoadsInterface) }
-      @space_loads_cmd.small_icon = Plugin.dir + "/lib/resources/icons/SpaceLoads-16.png"
-      @space_loads_cmd.large_icon = Plugin.dir + "/lib/resources/icons/SpaceLoads-24.png"
-      @space_loads_cmd.tooltip = "Space Loads"
-      @space_loads_cmd.status_bar_text = "Add common loads to spaces"
-      @space_loads_cmd.set_validation_proc { enable_if_model_interface }
 
       @inspector_dialog_cmd = UI::Command.new("Inspector") {
         Plugin.dialog_manager.inspector_dialog.restoreState
@@ -561,15 +554,16 @@ module OpenStudio
       @openstudio_cmd = UI::Command.new("Launch Openstudio") do
         if Plugin.command_manager.save_openstudio
           openstudio_path = Plugin.model_manager.model_interface.openstudio_path
+          openstudio_application_dir = Plugin.openstudio_application_dir
           if Plugin.platform == Platform_Windows
             # DLM: Used to use Thread.new here, suspect that was causing crashes when OpenStudio app was opened in plug-in
             # empty "" is required after start, first parameter is the name of the process to start
             # http://stackoverflow.com/questions/154075/using-the-dos-start-command-with-parameters-passed-to-the-started-program
-            puts "start \"\" \"#{$OPENSTUDIO_APPLICATION_DIR}\\OpenStudioApp\" \"#{openstudio_path}\""
-            system("start \"\" \"#{$OPENSTUDIO_APPLICATION_DIR}\\OpenStudioApp\" \"#{openstudio_path}\"")
+            puts "start \"\" \"#{openstudio_application_dir}\\OpenStudioApp\" \"#{openstudio_path}\""
+            system("start \"\" \"#{openstudio_application_dir}\\OpenStudioApp\" \"#{openstudio_path}\"")
           elsif Plugin.platform == Platform_Mac
-            puts "open -a \"#{$OPENSTUDIO_APPLICATION_DIR}/../OpenStudioApp.app\" --args \"#{openstudio_path}\""
-            system("open -a \"#{$OPENSTUDIO_APPLICATION_DIR}/../OpenStudioApp.app\" --args \"#{openstudio_path}\"")
+            puts "open -a \"#{openstudio_application_dir}/../OpenStudioApp.app\" --args \"#{openstudio_path}\""
+            system("open -a \"#{openstudio_application_dir}/../OpenStudioApp.app\" --args \"#{openstudio_path}\"")
           end
         end
       end
@@ -714,7 +708,7 @@ module OpenStudio
 
       @update_cmd = UI::Command.new("Check For Update") { Plugin.update_manager = PluginUpdateManager.new(true) }
       @update_cmd.set_validation_proc {
-        if $OPENSTUDIO_UPDATE_MANAGER && Plugin.update_manager.nil?
+        if OpenStudio::UPDATE_MANAGER && Plugin.update_manager.nil?
           MF_ENABLED
         else
           MF_GRAYED
@@ -789,7 +783,7 @@ module OpenStudio
 
       id = @plugin_menu.add_item(@update_cmd)
       @plugin_menu.set_validation_proc(id) { 
-        if $OPENSTUDIO_UPDATE_MANAGER && Plugin.update_manager.nil?
+        if OpenStudio::UPDATE_MANAGER && Plugin.update_manager.nil?
           MF_ENABLED
         else
           MF_GRAYED
@@ -915,7 +909,7 @@ module OpenStudio
       end
 
 
-      if $OPENSTUDIO_SKETCHUPPLUGIN_DEVELOPER_MENU
+      if OpenStudio::SKETCHUPPLUGIN_DEVELOPER_MENU
         # add developer menu
         @developer_menu = UI.menu("Plugins").add_submenu(Plugin.name + " Developer")
         #@developer_menu.set_validation_proc { MF_ENABLED }

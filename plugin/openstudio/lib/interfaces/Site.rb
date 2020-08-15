@@ -36,14 +36,14 @@ module OpenStudio
   class Site < DrawingInterface
 
     def initialize
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super
       @observer = ShadowInfoObserver.new(self)
     end
 
     def self.model_object_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_object = Plugin.model_manager.model_interface.openstudio_model.getOptionalSite
       if not model_object.empty? and (handle.to_s == model_object.get.handle.to_s)
@@ -56,7 +56,7 @@ module OpenStudio
     end
 
     def self.new_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       drawing_interface = Site.new
       model_object = model_object_from_handle(handle)
@@ -68,7 +68,7 @@ module OpenStudio
 
 
     def create_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_watcher_enabled = @model_interface.model_watcher.disable
       @model_object = @model_interface.openstudio_model.getSite
@@ -79,7 +79,7 @@ module OpenStudio
 
     # Updates the ModelObject with new information from the SketchUp entity.
     def update_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
 
       if (valid_entity?)
@@ -102,7 +102,7 @@ module OpenStudio
 
 
     def parent_from_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@model_interface)
     end
@@ -111,7 +111,7 @@ module OpenStudio
     # Site is unlike other drawing interface because it does not actually create the entity.
     # Instead it gets the current ShadowInfo object.
     def create_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @entity = @model_interface.skp_model.shadow_info
     end
@@ -124,7 +124,7 @@ module OpenStudio
 
     # Updates the SketchUp entity with new information from the ModelObject.
     def update_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (valid_entity?)
         had_observers = remove_observers(false)
@@ -143,7 +143,7 @@ module OpenStudio
 
 
     def on_change_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       update_model_object
       #paint_entity # do not paint
@@ -151,20 +151,20 @@ module OpenStudio
 
 
     def parent_from_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return @model_interface
     end
 
     def coordinate_transformation
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # to OpenStudio, site has identify transformation
       return Geom::Transformation.new
     end
 
     def coordinate_transformation=(transform)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # nothing to do
     end

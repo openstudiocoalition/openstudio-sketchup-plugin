@@ -55,7 +55,7 @@ module OpenStudio
 
     def onChangeEntity(entity)
 
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
 
       return if not @enabled
 
@@ -71,7 +71,7 @@ module OpenStudio
 
     def onEraseEntity(entity)
 
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
 
       return if not @enabled
 

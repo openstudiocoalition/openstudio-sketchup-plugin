@@ -53,7 +53,7 @@ module OpenStudio
 
     def onActivePathChanged(model)
 
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
 
       return if not @enabled
 
@@ -62,9 +62,9 @@ module OpenStudio
       #Plugin.dialog_manager.selection_changed
 
       parent = @model_interface.skp_model.active_entities.parent
-      if (parent.class == Sketchup::ComponentDefinition)
+      if (parent.is_a? Sketchup::ComponentDefinition)
         # Gets the SurfaceGroup interface that is currently open for editing
-        drawing_interface = parent.instances.first.drawing_interface
+        drawing_interface = OpenStudio.get_drawing_interface(parent.instances.first)
         if drawing_interface.is_a?(SurfaceGroup)
           drawing_interface.delete_initial_box
         end
@@ -74,7 +74,7 @@ module OpenStudio
 
     def onPreSaveModel(model)
 
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
 
       return if not @enabled
 
@@ -84,11 +84,11 @@ module OpenStudio
 
     def onPostSaveModel(model)
 
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
 
       return if not @enabled
 
-      if model && model_interface = model.model_interface
+      if model && model_interface = OpenStudio.get_model_interface(model)
         model_interface.skp_model_guid = model.guid
       end
 
@@ -97,7 +97,7 @@ module OpenStudio
     # unknown if this is called
     def onDeleteModel(model)
 
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
 
       return if not @enabled
 
@@ -120,7 +120,7 @@ module OpenStudio
 
     #def onTransactionStart(model)
     #
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
     #
     #  return if not @enabled
     #
@@ -132,7 +132,7 @@ module OpenStudio
 
     #def onTransactionCommit(model)
     #
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
     #
     #  return if not @enabled
     #
@@ -144,7 +144,7 @@ module OpenStudio
 
     #def onTransactionAbort(model)
     #
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
     #
     #  return if not @enabled
     #

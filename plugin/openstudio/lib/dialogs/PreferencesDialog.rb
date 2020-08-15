@@ -61,7 +61,7 @@ module OpenStudio
         dir = ""
       end
 
-      if (path = UI.open_panel("Locate OpenStudio Dir", dir, file_name))
+      if (path = OpenStudio.open_panel("Locate OpenStudio Dir", dir, file_name))
         path = path.split("\\").join("/")  # Have to convert the file separator for other stuff to work later
         # Above is a kludge...should allow any separators to be cut and paste into the text box
         @hash['OPENSTUDIO_DIR'] = path

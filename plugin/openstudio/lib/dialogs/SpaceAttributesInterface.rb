@@ -178,7 +178,7 @@ module OpenStudio
 
       # loop through selection
       selection.each do |entity|
-        drawing_interface = entity.drawing_interface
+        drawing_interface = OpenStudio.get_drawing_interface(entity)
 
         if drawing_interface.class.to_s == "OpenStudio::Space"
           if selected_space_type == "<new space type>"

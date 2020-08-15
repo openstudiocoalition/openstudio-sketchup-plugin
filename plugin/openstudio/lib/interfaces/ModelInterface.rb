@@ -75,14 +75,14 @@ module OpenStudio
     attr_reader :class_hash, :paint_requested
 
     def initialize(skp_model, openstudio_model, openstudio_path = nil)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @skp_model = skp_model
       @skp_model_guid = skp_model.guid
       @openstudio_model = openstudio_model
 
-      @skp_model.model_interface = self
-      @skp_model.openstudio_path = openstudio_path
+      OpenStudio.set_model_interface(@skp_model, self)
+      OpenStudio.set_openstudio_path(@skp_model, openstudio_path)
 
       if (openstudio_path)
         @model_temp_dir = OpenStudio::Model::initializeModel(openstudio_model, OpenStudio::Path.new(openstudio_path))
@@ -205,27 +205,27 @@ module OpenStudio
     end
 
     def entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@skp_model)
     end
 
     def inspect
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(to_s)
     end
 
     # keeps track of the edit_transform at each point in the active_path
     def active_path_transform
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@active_path_transform)
     end
 
     # keeps track of the edit_transform at each point in the active_path
     def update_active_path_transform
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       active_path_transform_size = @active_path_transform ? @active_path_transform.size : 0
       last_active_path_size = @last_active_path ? @last_active_path.size : 0
@@ -315,7 +315,7 @@ module OpenStudio
 
     # get name of SketchUp file
     def skp_name
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       name = nil
       if (@skp_model.path.empty?)
@@ -328,7 +328,7 @@ module OpenStudio
 
     # get dir of SketchUp file
     def skp_dir
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       dir = nil
       if (not @skp_model.path.empty?)
@@ -338,15 +338,15 @@ module OpenStudio
     end
 
     def openstudio_path
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
-      return @skp_model.openstudio_path
+      return OpenStudio.get_openstudio_path(@skp_model)
     end
 
     # path to OpenStudio file that has already been saved
     # be very careful about where you call this function from as it creates a new path watcher
     def openstudio_path=(path)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       current_path = openstudio_path
 
@@ -357,7 +357,7 @@ module OpenStudio
       # destroy current watcher
       destroy_path_watcher
 
-      @skp_model.openstudio_path = path
+      OpenStudio.set_openstudio_path(@skp_model, path)
 
       # add a new path watcher
       add_path_watcher
@@ -365,7 +365,7 @@ module OpenStudio
 
     # get name of OpenStudio file
     def openstudio_name
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       name = nil
       if (openstudio_path)
@@ -379,7 +379,7 @@ module OpenStudio
 
     # get directory for OpenStudio file
     def openstudio_dir
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       dir = nil
       if (openstudio_path)
@@ -394,7 +394,7 @@ module OpenStudio
 
     # export an openstudio model
     def export_openstudio(path)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = false
 
@@ -438,7 +438,7 @@ module OpenStudio
 
     # export untranslated EnergyPlus objects to idf
     def export_untranslated_idf(path)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = false
 
@@ -458,7 +458,7 @@ module OpenStudio
 
     # export an EnergyPlus idf
     def export_idf(path)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       clear_errors
 
@@ -499,14 +499,14 @@ module OpenStudio
 
     #export a gbXML path
     def export_gbxml(path)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       clear_errors
 
       translator = OpenStudio::GbXML::GbXMLForwardTranslator.new
 
       result = nil
-      if $OPENSTUDIO_SKETCHUPPLUGIN_PROGRESS_DIALOGS
+      if OpenStudio::SKETCHUPPLUGIN_PROGRESS_DIALOGS
         progress_dialog = ProgressDialog.new("Translating Model to gbXML")
         result = translator.modelToGbXML(@openstudio_model, OpenStudio::Path.new(path), progress_dialog)
         progress_dialog.destroy
@@ -540,14 +540,14 @@ module OpenStudio
 
     #export a sdd path
     def export_sdd(path)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       clear_errors
 
       translator = OpenStudio::SDD::SddForwardTranslator.new
 
       result = nil
-      if $OPENSTUDIO_SKETCHUPPLUGIN_PROGRESS_DIALOGS
+      if OpenStudio::SKETCHUPPLUGIN_PROGRESS_DIALOGS
         progress_dialog = ProgressDialog.new("Translating Model to SDD")
         result = translator.modelToSDD(@openstudio_model, OpenStudio::Path.new(path), progress_dialog)
         progress_dialog.destroy
@@ -584,7 +584,7 @@ module OpenStudio
 
     # import constructions from another model
     def import_constructions(other_model)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       idd_object_types = ["OS_DefaultConstructionSet".to_IddObjectType,
                           "OS_DefaultSurfaceConstructions".to_IddObjectType,
@@ -625,7 +625,7 @@ module OpenStudio
 
     # import schedules from another model
     def import_schedules(other_model)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       idd_object_types = ["OS_DefaultScheduleSet".to_IddObjectType,
                           "OS_Schedule_Ruleset".to_IddObjectType,
@@ -665,7 +665,7 @@ module OpenStudio
 
     # import space types from another model
     def import_space_types(other_model)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # transfer types to temp model
       # use clone here to get children, may create duplicate schedules, etc
@@ -674,7 +674,7 @@ module OpenStudio
 
     # get handles to all objects and their targets recursively
     def get_target_handles_recursively(object, handles)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       handles << object.handle
       object.targets.each {|target| get_target_handles_recursively(target, handles)}
@@ -682,7 +682,7 @@ module OpenStudio
 
     # returns a workspace with all objects of the selected types and all recursive targets
     def import_objects_with_targets(workspace, idd_object_types)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # handles of objects to insert
       handles = OpenStudio::UUIDVector.new
@@ -709,7 +709,7 @@ module OpenStudio
 
     # import construction objects from idf
     def import_idf_constructions(workspace)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       clear_errors
 
@@ -767,7 +767,7 @@ module OpenStudio
 
     # import schedule objects from idf
     def import_idf_schedules(workspace)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       clear_errors
 
@@ -826,7 +826,7 @@ module OpenStudio
     # (Meaning they were associated with a model object at one time.)
     # Maximum depth is two groups (e.g. for interior surface partition and space shading groups)
     def make_entity_hash
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       entity_hash = Hash.new
       for entity in @skp_model.entities
@@ -834,28 +834,31 @@ module OpenStudio
         # intentioanlly does not include shadow_info because that entity is shared between building and site
 
         # spaces and exterior shading groups
-        if (entity.class == Sketchup::Group and entity.model_object_handle)
-          entity_hash[entity.model_object_handle.to_s] = entity
+        model_object_handle = OpenStudio.get_model_object_handle(entity)
+        if (entity.is_a? Sketchup::Group and model_object_handle)
+          entity_hash[model_object_handle.to_s] = entity
 
           # Iterate over surfaces in the group.
           for child_entity in entity.entities
-            if (child_entity.class == Sketchup::Face and child_entity.model_object_handle)
+            child_model_object_handle = OpenStudio.get_model_object_handle(child_entity)
+            if (child_entity.is_a? Sketchup::Face and child_model_object_handle)
               # shading surface, surface, or subsurface
-              entity_hash[child_entity.model_object_handle.to_s] = child_entity
+              entity_hash[child_model_object_handle.to_s] = child_entity
 
-            elsif (child_entity.class == Sketchup::ComponentInstance and child_entity.model_object_handle)
+            elsif (child_entity.is_a? Sketchup::ComponentInstance and child_model_object_handle)
               # daylighting controls or illuminance map
-              entity_hash[child_entity.model_object_handle.to_s] = child_entity
+              entity_hash[child_model_object_handle.to_s] = child_entity
 
-            elsif (child_entity.class == Sketchup::Group and child_entity.model_object_handle)
+            elsif (child_entity.is_a? Sketchup::Group and child_model_object_handle)
               # space shading or interior surface partition group
-              entity_hash[child_entity.model_object_handle.to_s] = child_entity
+              entity_hash[child_model_object_handle.to_s] = child_entity
 
               # Iterate over surfaces in the group.
               for grand_child_entity in child_entity.entities
-                if (grand_child_entity.class == Sketchup::Face and grand_child_entity.model_object_handle)
+                grand_child_model_object_handle = OpenStudio.get_model_object_handle(grand_child_entity)
+                if (grand_child_entity.is_a? Sketchup::Face and grand_child_model_object_handle)
                   # shading surface, or interior partition surface
-                  entity_hash[grand_child_entity.model_object_handle.to_s] = grand_child_entity
+                  entity_hash[grand_child_model_object_handle.to_s] = grand_child_entity
                 end
               end
             end
@@ -872,7 +875,7 @@ module OpenStudio
     # draw new entity if none exists for model object
     # This method does all of the drawing of new entities or updating of existing entities.
     def attach_openstudio_model()
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # pause event processing
       event_processing_stopped = Plugin.stop_event_processing
@@ -900,7 +903,7 @@ module OpenStudio
         entity_hash = make_entity_hash
 
         # Clean drawing interface refereces.  The old object references are all invalid, but keep the model object handle.
-        entity_hash.each_value {|value| value.drawing_interface = nil }
+        entity_hash.each_value {|value| OpenStudio.set_drawing_interface(value, nil) }
 
         # Loop through the input file and create an interface for each drawable input object.
         # Input objects that do not have a corresponding drawing interface are ignored.
@@ -983,7 +986,7 @@ module OpenStudio
     end
 
     def on_new_model_object(new_model_object)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # see if this class is one we have an interface to
       class_name = new_model_object.iddObject.name.upcase
@@ -1026,11 +1029,11 @@ module OpenStudio
         Plugin.start_event_processing if event_processing_stopped
       end
 
-      Plugin.log(OpenStudio::Trace, "leaving #{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "leaving #{OpenStudio.current_method_name}")
     end
 
     def shutdown_openstudio_model
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # delete the temp dir
       OpenStudio::Model::removeModelTempDir(@model_temp_dir)
@@ -1038,7 +1041,7 @@ module OpenStudio
 
 
     def detach_openstudio_model
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # pause event processing
       event_processing_stopped = Plugin.stop_event_processing
@@ -1115,7 +1118,7 @@ module OpenStudio
       @results_interface.destroy
 
       # remove references to objects no longer needed
-      @skp_model.model_interface = nil
+      OpenStudio.set_model_interface(@skp_model, nil)
       @skp_model = nil
       @model_observer = nil
       @entities_observer = nil
@@ -1137,7 +1140,7 @@ module OpenStudio
 
     # Final check for any errors (generated by the plugin) in the drawing after opening a file.
     def check_openstudio_model
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # cleanup_entity may create new interfaces
       recurse_children.each { |child| child.cleanup_entity }
@@ -1168,7 +1171,7 @@ module OpenStudio
         entity_to_drawing_interfaces[entity].each do |drawing_interface|
 
           # keep the interface that the entity is pointing to
-          next if drawing_interface == entity.drawing_interface
+          next if drawing_interface == OpenStudio.get_drawing_interface(entity)
 
           # duplicates code in DrawingInterface::draw_entity if check_model_object fails
           drawing_interface.destroy_observers
@@ -1192,13 +1195,13 @@ module OpenStudio
 
     # removes reference to drawing interface but does not remove model object handle
     def clean_openstudio_model
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       recurse_children.each { |interface| interface.clean_entity }
     end
 
     def add_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if recursive
         recurse_children.each { |interface| interface.add_observers(recursive) }
@@ -1207,7 +1210,7 @@ module OpenStudio
       @materials_interface.add_observers(recursive)
       @selection_interface.add_observers(recursive)
 
-      if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+      if Plugin.disable_observers
         if not @observer_added
           @skp_model.add_observer(@model_observer)
           @skp_model.entities.add_observer(@entities_observer)
@@ -1225,10 +1228,10 @@ module OpenStudio
     end
 
     def remove_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       had_observers = false
-      if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+      if Plugin.disable_observers
         if @observer_added
           had_observers = @model_observer.disable
           @entities_observer.disable
@@ -1252,11 +1255,11 @@ module OpenStudio
     end
 
     def destroy_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = false
       if @model_observer
-        if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+        if Plugin.disable_observers
           # actually do remove here
           @skp_model.remove_observer(@model_observer)
           @skp_model.entities.remove_observer(@entities_observer) if @skp_model.entities
@@ -1290,13 +1293,13 @@ module OpenStudio
     end
 
     def add_model_watcher
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @model_watcher = PluginModelWatcher.new(self)
     end
 
     def destroy_model_watcher
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = false
       if (@model_watcher)
@@ -1308,7 +1311,7 @@ module OpenStudio
     end
 
     def add_path_watcher
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       path = openstudio_path
       if path and OpenStudio::exists(OpenStudio::Path.new(path))
@@ -1317,7 +1320,7 @@ module OpenStudio
     end
 
     def destroy_path_watcher
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = false
       if (@path_watcher)
@@ -1329,33 +1332,33 @@ module OpenStudio
     end
 
     def add_child(child)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @children.add(child)
       add_drawing_interface(child)
     end
 
     def remove_child(child)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @children.delete(child)
       remove_drawing_interface(child)
     end
 
     def add_drawing_interface(interface)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name} #{interface.class}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name} #{interface.class}")
 
       @interfaces[interface.class].add(interface)
     end
 
     def remove_drawing_interface(interface)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name} #{interface.class}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name} #{interface.class}")
 
       @interfaces[interface.class].delete(interface)
     end
 
     def recurse_children
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = @children.to_a
       @children.each { |interface| result.concat(interface.recurse_children) }
@@ -1364,31 +1367,31 @@ module OpenStudio
 
     # used to check if this sketchup model has openstudio model objects or if it is a totally clean model
     def has_openstudio_model_objects?
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       for entity in @skp_model.entities
         next if (entity.class != Sketchup::Group)
-        return(true) if (entity.model_object_handle)
+        return(true) if (OpenStudio.get_model_object_handle(entity))
       end
       return(false)
     end
 
     def add_error(error_string, do_log = true)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       Plugin.log(OpenStudio::Error, "#{error_string}") if do_log
       @error_log += error_string
       @unviewed_errors = true
     end
 
     def add_warning(warning_string, do_log = true)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       Plugin.log(OpenStudio::Warn, "#{warning_string}") if do_log
       @error_log += warning_string
       @unviewed_errors = true
     end
 
     def show_errors
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (@error_log.empty?)
         @error_log = "No errors or warnings."
@@ -1402,7 +1405,7 @@ module OpenStudio
       @unviewed_errors = false
     end
 
- if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OPERATIONS
+ if OpenStudio::SKETCHUPPLUGIN_DISABLE_OPERATIONS
 
     def start_operation(name, disable_gui=true)
       return false
@@ -1416,7 +1419,7 @@ module OpenStudio
       return false
     end
 
- else # $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OPERATIONS
+ else # OpenStudio::SKETCHUPPLUGIN_DISABLE_OPERATIONS
 
     def start_operation(name, disable_gui=true)
       result = false
@@ -1451,68 +1454,68 @@ module OpenStudio
       return result
     end
 
- end # $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OPERATIONS
+ end # OpenStudio::SKETCHUPPLUGIN_DISABLE_OPERATIONS
 
     def operation_active
       return @operation_active
     end
 
     def site
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[Site].to_a.first)
     end
 
     def building
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[Building].to_a.first)
     end
 
     def spaces
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[Space])
     end
 
     def shading_surface_groups
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[ShadingSurfaceGroup])
     end
 
     def interior_partition_surface_groups
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[InteriorPartitionSurfaceGroup])
     end
 
     def surfaces
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[Surface])
     end
 
     def sub_surfaces
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[SubSurface])
     end
 
     def shading_surfaces
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[ShadingSurface])
     end
 
     def interior_partition_surfaces
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[InteriorPartitionSurface])
     end
 
     def all_surfaces
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = surfaces.clone
       result.merge(sub_surfaces.clone)
@@ -1522,61 +1525,61 @@ module OpenStudio
     end
 
     def illuminance_maps
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[IlluminanceMap])
     end
 
     def daylighting_controls
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[DaylightingControl])
     end
 
     def luminaires
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[Luminaire])
     end
 
     def glare_sensors
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
-      return(@interfaces[Glare_Sensor])
+      return(@interfaces[GlareSensor])
     end
 
     def rendering_colors
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[RenderingColor])
     end
 
     def construction_bases
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[ConstructionBase])
     end
 
     def space_types
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[SpaceType])
     end
 
     def thermal_zones
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[ThermalZone])
     end
 
     def building_stories
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@interfaces[BuildingStory])
     end
 
     def request_paint
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if not @paint_requested
         @paint_requested = true
@@ -1586,11 +1589,11 @@ module OpenStudio
     end
 
     def paint_now
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @paint_requested = false
 
-      time = @skp_model.shadow_info.time
+      time = OpenStudio.get_time(@skp_model.shadow_info)
 
       # hash of information used for paint data, this is kind of kludgy but don't want to recompute time for each surface
       info = Hash.new
@@ -1630,7 +1633,7 @@ module OpenStudio
 
 
     def update_surface_variables
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # clean everything
       all_surfaces.each do |child|
@@ -1787,7 +1790,7 @@ end
       # update handles in all existing sketchup entities
       entity_hash.each_pair do |old_handle, entity|
         if new_handle = handle_hash[old_handle]
-          entity.model_object_handle = new_handle
+          OpenStudio.set_model_object_handle(entity, new_handle)
           #puts "updated handle for #{entity} from #{old_handle} to #{new_handle}"
         else
           puts "failed to update handle for #{entity} with old handle #{old_handle}"

@@ -27,15 +27,17 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-if defined?(OpenStudio::Modeleditor::OSProgressBar)
-  $OpenStudioProgressBar = OpenStudio::Modeleditor::OSProgressBar
-else
-  $OpenStudioProgressBar = OpenStudio::ProgressBar
-end
+
 
 module OpenStudio
 
-  ProgressDialog = Class.new($OpenStudioProgressBar) do
+  if defined?(OpenStudio::Modeleditor::OSProgressBar)
+    OpenStudioProgressBarClass = OpenStudio::Modeleditor::OSProgressBar
+  else
+    OpenStudioProgressBarClass = OpenStudio::ProgressBar
+  end
+  
+  ProgressDialog = Class.new(OpenStudio::OpenStudioProgressBarClass) do
 
     def initialize(message)
       super(false)

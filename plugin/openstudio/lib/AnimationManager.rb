@@ -62,15 +62,15 @@ module OpenStudio
       elsif (true) #(not $animation_lockout)
         @play = true
 
-        time = Sketchup.active_model.shadow_info.time
+        time = OpenStudio.get_time(Sketchup.active_model.shadow_info)
 
         if (@end_marker > @start_marker)
           if (time < @start_marker or time > @end_marker)
-            Sketchup.active_model.shadow_info.time = @start_marker
+            OpenStudio.set_time(Sketchup.active_model.shadow_info, @start_marker)
           end
         else
           if (time > @end_marker and time < @start_marker)
-            Sketchup.active_model.shadow_info.time = @start_marker
+            OpenStudio.set_time(Sketchup.active_model.shadow_info, @start_marker)
           end
         end
 
@@ -102,14 +102,14 @@ module OpenStudio
 
     def forward_time
       if (@fast_forward)
-        time = Sketchup.active_model.shadow_info.time + @time_step * @multiplier
+        time = OpenStudio.get_time(Sketchup.active_model.shadow_info) + @time_step * @multiplier
       else
-        time = Sketchup.active_model.shadow_info.time + @time_step
+        time = OpenStudio.get_time(Sketchup.active_model.shadow_info) + @time_step
       end
 
       if (@day_only)
-        sunrise = Sketchup.active_model.shadow_info.sunrise
-        sunset = Sketchup.active_model.shadow_info.sunset
+        sunrise = OpenStudio.get_sunrise(Sketchup.active_model.shadow_info)
+        sunset = OpenStudio.get_sunset(Sketchup.active_model.shadow_info)
         if (time > sunset)
           # Skip the night and restart at the next whole time step before sunrise
           night_duration = 86400 - (sunset - sunrise)
@@ -139,21 +139,21 @@ module OpenStudio
         end
       end
 
-      Sketchup.active_model.shadow_info.time = time
+      OpenStudio.set_time(Sketchup.active_model.shadow_info, time)
       update
     end
 
 
     def reverse_time
       if (@fast_reverse)
-        time = Sketchup.active_model.shadow_info.time - @time_step * @multiplier
+        time = OpenStudio.get_time(Sketchup.active_model.shadow_info) - @time_step * @multiplier
       else
-        time = Sketchup.active_model.shadow_info.time - @time_step
+        time = OpenStudio.get_time(Sketchup.active_model.shadow_info) - @time_step
       end
 
       if (@day_only)
-        sunrise = Sketchup.active_model.shadow_info.sunrise
-        sunset = Sketchup.active_model.shadow_info.sunset
+        sunrise = OpenStudio.get_sunrise(Sketchup.active_model.shadow_info)
+        sunset = OpenStudio.get_sunset(Sketchup.active_model.shadow_info)
         if (time < sunrise)
           # Skip the night and restart at the next whole time step after sunset
           night_duration = 86400 - (sunset - sunrise)
@@ -183,7 +183,7 @@ module OpenStudio
         end
       end
 
-      Sketchup.active_model.shadow_info.time = time
+      OpenStudio.set_time(Sketchup.active_model.shadow_info, time)
       update
     end
 
@@ -219,21 +219,21 @@ module OpenStudio
 
 
     def reverse_to_marker
-      time = Sketchup.active_model.shadow_info.time
+      time = OpenStudio.get_time(Sketchup.active_model.shadow_info)
 
       if (@end_marker > @start_marker)
         if (time > @end_marker)
-          Sketchup.active_model.shadow_info.time = @end_marker
+          OpenStudio.set_time(Sketchup.active_model.shadow_info, @end_marker)
         else
-          Sketchup.active_model.shadow_info.time = @start_marker
+          OpenStudio.set_time(Sketchup.active_model.shadow_info, @start_marker)
         end
       else
         if (time < @end_marker)
-          Sketchup.active_model.shadow_info.time = @start_marker
+          OpenStudio.set_time(Sketchup.active_model.shadow_info, @start_marker)
         elsif (time < @start_marker)
-          Sketchup.active_model.shadow_info.time = @end_marker
+          OpenStudio.set_time(Sketchup.active_model.shadow_info, @end_marker)
         else
-          Sketchup.active_model.shadow_info.time = @start_marker
+          OpenStudio.set_time(Sketchup.active_model.shadow_info, @start_marker)
         end
       end
 
@@ -242,21 +242,21 @@ module OpenStudio
 
 
     def forward_to_marker
-      time = Sketchup.active_model.shadow_info.time
+      time = OpenStudio.get_time(Sketchup.active_model.shadow_info)
 
       if (@end_marker > @start_marker)
         if (time > @end_marker)
-          Sketchup.active_model.shadow_info.time = @start_marker
+          OpenStudio.set_time(Sketchup.active_model.shadow_info, @start_marker)
         else
-          Sketchup.active_model.shadow_info.time = @end_marker
+          OpenStudio.set_time(Sketchup.active_model.shadow_info, @end_marker)
         end
       else
         if (time < @end_marker)
-          Sketchup.active_model.shadow_info.time = @end_marker
+          OpenStudio.set_time(Sketchup.active_model.shadow_info, @end_marker)
         elsif (time < @start_marker)
-          Sketchup.active_model.shadow_info.time = @start_marker
+          OpenStudio.set_time(Sketchup.active_model.shadow_info, @start_marker)
         else
-          Sketchup.active_model.shadow_info.time = @end_marker
+          OpenStudio.set_time(Sketchup.active_model.shadow_info, @end_marker)
         end
       end
 
@@ -265,7 +265,7 @@ module OpenStudio
 
 
     def update  # update_interface   update_dialogs
-      Sketchup.set_status_text(Sketchup.active_model.shadow_info.time.strftime("%I:%M %p, %B %d"))
+      Sketchup.set_status_text(OpenStudio.get_time(Sketchup.active_model.shadow_info).strftime("%I:%M %p, %B %d"))
 
       # Also sets stuff in the control panel dialog, if open.
     end
@@ -280,7 +280,7 @@ module OpenStudio
       @fast_forward = false
       @fast_reverse = false
 
-      Sketchup.set_status_text(Sketchup.active_model.shadow_info.time.strftime("%I:%M %p, %B %d"))
+      Sketchup.set_status_text(OpenStudio.get_time(Sketchup.active_model.shadow_info).strftime("%I:%M %p, %B %d"))
 
       Plugin.menu_manager.rwd_anim_cmd.tooltip = "Reverse Frame"
       Plugin.menu_manager.play_anim_cmd.tooltip = "Play"

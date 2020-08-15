@@ -40,7 +40,7 @@ module OpenStudio
 
 
     def initialize
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @parent = nil
       @children = Set.new
@@ -58,7 +58,7 @@ module OpenStudio
     end
 
     def destroy
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @parent = nil
       @children.clear
@@ -67,7 +67,7 @@ module OpenStudio
     end
 
     def name
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       result = ""
       if @model_object and not @model_object.name.empty?
         result = @model_object.name.get
@@ -76,7 +76,7 @@ module OpenStudio
     end
 
     def inspect
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(to_s)
     end
@@ -87,7 +87,7 @@ module OpenStudio
     # This is helpful for finding an instance in an array, for example.
     # DLM: This should be 'True if the receiver and argument have both the same type and equal values.'
     def eql?(this_object)
-      #Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(equal?(this_object))
     end
@@ -98,7 +98,7 @@ module OpenStudio
     # This is helpful for finding an instance in an array, for example.
     # DLM: This should be 'Checks if the value of two operands are equal or not, if yes then condition becomes true.'
     def ==(this_object)
-      #Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(eql?(this_object))
     end
@@ -108,7 +108,7 @@ module OpenStudio
 
     # Drawing interface is being created because a model object is being loaded.
     def self.model_object_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       raise "Bad call to DrawingInterface.model_object_from_handle, override in derived class"
     end
@@ -131,7 +131,7 @@ module OpenStudio
     # There was also some evidence that too much shuffling of observers was
     # causing BugSplats.
     def draw_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (check_model_object)
 
@@ -175,8 +175,8 @@ module OpenStudio
         end
 
         if (confirm_entity)
-          @entity.drawing_interface = self
-          @entity.model_object_handle = @model_object.handle
+          OpenStudio.set_drawing_interface(@entity, self)
+          OpenStudio.set_model_object_handle(@entity, @model_object.handle)
 
           paint_entity
           #update_model_object
@@ -237,7 +237,7 @@ module OpenStudio
 
     # Creates new defaulted model model and adds it to the model, override in derived classes
     def create_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if not @model_object
         raise "Bad call to DrawingInterface.create_model_object, override in derived class"
@@ -250,7 +250,7 @@ module OpenStudio
 
     # This method handles delete status separately from the input object 'deleted?' flag.
     def deleted?
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@deleted)
     end
@@ -260,7 +260,7 @@ module OpenStudio
     # Checks the input object for errors and tries to fix them before drawing the entity.
     # Returns false if errors are beyond repair.
     def check_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if @model_object.nil?
         return(false)
@@ -274,7 +274,7 @@ module OpenStudio
 
     # Updates the ModelObject with new information from the SketchUp entity.
     def update_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (valid_entity?)
         update_parent_from_entity
@@ -284,7 +284,7 @@ module OpenStudio
     # selects all children which are not tied to drawing interfaces recursively
     # results are stored in handles (UUIDVector) and idf_objects (IdfObjectVector)
     def select_non_visible_children_recursive(model_object, handles, idf_objects, class_hash)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if not class_hash[model_object.iddObject.name.upcase]
         handles << model_object.handle if handles
@@ -307,7 +307,7 @@ module OpenStudio
     # selects all children which are tied to drawing interfaces recursively
     # results are stored in handles (UUIDVector) and idf_objects (IdfObjectVector)
     def select_visible_children_recursive(model_object, handles, idf_objects, class_hash)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       Plugin.log(OpenStudio::Info, "Child #{model_object.class} with handle #{model_object.handle}")
       if class_hash[model_object.iddObject.name.upcase]
@@ -330,7 +330,7 @@ module OpenStudio
 
     # Deletes the model object and marks the drawing interface when the SketchUp entity is erased.
     def delete_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @deleted = true
 
@@ -380,14 +380,14 @@ module OpenStudio
 
     # Called by the model object watcher
     def on_change_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       draw_entity
     end
 
     # Called by the model watcher.
     def on_pre_delete_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # store any removed objects to restore if this drawing interface comes back indexed by this handle
       old_handle = @model_object.handle.to_s
@@ -419,7 +419,7 @@ module OpenStudio
 
     # Called by the model object watcher.
     def on_delete_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @deleted = true
 
@@ -434,7 +434,7 @@ module OpenStudio
 
     # Overridden for every subclass.
     def parent_from_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(nil)
     end
@@ -442,7 +442,7 @@ module OpenStudio
 
     # This method should not be overridden by subclasses.
     def update_parent_from_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       new_parent = parent_from_model_object
 
       if new_parent != @parent
@@ -472,7 +472,7 @@ module OpenStudio
     #def self.accept_entity?(entity)
     #  if (self.valid_entity?(entity))
     #    return(false)
-    #  if (entity.drawing_interface)
+    #  if (OpenStudio.get_drawing_interface(entity))
     #    puts self.to_s + ".check_entity:  entity already has drawing interface"
     #    return(false)
     #  else
@@ -483,7 +483,7 @@ module OpenStudio
 
     # Drawing interface is being created because a new entity was drawn by the user.
     def self.new_from_entity(entity)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       #if (self.accept_entity?(entity))
         return(self.new.create_from_entity(entity))
@@ -492,10 +492,10 @@ module OpenStudio
 
 
     def create_from_entity(entity)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @entity = entity
-      @entity.drawing_interface = self
+      OpenStudio.set_drawing_interface(@entity, self)
 
       if (check_entity)  # class.check_entity(entity)   # should check before the interface accepts the entity
         remove_observers
@@ -506,7 +506,7 @@ module OpenStudio
         create_model_object
 
         if @model_object
-          @entity.model_object_handle = @model_object.handle
+          OpenStudio.set_model_object_handle(@entity, @model_object.handle)
 
           update_model_object
 
@@ -528,19 +528,19 @@ module OpenStudio
 
     # Drawing interface is being created because an entity was copied or divided by the user.
     def self.new_from_entity_copy(entity)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(new.create_from_entity_copy(entity))
     end
 
 
     def create_from_entity_copy(entity)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
-      original_interface = entity.drawing_interface
+      original_interface = OpenStudio.get_drawing_interface(entity)
 
       @entity = entity
-      @entity.drawing_interface = self
+      OpenStudio.set_drawing_interface(entity, self)
 
       if (check_entity)
         # object will have no observers
@@ -556,7 +556,7 @@ module OpenStudio
           @model_object = original_interface.model_object.clone(@model_interface.openstudio_model)
           @model_object = self.class.model_object_from_handle(@model_object.handle)
           @model_object.drawing_interface = self
-          @entity.model_object_handle = @model_object.handle
+          OpenStudio.set_model_object_handle(@entity, @model_object.handle)
 
           Plugin.log(OpenStudio::Info, "Cloning finished for #{self} with model_object #{@model_object}")
 
@@ -601,17 +601,17 @@ module OpenStudio
 
     # attach an entity
     def attach_entity(entity)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @entity = entity
-      @entity.drawing_interface = self
-      @entity.model_object_handle = @model_object.handle if (@model_object)
+      OpenStudio.set_drawing_interface(@entity, self)
+      OpenStudio.set_model_object_handle(@entity, @model_object.handle) if (@model_object)
     end
 
 
     # detach an entity
     def detach_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       clean_entity
 
@@ -621,14 +621,14 @@ module OpenStudio
 
     # Creates the entity appropriate for the class of input object.
     def create_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       raise "Bad call to DrawingInterface.create_entity, override in derived class"
     end
 
 
     def valid_entity?
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return((not @entity.nil?) and (not @entity.deleted?) and @entity.valid? and (@entity.entityID > 0))
     end
@@ -639,7 +639,7 @@ module OpenStudio
     # Drawing interfaces that don't correspond directly to a geometric entity (e.g., Site, Building)
     # should return false here.
     def check_entity  # accept_entity?
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(valid_entity?)
     end
@@ -647,7 +647,7 @@ module OpenStudio
 
     # Error checks, finalization, or cleanup needed after the entity is drawn.
     def confirm_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(valid_entity?)
     end
@@ -656,12 +656,12 @@ module OpenStudio
     # Updates the SketchUp entity with new information from the ModelObject.
     # If necessary, this method will erase and re-draw the entity.
     def update_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     end
 
     # for consistency with ModelInterface
     def request_paint
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if not @paint_requested
         @paint_requested = true
@@ -671,7 +671,7 @@ module OpenStudio
     end
 
     def paint_now
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @paint_requested = false
       paint_entity
@@ -679,12 +679,12 @@ module OpenStudio
 
     # Called by draw_entity, but also can be called independently to repaint everything under different paint modes.
     def paint_entity(info = nil)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     end
 
     # Used by info tool
     def tooltip(flags = nil, inside_info = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return @model_object.to_s
     end
@@ -692,30 +692,30 @@ module OpenStudio
     # Final cleanup of the entity.
     # This method is called by the model interface after the entire input file is drawn.
     def cleanup_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     end
 
 
     def clean_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       remove_observers
       if (valid_entity?)
-        entity.drawing_interface = nil
-        entity.model_object_handle = nil
+        OpenStudio.set_drawing_interface(entity, nil)
+        OpenStudio.set_model_object_handle(entity, nil)
       end
     end
 
 
     # Erases the entity when the input object is deleted, or in preparation for a re-draw.
     def erase_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # for this section always really remove observers because the entity is going away
-      was_disable_only = $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
-      $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS = false
+      was_disable_only = Plugin.disable_observers
+      Plugin.disable_observers = false
       remove_observers(true)
-      $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS = was_disable_only
+      Plugin.disable_observers = was_disable_only
 
       if (valid_entity?)
         Plugin.log(OpenStudio::Debug, "valid")
@@ -741,7 +741,7 @@ module OpenStudio
               @model_interface.add_observers if had_observers
             elsif ((not containing_entity.deleted?) and (containing_entity.entityID > 0))
               Plugin.log(OpenStudio::Debug, "containing_entity not deleted")
-              containing_interface = containing_entity.drawing_interface
+              containing_interface = OpenStudio.get_drawing_interface(containing_entity)
               had_observers = containing_interface.remove_observers if containing_interface
 
               #Plugin.log(OpenStudio::Debug, "attempting to remove entity #{@entity} from containing_entity #{containing_entity}")
@@ -765,7 +765,7 @@ module OpenStudio
 
 
     def on_change_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       watcher_enabled = disable_watcher
 
@@ -777,7 +777,7 @@ module OpenStudio
 
 
     def on_erase_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       delete_model_object
 
@@ -788,13 +788,13 @@ module OpenStudio
 
     # Undelete happens when an entity is restored after an Undo event.
     def on_undelete_entity(entity)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @deleted = false
       @model_object.drawing_interface = nil if @model_object
       @model_object = nil
 
-      old_handle = entity.model_object_handle
+      old_handle = OpenStudio.get_model_object_handle(entity)
 
       Plugin.log(OpenStudio::Info, "on_undelete_entity #{entity}, old_handle = #{old_handle}")
 
@@ -825,12 +825,12 @@ module OpenStudio
       end
 
       @entity = entity  # The entity comes back with a different reference than it had originally.
-      @entity.drawing_interface = self  # The reference to the drawing interface is lost when it is deleted.
+      OpenStudio.set_drawing_interface(@entity, self)  # The reference to the drawing interface is lost when it is deleted.
       if (@model_object)
-        @entity.model_object_handle = @model_object.handle
+        OpenStudio.set_model_object_handle(@entity, @model_object.handle)
         add_watcher
       else
-        @entity.model_object_handle = nil
+        OpenStudio.set_model_object_handle(@entity, nil)
       end
 
       on_change_entity  # Restore the parent links, etc.
@@ -841,7 +841,7 @@ module OpenStudio
 
     # Overridden for every subclass.
     def parent_from_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(nil)
     end
@@ -849,7 +849,7 @@ module OpenStudio
 
     # This method should not be overridden by subclasses.
     def update_parent_from_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       new_parent = parent_from_entity
 
@@ -862,7 +862,7 @@ module OpenStudio
 
 
     def containing_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(@parent.entity)
     end
@@ -870,7 +870,7 @@ module OpenStudio
     # Returns the coordinate transformation of this entity relative to the parent (e.g. what OpenStudio wants)
     # undoes all edit_transform nonsense from SketchUp
     def coordinate_transformation
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       #Plugin.log(OpenStudio::Info, "coordinate_transformation @model_object = #{@model_object}")
       #Plugin.log(OpenStudio::Info, "coordinate_transformation @entity = #{@entity}")
@@ -924,7 +924,7 @@ module OpenStudio
     # Sets the coordinate transformation of this entity relative to the parent (e.g. what OpenStudio wants)
     # undoes all edit_transform nonsense from SketchUp
     def coordinate_transformation=(transform)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       #Plugin.log(OpenStudio::Info, "coordinate_transformation=, #{@model_object}")
       #Plugin.log(OpenStudio::Info, "coordinate_transformation=, transform = #{transform.to_a.join(',')}")
@@ -979,10 +979,10 @@ module OpenStudio
     # Also called to reattach an Observer when a drawing interface is restored via undo.
     # This method should be overriden by subclasses.
     def add_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (valid_entity?)
-        if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+        if Plugin.disable_observers
           if not @observer_added
             @entity.add_observer(@observer)
             @observer_added = true
@@ -1004,11 +1004,11 @@ module OpenStudio
 
     # This method can be overriden by subclasses.
     def remove_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       had_observers = false
       if (valid_entity?)
-        if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+        if Plugin.disable_observers
           if @observer_added
             had_observers = @observer.disable
           end
@@ -1028,12 +1028,12 @@ module OpenStudio
 
     # This method can be overriden by subclasses.
     def destroy_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = false
       if @observer
         if (valid_entity?)
-          if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+          if Plugin.disable_observers
             # actually do remove here
             @entity.remove_observer(@observer)
             @observer.disable
@@ -1059,7 +1059,7 @@ module OpenStudio
 
     # This method can be overridden by subclasses.
     def add_watcher
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (@model_object)
         @watcher = PluginModelObjectWatcher.new(self)
@@ -1069,7 +1069,7 @@ module OpenStudio
 
     # This method should not be overridden by subclasses.
     def destroy_watcher
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = false
       if (@watcher)
@@ -1081,7 +1081,7 @@ module OpenStudio
     end
 
     def disable_watcher
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = false
       if (@watcher)
@@ -1092,28 +1092,28 @@ module OpenStudio
     end
 
     def enable_watcher
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @watcher.enable
     end
 
     # This method should not be overridden by subclasses.
     def add_child(child)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @children.add(child)
       @model_interface.add_drawing_interface(child)
     end
 
     def in_selection?(selection)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return (selection.contains?(@entity))
     end
 
     # This method should not be overridden by subclasses.
     def remove_child(child)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @children.delete(child)
       @model_interface.remove_drawing_interface(child)
@@ -1122,7 +1122,7 @@ module OpenStudio
 
     # This method should not be overridden by subclasses.
     def recurse_children
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = @children.to_a
       @children.each { |interface| result.concat(interface.recurse_children) }

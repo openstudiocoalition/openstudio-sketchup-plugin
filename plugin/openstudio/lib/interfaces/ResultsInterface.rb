@@ -37,7 +37,7 @@ module OpenStudio
 
 
     def initialize(model_interface)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @model_interface = model_interface
       @output_file_path = ""
@@ -49,13 +49,13 @@ module OpenStudio
     end
 
     def destroy
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @model_interface = nil
     end
 
     def update
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # update variables on all surfaces
       @model_interface.update_surface_variables
@@ -63,7 +63,7 @@ module OpenStudio
 
     # attach an output file
     def attach_output_file(output_file_path)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       openstudio_model = @model_interface.openstudio_model
       old_sql_file = openstudio_model.sqlFile

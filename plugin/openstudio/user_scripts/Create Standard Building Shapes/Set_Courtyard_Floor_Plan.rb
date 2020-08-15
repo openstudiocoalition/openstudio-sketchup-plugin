@@ -27,6 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
+module OpenStudio
+
 class SetCourtyardFloorPlan < OpenStudio::Ruleset::ModelUserScript
 
   # override name to return the name of your script
@@ -480,3 +482,5 @@ class SetCourtyardFloorPlan < OpenStudio::Ruleset::ModelUserScript
 end
 
 SetCourtyardFloorPlan.new.registerWithApplication
+
+end

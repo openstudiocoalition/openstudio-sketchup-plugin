@@ -40,7 +40,7 @@ module OpenStudio
     attr_accessor :redraw_scheduled
 
     def initialize
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super
       @observer = FaceObserver.new(self)
@@ -68,13 +68,13 @@ module OpenStudio
 
     # This method is overridden for each different type of surface.
     def create_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
     end
 
 
     def check_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (super)
         polygon = model_object_polygon
@@ -128,7 +128,7 @@ module OpenStudio
         # Check for more or less vertices than 'number of vertices' flag
         # Check that no crossing lines are formed (wrong order of vertices)
 
-        polygon = Geom::Polygon.new(new_points)
+        polygon = Polygon.new(new_points)
         polygon.reduce!  # Remove duplicate and collinear vertices
 
         watcher_enabled = @watcher.disable if @watcher
@@ -144,7 +144,7 @@ module OpenStudio
 
     # Updates the input object with the current state of the entity.
     def update_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super
       if (valid_entity?)
@@ -161,7 +161,7 @@ module OpenStudio
 
 
     def create_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # parent is the containing entity except for sub surfaces
 
@@ -203,7 +203,7 @@ module OpenStudio
         return nil
       end
 
-      group = containing_entity.drawing_interface if containing_entity
+      group = OpenStudio.get_drawing_interface(containing_entity) if containing_entity
       group_had_observers = group.remove_observers if group
 
       begin
@@ -228,7 +228,7 @@ module OpenStudio
 
       # The existence of 'drawing_interface' is a sign that an existing face was divided by the new face (which is true for all subsurfaces).
       # This is a prerequisite for a swap and helps eliminate some extra searching.
-      if (@entity.drawing_interface)
+      if (OpenStudio.get_drawing_interface(@entity))
 
         # if this entity is a new face (face B) split from an existing face (face A)
         # then both face A and face B will reference the same drawing_interface, indeterminate which entity will
@@ -236,13 +236,13 @@ module OpenStudio
 
         # Loop through all other faces in the Group to fix any swapped faces.
         # This is not an efficient technique, but it seems fast enough.
-        faces = containing_entity.entities.find_all { |this_entity| this_entity.class == Sketchup::Face and this_entity != @entity}
+        faces = containing_entity.entities.find_all { |this_entity| this_entity.is_a? Sketchup::Face and this_entity != @entity}
 
         for face in faces
           # if the face's drawing interface does not reference the face as it's entity
-          if (face.drawing_interface.entity != face)
+          if (OpenStudio.get_drawing_interface(face).entity != face)
             # Fix the swap--surprisingly this seems to be sufficient.
-            face.drawing_interface.entity = face
+            OpenStudio.get_drawing_interface(face).entity = face
             puts "Surface.create_entity:  fixed swap for " + face.to_s
           end
         end
@@ -254,7 +254,7 @@ module OpenStudio
           # if the child references @entity
           if child.entity and child.entity == @entity
             # if @entity references child
-            if child.entity.drawing_interface == child
+            if OpenStudio.get_drawing_interface(child.entity) == child
               # we don't want to steal this from the other interface
               @model_interface.add_error("Error:  " + @model_object.name.to_s + "\n")
               @model_interface.add_error("This planar surface shares the same SketchUp face as #{child.model_object.name}.\n")
@@ -281,7 +281,7 @@ module OpenStudio
 
 
     def valid_entity?
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return(super and @entity.vertices.size >= 3 and @entity.area > 0)
     end
@@ -289,7 +289,7 @@ module OpenStudio
 
     # Error checks, finalization, or cleanup needed after the entity is drawn.
     def confirm_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (super)
 
@@ -319,7 +319,7 @@ module OpenStudio
 
     # Updates the SketchUp entity with new information from the ModelObject.
     def update_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
 
       if (valid_entity?)
@@ -335,7 +335,7 @@ module OpenStudio
           Plugin.log(OpenStudio::Info, "redraw polygon")
 
           # do the erasing now
-          group = self.containing_entity.drawing_interface
+          group = self.OpenStudio.get_drawing_interface(containing_entity)
           group_had_observers = group.remove_observers if group
           all_children = recurse_children
           erase_entity
@@ -371,18 +371,18 @@ module OpenStudio
 
 
     def paint_entity(info = nil)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (valid_entity?)
         had_observers = remove_observers
 
-        group = self.containing_entity.drawing_interface
+        group = OpenStudio.get_drawing_interface(self.containing_entity)
         group_had_observers = group.remove_observers if group
 
-        material_interface = @entity.material.drawing_interface if @entity.material
+        material_interface = OpenStudio.get_drawing_interface(@entity.material) if @entity.material
         material_interface_had_observers = material_interface.remove_observers if material_interface
 
-        back_material_interface = @entity.back_material.drawing_interface if @entity.back_material
+        back_material_interface = OpenStudio.get_drawing_interface(@entity.back_material) if @entity.back_material
         back_material_interface_had_observers = back_material_interface.remove_observers if back_material_interface
 
         materials_interface_had_observers = @model_interface.materials_interface.remove_observers
@@ -480,7 +480,7 @@ module OpenStudio
 
     # Used by info tool
     def tooltip(flags = nil, inside_info = false )
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       tooltip = ""
 
@@ -502,7 +502,7 @@ module OpenStudio
         if (variable and value)
           tooltip = name + "\n"
           tooltip += variable_name + "\n"
-          tooltip += value.round_to(6).to_s + " " + variable.units
+          tooltip += value.round(6).to_s + " " + variable.units
 
           if (@model_interface.results_interface.normalize)
             tooltip += "/m2"
@@ -643,7 +643,7 @@ module OpenStudio
     # Final cleanup of the entity.
     # This method is called by the model interface after the entire input file is drawn.
     def cleanup_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
     end
 
@@ -651,12 +651,12 @@ module OpenStudio
     # Returns the parent drawing interface according to the entity.
     # For several surfaces, the parent interface is determined by looking at the parent Group entity.
     def parent_from_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       parent = nil
       if (valid_entity?)
         if (@entity.parent.is_a?(Sketchup::ComponentDefinition))
-          parent = @entity.parent.instances.first.drawing_interface
+          parent = OpenStudio.get_drawing_interface(@entity.parent.instances.first)
         else
           # Somehow the surface got outside of a Group--maybe the Group was exploded.
         end
@@ -670,19 +670,19 @@ module OpenStudio
 
     # Gets the vertices of the ModelObject as they appear in the input fields.
     def model_object_polygon
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       points = []
       @model_object.vertices.each do |vertex|
         points << Geom::Point3d.new(vertex.x.m, vertex.y.m, vertex.z.m)
       end
       Plugin.log(OpenStudio::Info, "model_object_polygon, points = #{points}")
-      return(Geom::Polygon.new(points))
+      return(Polygon.new(points))
     end
 
     # Sets the vertices of the ModelObject as they appear in the input fields.
     def model_object_polygon=(polygon)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       vertices = vertices_from_polygon(polygon)
 
@@ -693,7 +693,7 @@ module OpenStudio
 
     # unknown if vertices_from_polygon may throw
     def vertices_from_polygon(polygon)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       polygon.transform(self.coordinate_transformation)
 
@@ -708,27 +708,27 @@ module OpenStudio
 
     # Override in subclasses.
     def paint_surface_type(info=nil)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     end
 
     # Override in subclasses.
     def paint_boundary(info=nil)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     end
 
     # Don't need to override in subclasses.
     def paint_layer(info=nil)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     end
 
     # Don't need to override in subclasses.
     def paint_normal(info=nil)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     end
 
     # Don't need to override in subclasses.
     def paint_construction(info=nil)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       rendering_colors = nil
       if info
@@ -760,7 +760,7 @@ module OpenStudio
 
     # Don't need to override in subclasses.
     def paint_space_type(info=nil)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       rendering_colors = nil
       if info
@@ -796,7 +796,7 @@ module OpenStudio
 
     # Don't need to override in subclasses.
     def paint_thermal_zone(info=nil)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       rendering_colors = nil
       if info
@@ -827,7 +827,7 @@ module OpenStudio
 
     # Don't need to override in subclasses.
     def paint_building_story(info=nil)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       rendering_colors = nil
       if info
@@ -858,7 +858,7 @@ module OpenStudio
 
     # Painting with data doesn't matter what type of surface.
     def paint_data(info)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if not info
         return(nil)
@@ -915,10 +915,10 @@ module OpenStudio
         color = Sketchup::Color.new
         if (rendering_appearance == "COLOR")
           h = 240.0 * (range_max - value) / (range_max - range_min)
-          color.hsba = [h, 100, 100, 1.0]
+          OpenStudio::set_hsba(color, [h, 100, 100, 1.0])
         else  # Gray scale
           b = 90.0 - 70.0 * (range_max - value) / (range_max - range_min)
-          color.hsba = [0, 0, b, 1.0]
+          OpenStudio::set_hsba(color, [0, 0, b, 1.0])
         end
         texture = nil
       end
@@ -967,10 +967,10 @@ module OpenStudio
         color = Sketchup::Color.new
         if (rendering_appearance == "COLOR")
           h = 240.0 * (range_max - value) / (range_max - range_min)
-          color.hsba = [h, 100, 100, 1.0]
+          OpenStudio::set_hsba(color, [h, 100, 100, 1.0])
         else  # Gray scale
           b = 90.0 - 70.0 * (range_max - value) / (range_max - range_min)
-          color.hsba = [0, 0, b, 1.0]
+          OpenStudio::set_hsba(color, [0, 0, b, 1.0])
         end
         texture = nil
       end
@@ -1000,7 +1000,7 @@ module OpenStudio
 
     # Returns the vertices of the ModelObject as they should be drawn in the SketchUp coordinate system.
     def surface_polygon
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 #puts "surface_polygon, model_object_polygon = #{model_object_polygon.points}"
 #puts "surface_polygon, self.coordinate_transformation.inverse = #{self.coordinate_transformation.inverse.to_a.join(',')}"
        return(model_object_polygon.transform(self.coordinate_transformation.inverse))
@@ -1009,7 +1009,7 @@ module OpenStudio
 
     # Sets the vertices of the ModelObject from vertices drawn in the SketchUp coordinate system.
     def surface_polygon=(face_polygon)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 #puts "surface_polygon=, face_polygon = #{face_polygon.points}"
 #puts "surface_polygon=, self.coordinate_transformation = #{self.coordinate_transformation.to_a.join(',')}"
       self.model_object_polygon = face_polygon.transform(self.coordinate_transformation)
@@ -1019,14 +1019,14 @@ module OpenStudio
     # Returns the polygon of the SketchUp Face in SketchUp coordinates.
     # Purpose is to remove collinear points and vertices of sub surfaces (overridden in Surface)
     def face_polygon
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
-      # can this just call @entity.outer_polygon?
-      points = @entity.full_polygon.outer_loop.reduce  # removes collinear points
+      # can this just call OpenStudio.get_outer_polygon(@entity)?
+      points = OpenStudio.get_full_polygon(@entity).outer_loop.reduce  # removes collinear points
 
       #Plugin.log(OpenStudio::Info, "face_polygon, face_polygon = #{points}")
 
-      return(Geom::Polygon.new(points))
+      return(Polygon.new(points))
     end
 
   end

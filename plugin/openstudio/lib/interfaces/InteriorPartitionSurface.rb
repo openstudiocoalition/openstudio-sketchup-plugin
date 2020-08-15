@@ -35,7 +35,7 @@ module OpenStudio
   class InteriorPartitionSurface < PlanarSurface
 
     def initialize
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super
       @container_class = InteriorPartitionSurfaceGroup
@@ -44,7 +44,7 @@ module OpenStudio
 ##### Begin methods for the input object #####
 
     def self.model_object_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_object = Plugin.model_manager.model_interface.openstudio_model.getInteriorPartitionSurface(handle)
       if not model_object.empty?
@@ -57,7 +57,7 @@ module OpenStudio
     end
 
     def self.new_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       drawing_interface = InteriorPartitionSurface.new
       model_object = model_object_from_handle(handle)
@@ -68,7 +68,7 @@ module OpenStudio
     end
 
     def create_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # need to get parents transformation
       update_parent_from_entity
@@ -88,7 +88,7 @@ module OpenStudio
     end
 
     def check_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (super)
         # Check for coincident surfaces (check other surfaces in group)
@@ -100,11 +100,11 @@ module OpenStudio
 
     # Updates the ModelObject with new information from the SketchUp entity.
     def update_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super  # PlanarSurface superclass updates the vertices
 
       if (valid_entity?)
-        if (@parent.class == InteriorPartitionSurfaceGroup)
+        if (@parent.is_a? InteriorPartitionSurfaceGroup)
           watcher_enabled = disable_watcher
 
           @model_object.setInteriorPartitionSurfaceGroup(@parent.model_object)  # Parent should already have been updated.
@@ -117,7 +117,7 @@ module OpenStudio
 
     # Returns the parent drawing interface according to the input object.
     def parent_from_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       parent = nil
       if (@model_object)
@@ -138,13 +138,13 @@ module OpenStudio
 
 
     def in_selection?(selection)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return (selection.contains?(@entity) or selection.contains?(@parent.entity) or selection.contains?(@parent.parent.entity))
     end
 
     def paint_surface_type(info=nil)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @entity.material = @model_interface.materials_interface.interior_partition_surface
       @entity.back_material = @model_interface.materials_interface.interior_partition_surface_back

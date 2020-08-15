@@ -27,6 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
+module OpenStudio
+
 # Each user script is implemented within a class that derives from OpenStudio::Ruleset::UserScript
 class HideManifoldSolidSpaces < OpenStudio::Ruleset::ModelUserScript
 
@@ -69,9 +71,9 @@ class HideManifoldSolidSpaces < OpenStudio::Ruleset::ModelUserScript
 
           # loop through all child entities in the space
           entity.entities.each do |child_entity|
-            if child_entity.typename == "Face"
+            if child_entity.is_a? Sketchup::Face
               temp_group.entities.add_face(child_entity.outer_loop.vertices)
-            elsif child_entity.typename == "Edge"
+            elsif child_entity.is_a? == Sketchup::Edge
               temp_group.entities.add_line(child_entity.vertices)
             end
           end
@@ -112,3 +114,5 @@ end
 
 # this call registers your script with the OpenStudio SketchUp plug-in
 HideManifoldSolidSpaces.new.registerWithApplication
+
+end

@@ -92,7 +92,7 @@ maximum_version = 9999
 if do_load
   begin
     if (sketchup_version < minimum_version || sketchup_version > maximum_version)
-      UI.messagebox("OpenStudio #{$OPENSTUDIO_SKETCHUPPLUGIN_VERSION} is compatible with SketchUp 2017.\nThe installed version is 20#{sketchup_version}.  The plugin was not loaded.", MB_OK)
+      UI.messagebox("OpenStudio #{OpenStudio::SKETCHUPPLUGIN_VERSION} is compatible with SketchUp 2017.\nThe installed version is 20#{sketchup_version}.  The plugin was not loaded.", MB_OK)
     elsif sketchup_version >= 19
       openstudio_modeleditor_rb = File.join(openstudio_dir, "Ruby/openstudio_modeleditor.rb")
       load(openstudio_modeleditor_rb)

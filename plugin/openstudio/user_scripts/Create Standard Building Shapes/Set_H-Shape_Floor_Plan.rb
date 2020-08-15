@@ -27,6 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
+module OpenStudio
+
 class SetHShapeFloorPlan < OpenStudio::Ruleset::ModelUserScript
 
   # override name to return the name of your script
@@ -565,3 +567,5 @@ class SetHShapeFloorPlan < OpenStudio::Ruleset::ModelUserScript
 end
 
 SetHShapeFloorPlan.new.registerWithApplication
+
+end

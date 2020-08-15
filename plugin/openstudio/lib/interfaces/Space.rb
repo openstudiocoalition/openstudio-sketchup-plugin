@@ -36,14 +36,14 @@ module OpenStudio
   class Space < SurfaceGroup
 
     def initialize
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
     end
 
 ##### Begin override methods for the input object #####
 
     def self.model_object_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_object = Plugin.model_manager.model_interface.openstudio_model.getSpace(handle)
       if not model_object.empty?
@@ -56,7 +56,7 @@ module OpenStudio
     end
 
     def self.new_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       drawing_interface = Space.new
       model_object = model_object_from_handle(handle)
@@ -67,7 +67,7 @@ module OpenStudio
     end
 
     def create_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_watcher_enabled = @model_interface.model_watcher.disable
       @model_object = OpenStudio::Model::Space.new(@model_interface.openstudio_model)
@@ -88,7 +88,7 @@ module OpenStudio
 
     # The parent interface is the model interface.
     def parent_from_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return @model_interface.building
     end
@@ -102,7 +102,7 @@ module OpenStudio
     #
     # For spaces, check for any problems with its faces.
     def cleanup_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super
 
@@ -111,11 +111,11 @@ module OpenStudio
         return nil
       end
 
-      faces = @entity.entities.find_all { |this_entity| this_entity.class == Sketchup::Face }
+      faces = @entity.entities.find_all { |this_entity| this_entity.is_a? Sketchup::Face }
 
       for face in faces
         # Check for any faces that were somehow added and did not get a drawing interface (should never happen).
-        if (face.drawing_interface.nil?)
+        if (OpenStudio.get_drawing_interface(face).nil?)
           puts "Space.cleanup_entity:  missing a drawing interface for " + face.to_s
         else
 
@@ -123,11 +123,11 @@ module OpenStudio
           # THIS SHOULD NEVER HAPPEN!  THIS IS NOW BEING TRAPPED BY EACH SURFACE AS IT IS CREATED.
           # THIS PASS SHOULD BE COMPLETELY REDUNDANT.
           # This can happen when the SketchUp 'add_face' method adds two faces when only one was specified (see below).
-          if (face.drawing_interface.entity != face)
+          if (OpenStudio.get_drawing_interface(face).entity != face)
             puts "Space.cleanup_entity:  unhandled swap for " + face.to_s
 
             # Fix the swap--surprisingly this seems to be sufficient.
-            face.drawing_interface.entity = face
+            OpenStudio.get_drawing_interface(face).entity = face
           end
         end
       end
@@ -141,7 +141,7 @@ module OpenStudio
           next if (not face.valid? or not other_face.valid?)
           next if (face.area == 0 or other_face.area == 0)
 
-          if (other_face.drawing_interface == face.drawing_interface and other_face != face)
+          if (OpenStudio.get_drawing_interface(other_face) == OpenStudio.get_drawing_interface(face) and other_face != face)
             puts "Space.cleanup_entity:  duplicate drawing interface for " + face.to_s + ", " + other_face.to_s
 
             # Occasionally the SketchUp 'add_face' method will (accidentally?) add two faces when only one was specified.
@@ -160,10 +160,10 @@ module OpenStudio
             for test_face in faces
               next if (not test_face.valid?)
 
-              test_face_points = test_face.outer_polygon.reduce.points
-              face_points = face.outer_polygon.reduce.points
+              test_face_points = OpenStudio.get_outer_polygon(test_face).reduce.points
+              face_points = OpenStudio.get_outer_polygon(face).reduce.points
 
-              if (test_face != face and test_face_points.is_same_set?(face_points))
+              if (test_face != face and OpenStudio.is_same_set?(test_face_points, face_points))
                 intended_face = test_face
                 inferred_face = face
                 found = true
@@ -175,10 +175,10 @@ module OpenStudio
               for test_face in faces
                 next if (not test_face.valid?)
 
-                test_face_points = test_face.outer_polygon.reduce.points
-                other_face_points = other_face.outer_polygon.reduce.points
+                test_face_points = OpenStudio.get_outer_polygon(test_face).reduce.points
+                other_face_points = OpenStudio.get_outer_polygon(other_face).reduce.points
 
-                if (test_face != other_face and test_face_points.is_same_set?(other_face_points))
+                if (test_face != other_face and OpenStudio.is_same_set?(test_face_points, other_face_points))
                   #puts "matched other face: " + test_face.to_s + ", " + face.to_s
                   intended_face = test_face
                   inferred_face = other_face
@@ -199,11 +199,11 @@ module OpenStudio
               #puts "intended" + intended_face.to_s + " " + intended_face.vertices.length.to_s
               #puts "inferred" + inferred_face.to_s + " " + inferred_face.vertices.length.to_s
 
-
-              inferred_face.drawing_interface = intended_face.drawing_interface
-              inferred_face.drawing_interface.entity = inferred_face
-              inferred_face.drawing_interface.surface_polygon = inferred_face.drawing_interface.face_polygon
-              inferred_face.drawing_interface.paint_entity
+              drawing_interface = OpenStudio.get_drawing_interface(intended_face)
+              OpenStudio.set_drawing_interface(inferred_face, drawing_interface)
+              drawing_interface.entity = inferred_face
+              drawing_interface.surface_polygon = drawing_interface.face_polygon
+              drawing_interface.paint_entity
 
               @entity.entities.erase_entities(intended_face)
 
@@ -211,10 +211,10 @@ module OpenStudio
               # This can happen if a face was unintentionally subdivided when another face was drawn.
               #puts "Could not find a coincident face for the duplicate--will create new object"
 
-              if (other_face.drawing_interface.class == Surface)
+              if (OpenStudio.get_drawing_interface(other_face).is_a? Surface)
                 new_surface = Surface.new_from_entity(other_face)
 
-              elsif (other_face.drawing_interface.class == SubSurface)
+              elsif (OpenStudio.get_drawing_interface(other_face).is_a? SubSurface)
                 new_surface = SubSurface.new_from_entity(other_face)
 
               else # attached shading, detached shading
@@ -236,7 +236,7 @@ module OpenStudio
 ##### Begin override methods for the interface #####
 
     def add_watcher
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (@model_object)
         @watcher = RenderableModelObjectWatcher.new(self, self, [2, 3, 9, 10], [RenderBySpaceType, RenderByConstruction, RenderByBuildingStory, RenderByThermalZone])
@@ -244,7 +244,7 @@ module OpenStudio
     end
 
     def set_entity_name
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @entity.name = "Space:  " + @model_object.name.get
     end
