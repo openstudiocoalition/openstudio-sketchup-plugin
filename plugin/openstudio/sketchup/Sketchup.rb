@@ -166,7 +166,7 @@ module OpenStudio
     # delete_attribute('OpenStudio') # deletes entire attribute dictionary
     skp_model.set_attribute('OpenStudio', 'OpenStudioPath', nil)
     skp_model.set_attribute('OpenStudio', 'ModelInterface', nil)
-    skp_model.entities.erase_entities(skp_model.openstudio_entities)
+    skp_model.entities.erase_entities(self.get_openstudio_entities(skp_model))
   end
   
   # returns a string
