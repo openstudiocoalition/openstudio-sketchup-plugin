@@ -305,7 +305,7 @@ module OpenStudio
             # Save the dir so we can start here next time
             Plugin.write_pref("Last Idf Import Dir", File.dirname(path))
           else
-            UI.messagebox("Failed to import #{path}.  If this is an older EnergyPlus Idf please upgrade to version 8.4 using the EnergyPlus transition program.")
+            UI.messagebox("Failed to import #{path}.  If this is an older EnergyPlus Idf please upgrade to version #{OpenStudio::energyPlusVersion} using the EnergyPlus transition program.")
           end
 
         end
@@ -379,7 +379,10 @@ module OpenStudio
             # Save the dir so we can start here next time
             Plugin.write_pref("Last gbXML Import Dir", File.dirname(path))
           else
-            UI.messagebox("Failed to import gbXML file at #{path}.")
+            message = "Failed to import gbXML file at #{path}.\n\n"
+            errors.each {|error| message += "Error: #{error.logMessage}\n\n"}
+            warnings.each {|warning| message += "Warning: #{warning.logMessage}\n\n"}
+            UI.messagebox(message, MB_MULTILINE)
           end
 
         end
@@ -387,13 +390,13 @@ module OpenStudio
     end
 
     def import_sdd
-      if (prompt_to_continue_import("SDD Model"))
+      if (prompt_to_continue_import("SDD Sim XML Model"))
         sdd_dir = Plugin.read_pref("Last SDD Import Dir")
         if not sdd_dir
           sdd_dir = Plugin.model_manager.model_interface.openstudio_dir
         end
 
-        if (path = OpenStudio.open_panel("Import SDD Model", sdd_dir, "*.xml"))  # bug in SU7 prevents file filters from working
+        if (path = UI.open_panel("Import SDD Sim XML Model", sdd_dir, "*.xml"))  # bug in SU7 prevents file filters from working
 
           success = false
 
@@ -407,7 +410,11 @@ module OpenStudio
             # Save the dir so we can start here next time
             Plugin.write_pref("Last SDD Import Dir", File.dirname(path))
           else
-            UI.messagebox("Failed to import SDD file at #{path}.")
+            message = "Failed to import SDD Sim XML file at #{path}. "
+            message = "Note that OpenStudio only imports SDD Sim XML, it cannot import SDD Input XML.\n\n"
+            errors.each {|error| message += "Error: #{error.logMessage}\n\n"}
+            warnings.each {|warning| message += "Warning: #{warning.logMessage}\n\n"}
+            UI.messagebox(message, MB_MULTILINE)
           end
 
         end
@@ -652,13 +659,13 @@ module OpenStudio
     def export_sdd
       if Plugin.read_pref('Warn on SDD Export')
         # YESNO messagebox, user can cancel at save_panel
-        result = UI.messagebox("Translation of OpenStudio Model to SDD may result in loss of information for unsupported object types.  Choose Yes to ignore this warning from now on or No to continue showing this warning.", MB_YESNO)
+        result = UI.messagebox("Translation of OpenStudio Model to SDD Input XML may result in loss of information for unsupported object types.  Choose Yes to ignore this warning from now on or No to continue showing this warning.", MB_YESNO)
         if result == 6 # YES
           Plugin.write_pref('Warn on SDD Export', false)
         end
       end
 
-      if (path = OpenStudio.save_panel("Export SDD Model", Plugin.model_manager.model_interface.openstudio_dir, Plugin.model_manager.model_interface.openstudio_name.gsub(/\.osm$/, ".xml")))
+      if (path = UI.save_panel("Export SDD Input XML Model", Plugin.model_manager.model_interface.openstudio_dir, Plugin.model_manager.model_interface.openstudio_name.gsub(/\.osm$/, ".xml")))
 
         extension = OpenStudio::toString(OpenStudio::Path.new(path).extension)
         stem = OpenStudio::toString(OpenStudio::Path.new(path).stem)
@@ -705,7 +712,7 @@ module OpenStudio
         result = Plugin.model_manager.model_interface.export_sdd(path)
 
         if not result
-          UI.messagebox("Failed to export SDD model to #{path}")
+          UI.messagebox("Failed to export SDD Input XML model to #{path}")
         end
       end
 
