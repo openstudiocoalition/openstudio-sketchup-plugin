@@ -30,47 +30,81 @@
 require 'extensions.rb'   # defines the SketchupExtension class
 
 sketchup_version = Sketchup.version.split('.').first.to_i
+do_load = true
 
 # check current settings
 openstudio_dir = Sketchup.read_default("OpenStudio", "OpenStudioDir")
-
-if openstudio_dir.nil? || !File.exists?(openstudio_dir)
-
-  prompts = ["Path to OpenStudio Root Directory"]
-  is_windows = (RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/)
-  if is_windows
-    if sketchup_version >= 19
-      defaults = ['C:/openstudioapplication-1.0.0']
-    else
-      defaults = ['C:/openstudio-2.9.0']
-    end
-  else
-    defaults = ['']
-  end
-
-  input = UI.inputbox(prompts, defaults, "Select OpenStudio Root Directory.")
-  openstudio_dir = input[0]
-  openstudio_dir.gsub('\\', '/')
   
-  Sketchup.write_default("OpenStudio", "OpenStudioDir", openstudio_dir)
+while true
+
+  if openstudio_dir.nil? || !File.exists?(openstudio_dir)
+
+    prompts = ["Path to OpenStudio Root Directory"]
+    is_windows = (RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/)
+    if is_windows
+      if sketchup_version >= 19
+        defaults = Dir.glob('C:/openstudioapplication-*').sort.reverse
+      else
+        defaults = Dir.glob('C:/openstudio-2.*').sort.reverse
+      end
+    else
+      if sketchup_version >= 19
+        defaults = Dir.glob('/Applications/OpenStudioApplication-*').sort.reverse
+      else
+        defaults = ['/Applications/OpenStudio-2*']
+      end
+    end
+    
+    input = UI.inputbox(prompts, defaults, "Select OpenStudio Root Directory.")
+    
+    # check if user cancelled
+    if input.is_a? FalseClass
+      do_load = false
+      break
+    end
+    
+    openstudio_dir = input[0]
+    openstudio_dir.gsub('\\', '/')
+
+  end
+  
+  # see if we can find the openstudio ruby file
+  key_file = nil
+  if sketchup_version >= 19
+    key_file = File.join(openstudio_dir, "Ruby/openstudio_modeleditor.rb")
+  else
+    key_file = File.join(openstudio_dir, "Ruby/openstudio.rb")
+  end
+  
+  if File.exists?(key_file)
+    Sketchup.write_default("OpenStudio", "OpenStudioDir", openstudio_dir)
+    break
+  else
+    openstudio_dir = nil
+  end
+  
+  UI.messagebox("File '#{key_file}' does not exist", MB_OK)
 end
 
 minimum_version = 17
 maximum_version = 9999
 
-begin
-  if (sketchup_version < minimum_version || sketchup_version > maximum_version)
-    UI.messagebox("OpenStudio #{$OPENSTUDIO_SKETCHUPPLUGIN_VERSION} is compatible with SketchUp 2017.\nThe installed version is 20#{sketchup_version}.  The plugin was not loaded.", MB_OK)
-  elsif sketchup_version >= 19
-    openstudio_modeleditor_rb = File.join(openstudio_dir, "Ruby/openstudio_modeleditor.rb")
-    load(openstudio_modeleditor_rb)
-    load("openstudio/lib/PluginManager.rb")
-  else
-    openstudio_rb = File.join(openstudio_dir, "Ruby/openstudio.rb")
-    load(openstudio_rb)
-    load("openstudio/lib/PluginManager.rb")
+if do_load
+  begin
+    if (sketchup_version < minimum_version || sketchup_version > maximum_version)
+      UI.messagebox("OpenStudio #{$OPENSTUDIO_SKETCHUPPLUGIN_VERSION} is compatible with SketchUp 2017.\nThe installed version is 20#{sketchup_version}.  The plugin was not loaded.", MB_OK)
+    elsif sketchup_version >= 19
+      openstudio_modeleditor_rb = File.join(openstudio_dir, "Ruby/openstudio_modeleditor.rb")
+      load(openstudio_modeleditor_rb)
+      load("openstudio/lib/PluginManager.rb")
+    else
+      openstudio_rb = File.join(openstudio_dir, "Ruby/openstudio.rb")
+      load(openstudio_rb)
+      load("openstudio/lib/PluginManager.rb")
+    end
+  rescue LoadError => e
+    UI.messagebox("Error loading OpenStudio SketchUp Plug-In:\n  #{e.message}", MB_OK)
   end
-rescue LoadError => e
-  UI.messagebox("Error loading OpenStudio SketchUp Plug-In:\n  #{e.message}", MB_OK)
+else
+  UI.messagebox("User cancelled loading OpenStudio SketchUp Plug-In", MB_OK)
 end
-
