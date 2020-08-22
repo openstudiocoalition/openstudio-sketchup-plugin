@@ -6,4 +6,4 @@ After the v1.0.0 final NREL software distribution (04/27/2020), the OpenStudio S
 OpenStudio SketchUp Plug-in
 ==========
 
-The OpenStudio SketchUp Plug-in is an extension to Trimble’s popular 3D modeling tool that adds EnergyPlus context to the SketchUp program.  The Plug-in allows users to quickly create geometry needed for EnergyPlus using the built-in functionality of Trimble SketchUp including existing drawing tools, integration with Google Earth, Building Maker, and Photo Match. 
+The OpenStudio SketchUp Plug-in is an extension to Trimble’s popular 3D modeling tool that adds OpenStudio context to the SketchUp program.  The Plug-in allows users to quickly create geometry needed for OpenStudio using the built-in functionality of Trimble SketchUp including existing drawing tools, integration with Google Earth, Building Maker, and Photo Match. 
