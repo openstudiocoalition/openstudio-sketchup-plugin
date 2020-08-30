@@ -28,10 +28,10 @@
 ########################################################################################################################
 
 module OpenStudio
-  
+
   # Module constants
   SKETCHUPPLUGIN_DIR = File.dirname(__FILE__)
-  SKETCHUPPLUGIN_DEVELOPER_MENU = true # default is false, enable to see developer menu
+  SKETCHUPPLUGIN_DEVELOPER_MENU = false # default is false, enable to see developer menu
   SKETCHUPPLUGIN_PROGRESS_DIALOGS = true # default is true, disable to speed up
   SKETCHUPPLUGIN_CURRENT_METHOD_NAME = false # default is false, disable to speed up
   SKETCHUPPLUGIN_LOGGING = false # default is false, disable to speed up
@@ -100,7 +100,7 @@ module OpenStudio
       return ""
     end
   end
-  
+
   # PluginManager is an App level class, its members correspond to global variables
   class PluginManager
 
@@ -117,10 +117,10 @@ module OpenStudio
       @version = OpenStudio::SKETCHUPPLUGIN_VERSION
       @dir = File.dirname(__FILE__) + "/.."
       @profile_running = false
-      
+
       # this global variable is set by openstudio.rb
       @openstudio_application_dir = eval("$OPENSTUDIO_APPLICATION_DIR")
-      
+
       @disable_observers = OpenStudio::SKETCHUPPLUGIN_DISABLE_OBSERVERS
 
       @event_queue = []
