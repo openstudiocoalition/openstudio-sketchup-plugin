@@ -53,15 +53,15 @@ module OpenStudio
 
     def onElementAdded(entities, entity)
 
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
 
       return if not @enabled
 
-      if (!entity.deleted? and entity.class == Sketchup::Group)
+      if (!entity.deleted? and entity.is_a? Sketchup::Group)
         #puts "ModelEntities.onElementAdded:" + entity.to_s
 
-        if (entity.drawing_interface)
-          if (entity.drawing_interface.deleted?)
+        if (OpenStudio.get_drawing_interface(entity))
+          if (OpenStudio.get_drawing_interface(entity).deleted?)
             # This is a cut-paste/delete-undo event.
 
             # Important to have put Timers here inside the if-then logic, rather
@@ -73,7 +73,7 @@ module OpenStudio
 
               # DLM: what if entity is deleted now?
 
-              entity.drawing_interface.on_undelete_entity(entity)
+              OpenStudio.get_drawing_interface(entity).on_undelete_entity(entity)
             }
 
             Plugin.add_event( proc )
@@ -97,14 +97,14 @@ module OpenStudio
               cpoint = entity.entities.add_cpoint(Geom::Point3d.new(0,0,0))
               cpoint.erase!
 
-              if drawing_interface = entity.drawing_interface
+              if drawing_interface = OpenStudio.get_drawing_interface(entity)
 
                 need_to_remove = false
                 already_exists = false
                 has_children = false
                 error_message = ""
 
-                if(drawing_interface.class == Space)
+                if(drawing_interface.is_a? Space)
                   Plugin.log(OpenStudio::Info, "New Space")
 
                   has_children = true
@@ -117,7 +117,7 @@ module OpenStudio
                     end
                   end
 
-                elsif(drawing_interface.class == ShadingSurfaceGroup)
+                elsif(drawing_interface.is_a? ShadingSurfaceGroup)
                   Plugin.log(OpenStudio::Info, "New ShadingSurfaceGroup")
 
                   has_children = true
@@ -130,7 +130,7 @@ module OpenStudio
                     end
                   end
 
-                elsif(drawing_interface.class == InteriorPartitionSurfaceGroup)
+                elsif(drawing_interface.is_a? InteriorPartitionSurfaceGroup)
                   Plugin.log(OpenStudio::Info, "New InteriorPartitionSurfaceGroup")
 
                   has_children = true
@@ -172,7 +172,7 @@ module OpenStudio
       else
         # A class other than Group was added to the Model.
 
-        if (!entity.deleted? and entity.drawing_interface)
+        if (!entity.deleted? and OpenStudio.get_drawing_interface(entity))
           # An EnergyPlus object was pasted outside of a Space or Shading Group.
 
           proc = Proc.new {
@@ -194,7 +194,7 @@ module OpenStudio
 
     #def onElementRemoved(entities, entity)
     #
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
     #
     #  return if not @enabled
     #
@@ -205,7 +205,7 @@ module OpenStudio
     # UPDATE:  Broken in SU6 M3--was working in previous versions!  *args should catch any number of arguments, even none.
     #def onContentsModified(*args)
     #
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
     #
     #  return if not @enabled
     #
@@ -215,7 +215,7 @@ module OpenStudio
     # Only gets called when the model closes, I think.
     #def onEraseEntities(entities)
     #
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
     #
     #  return if not @enabled
     #

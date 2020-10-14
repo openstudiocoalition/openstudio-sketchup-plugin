@@ -27,14 +27,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-#see the URL below for information on how to write OpenStudio measures
-# http://openstudio.nrel.gov/openstudio-measure-writing-guide
-
-#see the URL below for information on using life cycle cost objects in OpenStudio
-# http://openstudio.nrel.gov/openstudio-life-cycle-examples
-
-#see the URL below for access to C++ documentation on model objects (click on "model" in the main window to view model objects)
-# http://openstudio.nrel.gov/sites/openstudio.nrel.gov/files/nv_data/cpp_documentation_it/model/html/namespaces.html
+module OpenStudio
 
 #start the measure
 class IntersectSpaceGeometry < OpenStudio::Ruleset::ModelUserScript
@@ -103,3 +96,5 @@ end #end the measure
 
 #this allows the measure to be use by the application
 IntersectSpaceGeometry.new.registerWithApplication
+
+end

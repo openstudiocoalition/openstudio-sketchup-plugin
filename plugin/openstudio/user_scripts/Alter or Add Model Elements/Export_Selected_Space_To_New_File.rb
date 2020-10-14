@@ -27,6 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
+module OpenStudio
+
 # Each user script is implemented within a class that derives from OpenStudio::Ruleset::UserScript
 class ExportSpaces < OpenStudio::Ruleset::ModelUserScript
 
@@ -62,7 +64,7 @@ class ExportSpaces < OpenStudio::Ruleset::ModelUserScript
       return false
     end
 
-    osmPath_2 = runner.getStringArgumentValue("save_path",user_arguments)
+    osmPath_2 = runner.getPathArgumentValue("save_path",user_arguments).to_s
 
     # stop script if no spaces are selected.
     anyInSelection = false
@@ -103,4 +105,4 @@ end
 # this call registers your script with the OpenStudio SketchUp plug-in
 ExportSpaces.new.registerWithApplication
 
-
+end

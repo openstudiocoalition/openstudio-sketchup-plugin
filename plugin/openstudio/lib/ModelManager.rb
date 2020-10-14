@@ -45,7 +45,7 @@ module OpenStudio
     end
 
     def destroy
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       Plugin.dialog_manager.close_all
 
@@ -55,7 +55,7 @@ module OpenStudio
     end
 
     def shutdown
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       Plugin.dialog_manager.close_all
 
@@ -77,7 +77,7 @@ module OpenStudio
     end
 
     def purge_invalid_model_interfaces
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       to_delete = []
       @model_interfaces.each do |model_interface|
@@ -95,13 +95,13 @@ module OpenStudio
 
     # this method cannot fail
     def new_from_skp_model(skp_model)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # DLM: previously, we tried to find the linked OSM, open it, and reattach it
 
-      openstudio_path = skp_model.openstudio_path
-      openstudio_entities = skp_model.openstudio_entities
-      openstudio_materials = skp_model.openstudio_materials
+      openstudio_path = OpenStudio.get_openstudio_path(skp_model)
+      openstudio_entities = OpenStudio.get_openstudio_entities(skp_model)
+      openstudio_materials = OpenStudio.get_openstudio_materials(skp_model)
       
       if (openstudio_path && !openstudio_path.empty?) || (openstudio_entities.size > 0) || (openstudio_materials.size > 0)
 
@@ -112,8 +112,8 @@ module OpenStudio
         UI.messagebox(message, MB_OK)
 
         # remove all OpenStudio content so user is not confused
-        skp_model.start_operation("Remove all OpenStudio Content", true)
-        skp_model.delete_openstudio_entities
+        skp_model.start_operation("Remove OpenStudio Content", true)
+        OpenStudio.delete_openstudio_entities(skp_model)
         openstudio_materials.each {|m| skp_model.materials.remove(m)}
         skp_model.commit_operation
       end
@@ -123,7 +123,7 @@ module OpenStudio
 
     # this method cannot fail
     def new_from_example_model(skp_model)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @model_interfaces.reject! {|mi| (mi.skp_model == skp_model) }
       purge_invalid_model_interfaces
@@ -137,7 +137,7 @@ module OpenStudio
 
     # this method cannot fail, if path cannot be loaded then will fall back on Plugin.minimal_template_path
     def new_from_path(skp_model, path)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       success = false
 
@@ -169,7 +169,7 @@ module OpenStudio
 
     # this method may fail
     def open_openstudio(path, skp_model, save_path = true , do_zoom = true)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       success = false
 
@@ -190,7 +190,7 @@ module OpenStudio
 
     # this method cannot fail
     def attach_openstudio_model(openstudio_model, skp_model, path = nil, save_path = false , do_zoom = true, errors = nil, warnings = nil, untranslated_idf_objects = [])
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @model_interfaces.each do |mi|
         if (mi.skp_model == skp_model)
@@ -237,7 +237,7 @@ module OpenStudio
     end
 
     def delete_model_interface(model_interface)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # DLM: store reference to skp_model to prevent this from being garbage collected below
       # Fixes Bug 781 - If you create a new SketchUp file or Open an existing one it fails to make a new open studio model
@@ -263,7 +263,7 @@ module OpenStudio
 
     # return a valid openstudio model from path or nil
     def model_from_openstudio_path(path, show_version_dialog = true)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = nil
 
@@ -283,7 +283,7 @@ module OpenStudio
         currentVersion = OpenStudio::VersionString.new(OpenStudio::openStudioVersion())
 
         model = nil
-        if $OPENSTUDIO_SKETCHUPPLUGIN_PROGRESS_DIALOGS
+        if OpenStudio::SKETCHUPPLUGIN_PROGRESS_DIALOGS
           progress_dialog = ProgressDialog.new("Reading OpenStudio Model")
           model = versionTranslator.loadModel(OpenStudio::Path.new(path), progress_dialog)
           progress_dialog.destroy
@@ -324,12 +324,12 @@ module OpenStudio
 
     # convert a model to a workspace
     def model_to_workspace(model)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       translator = OpenStudio::EnergyPlus::ForwardTranslator.new
 
       workspace = nil
-      if $OPENSTUDIO_SKETCHUPPLUGIN_PROGRESS_DIALOGS
+      if OpenStudio::SKETCHUPPLUGIN_PROGRESS_DIALOGS
         progress_dialog = ProgressDialog.new("Translating OpenStudio to EnergyPlus")
         workspace = translator.translateModel(model, progress_dialog)
         progress_dialog.destroy
@@ -345,12 +345,12 @@ module OpenStudio
 
     # convert a workspace to a model
     def model_from_workspace(workspace)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       translator = OpenStudio::EnergyPlus::ReverseTranslator.new
 
       model = nil
-      if $OPENSTUDIO_SKETCHUPPLUGIN_PROGRESS_DIALOGS
+      if OpenStudio::SKETCHUPPLUGIN_PROGRESS_DIALOGS
         progress_dialog = ProgressDialog.new("Translating EnergyPlus to OpenStudio")
         model = translator.translateWorkspace(workspace, progress_dialog)
         progress_dialog.destroy
@@ -367,7 +367,7 @@ module OpenStudio
 
     # load an Idf from path and return as a workspace or nil
     def workspace_from_idf_path(path)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = nil
 
@@ -384,7 +384,7 @@ module OpenStudio
         # load idf and convert to a workspace
 
         idf = nil
-        if $OPENSTUDIO_SKETCHUPPLUGIN_PROGRESS_DIALOGS
+        if OpenStudio::SKETCHUPPLUGIN_PROGRESS_DIALOGS
           progress_dialog = ProgressDialog.new("Loading EnergyPlus Idf")
           idf = OpenStudio::IdfFile::load(OpenStudio::Path.new(path), "EnergyPlus".to_IddFileType, progress_dialog)
           progress_dialog.destroy
@@ -410,7 +410,7 @@ module OpenStudio
           end
 
           workspace = nil
-          if $OPENSTUDIO_SKETCHUPPLUGIN_PROGRESS_DIALOGS
+          if OpenStudio::SKETCHUPPLUGIN_PROGRESS_DIALOGS
             progress_dialog = ProgressDialog.new("Creating EnergyPlus Workspace")
             workspace = OpenStudio::Workspace.new("None".to_StrictnessLevel, "EnergyPlus".to_IddFileType)
             #workspace = OpenStudio::Workspace.new("Draft".to_StrictnessLevel, "EnergyPlus".to_IddFileType)
@@ -434,7 +434,7 @@ module OpenStudio
 
     # load a gbXML from path and convert to model
     def model_from_gbXML_path(path)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = nil
 
@@ -451,7 +451,7 @@ module OpenStudio
         translator = OpenStudio::GbXML::GbXMLReverseTranslator.new
 
         model = nil
-        if $OPENSTUDIO_SKETCHUPPLUGIN_PROGRESS_DIALOGS
+        if OpenStudio::SKETCHUPPLUGIN_PROGRESS_DIALOGS
           progress_dialog = ProgressDialog.new("Translating gbXML")
           model = translator.loadModel(OpenStudio::Path.new(path), progress_dialog)
           progress_dialog.destroy
@@ -475,7 +475,7 @@ module OpenStudio
 
     # load a sdd from path and convert to model
     def model_from_sdd_path(path)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = nil
 
@@ -492,7 +492,7 @@ module OpenStudio
         translator = OpenStudio::SDD::SddReverseTranslator.new
 
         model = nil
-        if $OPENSTUDIO_SKETCHUPPLUGIN_PROGRESS_DIALOGS
+        if OpenStudio::SKETCHUPPLUGIN_PROGRESS_DIALOGS
           progress_dialog = ProgressDialog.new("Translating SDD")
           model = translator.loadModel(OpenStudio::Path.new(path), progress_dialog)
           progress_dialog.destroy

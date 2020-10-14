@@ -31,10 +31,12 @@ require 'openstudio'
 
 require 'minitest/autorun'
 
+module OpenStudio
+
 class PluginTemplates_Test < MiniTest::Unit::TestCase
 
   def test_Templates
-    templates_path = "#{$OPENSTUDIO_SKETCHUPPLUGIN_DIR}/../resources/templates/"
+    templates_path = "#{OpenStudio::SKETCHUPPLUGIN_DIR}/../resources/templates/"
     assert(File.exist?(templates_path))
     assert(File.directory?(templates_path))
     templates = Dir.glob(templates_path + "/*.osm")
@@ -63,3 +65,4 @@ class PluginTemplates_Test < MiniTest::Unit::TestCase
 
 end
 
+end

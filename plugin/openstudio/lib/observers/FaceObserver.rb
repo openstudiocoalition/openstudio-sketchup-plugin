@@ -56,7 +56,7 @@ module OpenStudio
     # Gets called when the geometry of the Face changes, or when it is painted.
     def onChangeEntity(entity)
 
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}, entity = #{entity}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}, entity = #{entity}")
 
       return if not @enabled
 
@@ -69,21 +69,21 @@ module OpenStudio
         # Only one face was getting the callback.  Appears the first callback was breaking the second callback.
         # Changing to an asynchronous proc solves the problem.
 
-        Plugin.log(OpenStudio::Trace, "#{current_method_name}, entity = #{entity}")
+        Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, entity = #{entity}")
 
         # destroy_observers may have been called since the time this proc was scheduled
         if (@drawing_interface)
 
-          #Plugin.log(OpenStudio::Trace, "#{current_method_name}, @drawing_interface = #{@drawing_interface.class}")
+          #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @drawing_interface = #{@drawing_interface.class}")
 
           # when push/pull tool is used not all changed faces will get this observer called
           if(Sketchup.active_model.tools.active_tool_id == 21041)  # PushPullTool
-            #Plugin.log(OpenStudio::Trace, "#{current_method_name}, calling @drawing_interface.parent.on_change_entity")
+            #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, calling @drawing_interface.parent.on_change_entity")
             @drawing_interface.parent.on_change_entity
 
           # Need to check the parent entity to make sure this face didn't find itself outside of a Group after an explode.
           elsif (@drawing_interface.valid_entity? and @drawing_interface.parent_from_entity)
-            #Plugin.log(OpenStudio::Trace, "#{current_method_name}, calling @drawing_interface.on_change_entity")
+            #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, calling @drawing_interface.on_change_entity")
             @drawing_interface.on_change_entity
           end
 
@@ -97,7 +97,7 @@ module OpenStudio
 
     def onEraseEntity(entity)
 
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}, entity = #{entity}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}, entity = #{entity}")
 
       return if not @enabled
 
@@ -111,26 +111,26 @@ module OpenStudio
       # API Bug:  the 'entity' argument passed in to this callback appears to be a dummy Face object,
       # unrelated to the deleted Face (all of the Face data is gone, except entityID which is now negative.)
 
-      # Which is why @drawing_interface is used to store the interface.  Otherwise, entity.drawing_interface is nil.
+      # Which is why @drawing_interface is used to store the interface.  Otherwise, OpenStudio.get_drawing_interface(entity) is nil.
 
       proc = Proc.new {
 
-        Plugin.log(OpenStudio::Trace, "#{current_method_name}, entity = #{entity}")
+        Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, entity = #{entity}")
 
         # onEraseEntity gets called for each Face even when the parent Group gets erased.
         # This check avoids an error if the Group is already deleted.
         containing_entity = @drawing_interface.containing_entity
         if (containing_entity and containing_entity.valid?)
 
-          #Plugin.log(OpenStudio::Trace, "#{current_method_name}, containing_entity and containing_entity.valid?")
+          #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, containing_entity and containing_entity.valid?")
 
           swapped_face = nil
 
           # Check for swapping of face entities if the erased face was a Surface.
           # (Swapping never seems to happen when @drawing_interface is a SubSurface.)
-          if (@drawing_interface.class == Surface)
+          if (@drawing_interface.is_a? Surface)
 
-            #Plugin.log(OpenStudio::Trace, "#{current_method_name}, @drawing_interface = #{@drawing_interface.class} check for swapping")
+            #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @drawing_interface = #{@drawing_interface.class} check for swapping")
 
             # get the vertices of the surface from the model object and transformed into SketchUp coordinates
             drawing_interface_points = @drawing_interface.surface_polygon.points
@@ -138,22 +138,22 @@ module OpenStudio
             # search all entities in containing_entity for surface that matches these vertices
             # containing_entity.entities will not return entity because it has been deleted
             containing_entity.entities.each { |this_entity|
-              if ((this_entity.class == Sketchup::Face))
-                face_points = this_entity.outer_polygon.reduce.points
+              if ((this_entity.is_a? Sketchup::Face))
+                face_points = OpenStudio.get_outer_polygon(this_entity).reduce.points
 
                 # Check to see if all drawing_object points are a subset of the face points.
-                if (drawing_interface_points.is_subset_of?(face_points))
+                if (OpenStudio::is_subset_of?(drawing_interface_points, face_points))
 
                   # @drawing_interface's model object is really associated with this_entity
 
-                  if @drawing_interface == this_entity.drawing_interface
+                  if @drawing_interface == OpenStudio.get_drawing_interface(this_entity)
                     # maybe this happens when one entity is copied to another entity?  should we really be cloning drawing interface here?
                     #Plugin.log(OpenStudio::Trace, "#{entity} and #{this_entity} both refer to #{@drawing_interface}, how did this happen?")
                   else
                     #puts "Found swapped face = " + this_entity.to_s
                     swapped_face = this_entity
 
-                    #Plugin.log(OpenStudio::Trace, "#{current_method_name}, swap detected with swapped_face = #{swapped_face}")
+                    #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, swap detected with swapped_face = #{swapped_face}")
                     break
                   end
                 end
@@ -163,37 +163,37 @@ module OpenStudio
 
           if (swapped_face)
 
-            #Plugin.log(OpenStudio::Trace, "#{current_method_name}, fix swapping between @drawing_interface = #{@drawing_interface.class} and swapped_face.drawing_interface = #{swapped_face.drawing_interface.class}")
+            #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, fix swapping between @drawing_interface = #{@drawing_interface.class} and swapped_face.drawing_interface = #{swapped_face.drawing_interface.class}")
 
             # 'swapped_face' is the entity that is left.  'entity' is already erased.
 
-            #Plugin.log(OpenStudio::Trace, "#{current_method_name}, remove current swapped_face.drawing_interface.entity = #{swapped_face.drawing_interface.entity}, swapped_face = #{swapped_face}")
+            #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, remove current swapped_face.drawing_interface.entity = #{swapped_face.drawing_interface.entity}, swapped_face = #{swapped_face}")
 
             # Detach the drawing interface from the swapped surface.
-            removed_interface = swapped_face.drawing_interface
+            removed_interface = OpenStudio.get_drawing_interface(swapped_face)
             removed_interface.remove_observers
             removed_interface.on_erase_entity
             removed_interface.detach_entity # changes properties via clean_entity
 
             # Restore the drawing interface to the original face.
             # changes properties of swapped_face
-            swapped_face.drawing_interface = @drawing_interface
-            swapped_face.model_object_handle = @drawing_interface.model_object.handle
+            OpenStudio.set_drawing_interface(swapped_face, @drawing_interface)
+            OpenStudio.set_model_object_handle(swapped_face, @drawing_interface.model_object.handle)
 
             @drawing_interface.entity = swapped_face
             @drawing_interface.on_change_entity # changes properties via paint_entity
             @drawing_interface.add_observers
 
-            #Plugin.log(OpenStudio::Trace, "#{current_method_name}, swapped_face = #{swapped_face} now refers to swapped_face.drawing_interface = #{swapped_face.drawing_interface.class}")
+            #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, swapped_face = #{swapped_face} now refers to swapped_face.drawing_interface = #{swapped_face.drawing_interface.class}")
 
           else
             # Normal erase
-            #Plugin.log(OpenStudio::Trace, "#{current_method_name}, no swapping")
+            #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, no swapping")
             @drawing_interface.on_erase_entity
           end
 
         else
-          #Plugin.log(OpenStudio::Trace, "#{current_method_name}, no containing_entity or not containing_entity.valid?")
+          #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, no containing_entity or not containing_entity.valid?")
 
           # Group was deleted--make sure to still erase the drawing interface!
           @drawing_interface.on_erase_entity

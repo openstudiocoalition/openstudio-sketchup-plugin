@@ -41,8 +41,8 @@ module OpenStudio
     end
 
     def populate_hash
-      @hash['OPENSTUDIO_SKETCHUPPLUGIN_VERSION'] = "#{$OPENSTUDIO_SKETCHUPPLUGIN_VERSION}"
-      @hash['OPENSTUDIO_VERSION'] = "#{$OPENSTUDIO_VERSION}"
+      @hash['OPENSTUDIO_SKETCHUPPLUGIN_VERSION'] = "#{Plugin.version}"
+      @hash['OPENSTUDIO_VERSION'] = "#{OpenStudio::openStudioVersion}"
     end
 
   end

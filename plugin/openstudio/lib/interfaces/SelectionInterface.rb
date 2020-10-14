@@ -37,7 +37,7 @@ module OpenStudio
     attr_reader :model_interface, :observer, :selection
 
     def initialize(model_interface)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @model_interface = model_interface
       @selection = @model_interface.skp_model.selection
@@ -47,7 +47,7 @@ module OpenStudio
     end
 
     def destroy
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @model_interface = nil
       @selection = nil
@@ -55,9 +55,9 @@ module OpenStudio
     end
 
     def add_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
-      if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+      if Plugin.disable_observers
         if not @observer_added
           @selection.add_observer(@observer)
           @observer_added = true
@@ -71,10 +71,10 @@ module OpenStudio
     end
 
     def remove_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       had_observers = false
-      if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+      if Plugin.disable_observers
         if @observer_added
           had_observers = @observer.disable
         end
@@ -88,11 +88,11 @@ module OpenStudio
     end
 
     def destroy_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = false
       if @observer
-        if $OPENSTUDIO_SKETCHUPPLUGIN_DISABLE_OBSERVERS
+        if Plugin.disable_observers
           # actually do remove here
           @selection.remove_observer(@observer)
           @observer.disable
@@ -113,16 +113,16 @@ module OpenStudio
     # gets the drawing_interface which is actually selected, not render mode aware
     # render mode is applied in DialogManager::selection_changed
     def selected_drawing_interface
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       drawing_interface = nil
       if (@selection.empty?)
         Plugin.log(OpenStudio::Debug, "selection is empty")
 
         parent = @model_interface.skp_model.active_entities.parent
-        if (parent.class == Sketchup::ComponentDefinition)
+        if (parent.is_a? Sketchup::ComponentDefinition)
           # Gets the SurfaceGroup interface that is currently open for editing
-          drawing_interface = parent.instances.first.drawing_interface
+          drawing_interface = OpenStudio.get_drawing_interface(parent.instances.first)
 
           Plugin.log(OpenStudio::Debug, "selected_drawing_interface = #{drawing_interface}")
         else
@@ -133,16 +133,16 @@ module OpenStudio
 
       else
         @selection.each do |entity|
-          if (entity.drawing_interface and not entity.drawing_interface.deleted? and (entity.class == Sketchup::Group or entity.class == Sketchup::Face or entity.class == Sketchup::ComponentInstance))
+          if (OpenStudio.get_drawing_interface(entity) and not OpenStudio.get_drawing_interface(entity).deleted? and (entity.is_a? Sketchup::Group or entity.is_a? Sketchup::Face or entity.is_a? Sketchup::ComponentInstance))
 
             # Check for entities that have been copied into a non-OpenStudio group and clean them.
-            if (entity.parent.class == Sketchup::ComponentDefinition and not entity.parent.instances.first.drawing_interface)
-              entity.drawing_interface = nil
-              entity.model_object_handle = nil
+            if (entity.parent.is_a? Sketchup::ComponentDefinition and not OpenStudio.get_drawing_interface(entity.parent.instances.first))
+              OpenStudio.set_drawing_interface(entity, nil)
+              OpenStudio.set_model_object_handle(entity, nil)
             end
 
             if drawing_interface.nil?
-              drawing_interface = entity.drawing_interface
+              drawing_interface = OpenStudio.get_drawing_interface(entity)
 
               Plugin.log(OpenStudio::Debug, "selected_drawing_interface = #{drawing_interface}")
             else
@@ -152,9 +152,9 @@ module OpenStudio
 
               # try to revert back to group or building here
               parent = @model_interface.skp_model.active_entities.parent
-              if (parent.class == Sketchup::ComponentDefinition)
+              if (parent.is_a? Sketchup::ComponentDefinition)
                 # Gets the SurfaceGroup interface that is currently open for editing
-                drawing_interface = parent.instances.first.drawing_interface
+                drawing_interface = OpenStudio.get_drawing_interface(parent.instances.first)
 
                 Plugin.log(OpenStudio::Debug, "selected_drawing_interface = #{drawing_interface}")
               else
@@ -173,7 +173,7 @@ module OpenStudio
     end
 
     def select_drawing_interfaces(handles)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @selection.clear
 
@@ -184,16 +184,16 @@ module OpenStudio
 
       for child in @model_interface.recurse_children
 
-        if child.class == DaylightingControl or
-           child.class == IlluminanceMap or
-           child.class == InteriorPartitionSurface or
-           child.class == InteriorPartitionSurfaceGroup or
-           child.class == Luminaire or
-           child.class == ShadingSurface or
-           child.class == ShadingSurfaceGroup or
-           child.class == Space or
-           child.class == SubSurface or
-           child.class == Surface
+        if child.is_a? DaylightingControl or
+           child.is_a? IlluminanceMap or
+           child.is_a? InteriorPartitionSurface or
+           child.is_a? InteriorPartitionSurfaceGroup or
+           child.is_a? Luminaire or
+           child.is_a? ShadingSurface or
+           child.is_a? ShadingSurfaceGroup or
+           child.is_a? Space or
+           child.is_a? SubSurface or
+           child.is_a? Surface
 
           if child.model_object
             if handles.include?(child.model_object.handle)

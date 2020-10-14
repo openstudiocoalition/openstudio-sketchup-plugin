@@ -421,7 +421,7 @@ module OpenStudio
 
       model_interface.remove_observers(true)
       skp_model.selection.clear
-      skp_model.entities.each {|e| skp_model.selection.add(e)}
+      skp_model.selection.add(skp_model.entities.to_a)
       selected_entities = search(skp_model.selection)
       skp_model.selection.clear
       model_interface.add_observers(true)
@@ -547,7 +547,7 @@ module OpenStudio
             next
           end
 
-          if ((planar_surface.class == Surface) and (@hash['CLASS'] == "" or @hash['CLASS'] == "OS:Surface"))
+          if ((planar_surface.is_a? Surface) and (@hash['CLASS'] == "" or @hash['CLASS'] == "OS:Surface"))
             if model_object.getString(2,true).to_s.upcase.include?(type) and
                model_object.getString(3,true).to_s.upcase.include?(construction) and
                model_object.getString(5,true).to_s.upcase.include?(outside_boundary_condition) and
@@ -569,7 +569,7 @@ module OpenStudio
                @last_report << "#{model_object.iddObject.name.to_s}, #{model_object.name.to_s}\n"
 
             end
-          elsif ((planar_surface.class == SubSurface) and (@hash['CLASS'] == "" or @hash['CLASS'] == "OS:SubSurface"))
+          elsif ((planar_surface.is_a? SubSurface) and (@hash['CLASS'] == "" or @hash['CLASS'] == "OS:SubSurface"))
             if model_object.getString(2,true).to_s.upcase.include?(type) and
                model_object.getString(3,true).to_s.upcase.include?(construction) and
                outside_boundary_condition.empty? and sun.empty? and wind.empty? #and
@@ -595,7 +595,7 @@ module OpenStudio
                # add to report
                @last_report << "#{model_object.iddObject.name.to_s}, #{model_object.name.to_s}\n"
             end
-          elsif ((planar_surface.class == ShadingSurface) and (@hash['CLASS'] == "" or @hash['CLASS'] == "OS:ShadingSurface"))
+          elsif ((planar_surface.is_a? ShadingSurface) and (@hash['CLASS'] == "" or @hash['CLASS'] == "OS:ShadingSurface"))
             if type.empty? and construction.empty? and
                outside_boundary_condition.empty? and sun.empty? and wind.empty? #and
                #shading_control.empty? and frame_and_divider.empty?
@@ -611,12 +611,12 @@ module OpenStudio
                planar_surface.parent.entity.visible = true
 
                # unhide space
-               planar_surface.parent.parent.entity.visible = true if planar_surface.parent.parent.entity
+               planar_surface.parent.parent.entity.visible = true if planar_surface.parent.parent.is_a?(Space)
 
                # add to report
                @last_report << "#{model_object.iddObject.name.to_s}, #{model_object.name.to_s}\n"
             end
-          elsif ((planar_surface.class == InteriorPartitionSurface) and (@hash['CLASS'] == "" or @hash['CLASS'] == "OS:InteriorPartitionSurface"))
+          elsif ((planar_surface.is_a? InteriorPartitionSurface) and (@hash['CLASS'] == "" or @hash['CLASS'] == "OS:InteriorPartitionSurface"))
             if type.empty? and
                model_object.getString(2,true).to_s.upcase.include?(construction) and
                outside_boundary_condition.empty? and sun.empty? and wind.empty? #and

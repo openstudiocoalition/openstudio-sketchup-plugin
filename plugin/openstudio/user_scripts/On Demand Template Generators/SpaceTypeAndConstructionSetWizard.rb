@@ -27,18 +27,11 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-#see the URL below for information on how to write OpenStudio measures
-# http://nrel.github.io/OpenStudio-user-documentation/reference/measure_writing_guide/
-
-#see the URL below for information on using life cycle cost objects in OpenStudio
-# http://nrel.github.io/OpenStudio-user-documentation/tutorials/life_cycle_costing_examples/
-
-#see the URL below for access to C++ documentation on model objects (click on "model" in the main window to view model objects)
-# https://s3.amazonaws.com/openstudio-sdk-documentation/cpp/OpenStudio-1.5.0-doc/model/html/classes.html
-
 require "#{File.dirname(__FILE__)}/resources/SpaceTypeGenerator"
 require "#{File.dirname(__FILE__)}/resources/ConstructionSetGenerator"
 require "#{File.dirname(__FILE__)}/resources/OsLib_Constructions"
+
+module OpenStudio
 
 #start the measure
 class SpaceTypeAndConstructionSetWizard < OpenStudio::Ruleset::ModelUserScript
@@ -273,3 +266,5 @@ end #end the measure
 
 #this allows the measure to be use by the application
 SpaceTypeAndConstructionSetWizard.new.registerWithApplication
+
+end

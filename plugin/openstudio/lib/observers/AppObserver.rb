@@ -39,7 +39,7 @@ module OpenStudio
     # The work-around is to save and compare the 'guid' which does not change unless a truly new model is created or opened.
 
     def onNewModel(model)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if Plugin.model_manager.model_interface and
          Plugin.model_manager.model_interface.skp_model_guid == model.guid
@@ -58,7 +58,7 @@ module OpenStudio
     end
 
     def onOpenModel(model)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       Plugin.model_manager.new_from_skp_model(model)
 
@@ -69,14 +69,14 @@ module OpenStudio
 
     # Note:  Sketchup.active_model is already nil at this point
     def onQuit
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       Plugin.model_manager.shutdown
     end
 
 
     #def onUnloadExtension
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #end
 
   end

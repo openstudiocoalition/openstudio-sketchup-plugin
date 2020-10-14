@@ -55,7 +55,7 @@ module OpenStudio
 
     #def onElementAdded(entities, entity)
     #
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
     #
     #  return if not @enabled
     #
@@ -63,7 +63,7 @@ module OpenStudio
 
     def onElementModified(entities, entity)
 
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
 
       return if not @enabled
 
@@ -75,7 +75,7 @@ module OpenStudio
 
     #def onElementRemoved(entities, entity_id)
     #
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
     #
     #  return if not @enabled
     #
@@ -83,7 +83,7 @@ module OpenStudio
 
     #def onEraseEntities(entities)
     #
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
     #
     #  return if not @enabled
     #

@@ -27,6 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
+module OpenStudio
+
 # Each user script is implemented within a class that derives from OpenStudio::Ruleset::UserScript
 class ImportSpaces < OpenStudio::Ruleset::ModelUserScript
 
@@ -61,7 +63,7 @@ class ImportSpaces < OpenStudio::Ruleset::ModelUserScript
       return false
     end
 
-    osmPath_2 = runner.getStringArgumentValue("import_path",user_arguments)
+    osmPath_2 = runner.getPathArgumentValue("import_path",user_arguments).to_s
     if osmPath_2.empty?
       runner.registerError("Non-empty path argument is required.")
       return false
@@ -124,4 +126,4 @@ end
 # this call registers your script with the OpenStudio SketchUp plug-in
 ImportSpaces.new.registerWithApplication
 
-
+end

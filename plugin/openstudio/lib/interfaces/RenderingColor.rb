@@ -36,7 +36,7 @@ module OpenStudio
   class RenderingColor < DrawingInterface
 
     def initialize
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super
       @observer = EntityObserver.new(self)
@@ -45,7 +45,7 @@ module OpenStudio
 ##### Begin override methods for the input object #####
 
     def self.model_object_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_object = Plugin.model_manager.model_interface.openstudio_model.getRenderingColor(handle)
       if not model_object.empty?
@@ -58,7 +58,7 @@ module OpenStudio
     end
 
     def self.new_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       drawing_interface = RenderingColor.new
       model_object = model_object_from_handle(handle)
@@ -78,7 +78,7 @@ module OpenStudio
     end
 
     def create_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_watcher_enabled = @model_interface.model_watcher.disable
       @model_object = OpenStudio::Model::RenderingColor.new(@model_interface.openstudio_model)
@@ -87,14 +87,14 @@ module OpenStudio
     end
 
     def check_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       return(super)
     end
 
 
     # Updates the ModelObject with new information from the SketchUp entity.
     def update_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super
 
@@ -143,7 +143,7 @@ module OpenStudio
 
     # Returns the parent drawing interface according to the input object.
     def parent_from_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return @model_interface
     end
@@ -151,7 +151,7 @@ module OpenStudio
 ##### Begin override methods for the entity #####
 
     def create_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       had_observers = remove_observers
 
@@ -169,7 +169,7 @@ module OpenStudio
 
     # Updates the SketchUp entity with new information from the ModelObject.
     def update_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # do not want to call super if just want to redraw
       super
@@ -213,14 +213,14 @@ module OpenStudio
     # Final cleanup of the entity.
     # This method is called by the model interface after the entire input file is drawn.
     def cleanup_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super
     end
 
     # Returns the parent drawing interface according to the entity.
     def parent_from_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       return @model_interface
     end
@@ -228,7 +228,7 @@ module OpenStudio
 ##### Begin override methods for the interface #####
 
     def add_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super(recursive) # takes care of @observer only, also handles recursive argument
 
@@ -237,7 +237,7 @@ module OpenStudio
 
 
     def remove_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       had_observers = super(recursive) # takes care of @observer only, also handles recursive argument
 
@@ -247,7 +247,7 @@ module OpenStudio
     end
 
     def destroy_observers(recursive = false)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = super(recursive) # takes care of @observer only, also handles recursive argument
 
@@ -258,7 +258,7 @@ module OpenStudio
 ##### Begin new methods for the interface #####
 
     def color
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = Sketchup::Color.new(@model_object.renderingRedValue, @model_object.renderingGreenValue, @model_object.renderingBlueValue)
 
@@ -266,7 +266,7 @@ module OpenStudio
     end
 
     def color=(color)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @model_object.setRenderingRedValue(color.red)
       @model_object.setRenderingGreenValue(color.green)
@@ -274,7 +274,7 @@ module OpenStudio
     end
 
     def alpha
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       result = @model_object.renderingAlphaValue / 255.0
       result = [0.0, result].max
@@ -284,7 +284,7 @@ module OpenStudio
     end
 
     def alpha=(alpha)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       alpha = (255*alpha).to_i
       alpha = [0, alpha].max

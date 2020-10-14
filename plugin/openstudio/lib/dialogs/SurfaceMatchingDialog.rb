@@ -72,9 +72,11 @@ module OpenStudio
       model = model_interface.skp_model
       model.selection.clear
 
+      entities = []
       model_interface.spaces.each do |space|
-        model.selection.add(space.entity)
+        entities << space.entity
       end
+      model.selection.add(entities)
 
       intersect(model.selection)
 
@@ -173,7 +175,7 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
     def on_match_all
       model = Plugin.model_manager.model_interface.skp_model
       model.selection.clear
-      model.entities.each {|e| model.selection.add(e)}
+      model.selection.add(model.entities.to_a)
       match(model.selection)
       model.selection.clear
     end
@@ -186,7 +188,7 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
     def on_unmatch_all
       model = Plugin.model_manager.model_interface.skp_model
       model.selection.clear
-      model.entities.each {|e| model.selection.add(e)}
+      model.selection.add(model.entities.to_a)
       unmatch(model.selection)
       model.selection.clear
     end

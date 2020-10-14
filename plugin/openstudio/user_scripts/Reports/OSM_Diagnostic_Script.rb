@@ -27,6 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
+module OpenStudio
+
 # Each user script is implemented within a class that derives from OpenStudio::Ruleset::UserScript
 class DiagnosticScript < OpenStudio::Ruleset::ModelUserScript
 
@@ -71,7 +73,7 @@ class DiagnosticScript < OpenStudio::Ruleset::ModelUserScript
       return false
     end
 
-    open_path = runner.getStringArgumentValue("open_path",user_arguments)
+    open_path = runner.getPathArgumentValue("open_path",user_arguments).to_s
     remove_errors = runner.getBoolArgumentValue("remove_errors",user_arguments)
     remove_warnings = runner.getBoolArgumentValue("remove_warnings",user_arguments)
 
@@ -509,3 +511,5 @@ end
 
 # this call registers your script with the OpenStudio SketchUp plug-in
 DiagnosticScript.new.registerWithApplication
+
+end

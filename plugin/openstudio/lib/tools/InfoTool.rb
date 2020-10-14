@@ -107,12 +107,12 @@ module OpenStudio
 
       if (face)
 
-        drawing_interface = face.drawing_interface
+        drawing_interface = OpenStudio.get_drawing_interface(face)
 
         if not drawing_interface
           parent = face.parent
           while parent and parent.is_a?(Sketchup::ComponentDefinition) or parent.is_a?(Sketchup::ComponentInstance) or parent.is_a?(Sketchup::Group)
-            if drawing_interface = parent.drawing_interface
+            if drawing_interface = OpenStudio.get_drawing_interface(parent)
               break
             else
               if parent.is_a?(Sketchup::ComponentDefinition)
@@ -170,7 +170,7 @@ module OpenStudio
         #puts
 
         #puts "DrawingInterface="
-        #puts $f.drawing_interface
+        #puts OpenStudio.get_drawing_interface($f)
       end
 
       if (@ip.edge)
@@ -181,16 +181,16 @@ module OpenStudio
 
       #puts
       #puts "Face=>       " + $f.to_s
-      #puts "Interface=>  " + $f.drawing_interface.to_s
+      #puts "Interface=>  " + OpenStudio.get_drawing_interface($f).to_s
       #puts "EntityID=>   " + $f.entityID.to_s   # useless...always matched to the same Face
-      #puts "Key=>        " + $f.model_object_handle.to_s
+      #puts "Key=>        " + OpenStudio.get_model_object_handle($f).to_s
       #puts "Base Face=>  " + DrawingUtils.find_base_face($f).to_s   # this is not working right
       #puts
 
       #$g = $f.parent.instances.first
 
       #puts "Group=>      " + $g.to_s
-      #puts "Grp Intrfc=> " + $g.drawing_interface.to_s
+      #puts "Grp Intrfc=> " + OpenStudio.get_drawing_interface($g).to_s
       #puts "Entities=>   " + $g.entities.to_s
       #puts "Entities[]=> " + $g.entities.to_a.to_s
 
@@ -200,11 +200,11 @@ module OpenStudio
       #$f.drawing_interface.surface_polygon.points.each { |v| puts v.display }
 
       #puts $f
-      #puts $f.drawing_interface
+      #puts OpenStudio.get_drawing_interface($f)
       #$f.vertices.each { |v| puts v.position.display }
       #puts
 
-      #if ($f.contains_point?(@ip.position, include_border = true))
+      #if (OpenStudio.face_contains_point?($f, @ip.position, include_border = true))
       #  puts "face contains point"
       #else
       #  puts "face DOES NOT contain point"

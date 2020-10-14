@@ -54,18 +54,18 @@ module OpenStudio
     end
 
     #def onMaterialAdd(materials, material)
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #end
 
     def onMaterialChange(materials, material)
 
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
 
       return if not @enabled
 
       proc = Proc.new {
-        if !material.deleted? and material.drawing_interface
-          material.drawing_interface.update_model_object
+        if !material.deleted? and OpenStudio.get_drawing_interface(material)
+          OpenStudio.get_drawing_interface(material).update_model_object
         end
       }
       Plugin.add_event( proc )
@@ -73,7 +73,7 @@ module OpenStudio
 
     #def onMaterialRefChange(materials, material)
     #
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
     #
     #  return if not @enabled
     #
@@ -84,7 +84,7 @@ module OpenStudio
 
     #def onMaterialRemove(materials, material)
     #
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
     #
     #  return if not @enabled
     #
@@ -93,7 +93,7 @@ module OpenStudio
 
     #def onMaterialSetCurrent(materials, material)
     #
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
     #
     #  return if not @enabled
     #
@@ -101,7 +101,7 @@ module OpenStudio
 
     #def onMaterialUndoRedo(materials, material)
     #
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}, @enabled = #{@enabled}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @enabled = #{@enabled}")
     #
     #  return if not @enabled
     #

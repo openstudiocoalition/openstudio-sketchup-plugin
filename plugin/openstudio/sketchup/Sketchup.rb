@@ -30,13 +30,11 @@
 require("openstudio/sketchup/Geom")
 
 
-# This file adds new methods to native SketchUp classes.
+module OpenStudio
 
-class Array
+  def self.is_subset_of?(array, other)
 
-  def is_subset_of?(other)
-
-    for element in self
+    for element in array
 
       element_matched = false
 
@@ -56,209 +54,25 @@ class Array
     return(true)
   end
 
-
-  def is_same_set?(other)
-    if (self.length == other.length and self.is_subset_of?(other))
+  def self.is_same_set?(array, other)
+    if (array.length == other.length and self.is_subset_of?(array, other))
       return(true)
     else
       return(false)
     end
   end
 
-end
-
-
-class Float
-
-  def round_to(decimal_places = 0)
-    if (decimal_places > 0)
-      precision = (10**(decimal_places)).to_f
-      return((self * precision).round / precision)
-    else
-      return(self.round)
-    end
-  end
-
-end
-
-
-class Sketchup::Model
-
-  # This attribute is a persistent string reference to an input file.
-  # It allows a SketchUp file to be reassociated with the correct input file.
-  def openstudio_path
-    return(get_attribute('OpenStudio', 'OpenStudioPath'))
-  end
-
-  def openstudio_path=(path)
-    OpenStudio::Plugin.log(OpenStudio::Trace, "#{current_method_name}")
-
-    set_attribute('OpenStudio', 'OpenStudioPath', path)
-  end
-
-  # returns the OpenStudio::ModelInterface associated with this Model
-  def model_interface
-    object = nil
-    if (id_string = get_attribute('OpenStudio', 'ModelInterface'))
-      begin
-        object = ObjectSpace._id2ref(id_string.to_i)
-      rescue
-        # The id_string does not reference an existing object!  Ignore the exception.
-      ensure
-        # Sometimes a bad reference can turn into a real object...but a random one, not the one we want.
-        if (object and not object.is_a?(OpenStudio::ModelInterface))
-          puts "Model.model_interface:  bad object reference"
-          object = nil
-        end
-      end
-    end
-    return(object)
-  end
-
-  def model_interface=(object)
-    OpenStudio::Plugin.log(OpenStudio::Trace, "#{current_method_name}")
-
-    set_attribute('OpenStudio', 'ModelInterface', object.object_id.to_s)
-  end
-
-  def openstudio_entities
-    result = []
-    entities.each {|e| result << e if e.model_object_handle }
-    return result
-  end
-  
-  def openstudio_materials
-    result = []
-    materials.each {|m| result << m if m.model_object_handle }
-    return result
-  end
-  
-  def delete_openstudio_entities
-    # DLM: for some reason there is no delete_attribute for SketchUp::Model
-    # delete_attribute('OpenStudio') # deletes entire attribute dictionary
-    set_attribute('OpenStudio', 'OpenStudioPath', nil)
-    set_attribute('OpenStudio', 'ModelInterface', nil)
-    entities.erase_entities(openstudio_entities)
-  end
-
-end
-
-class Sketchup::Entity
-
-  # returns a string
-  def model_object_handle
-    return(get_attribute('OpenStudio', 'Handle'))
-  end
-
-  # takes a OpenStudio::Handle or a string
-  def model_object_handle=(handle)
-    OpenStudio::Plugin.log(OpenStudio::Trace, "#{current_method_name}")
-
-    set_attribute('OpenStudio', 'Handle', handle.to_s)
-  end
-
-  # returns the OpenStudio::DrawingInterface associated with this Entity
-  def drawing_interface
-    object = nil
-    if (id_string = get_attribute('OpenStudio', 'DrawingInterface'))
-      begin
-        object = ObjectSpace._id2ref(id_string.to_i)
-      rescue
-        # The id_string does not reference an existing object!  Ignore the exception.
-      ensure
-        # Sometimes a bad reference can turn into a real object...but a random one, not the one we want.
-        if (object and not object.is_a?(OpenStudio::DrawingInterface))
-          puts "Entity.drawing_interface:  bad object reference"
-          object = nil
-          # To detect copy-paste between SketchUp sessions, could set 'object' to a value that can be detected on the
-          # receiving end by whichever Observer the entity is pasted into.
-        end
-      end
-    end
-    return(object)
-  end
-
-  def drawing_interface=(object)
-    OpenStudio::Plugin.log(OpenStudio::Trace, "#{current_method_name}")
-
-    set_attribute('OpenStudio', 'DrawingInterface', object.object_id.to_s)
-  end
-
-end
-
-
-class Sketchup::Color
-  # There's still some work to be done here:
-  #  Add hue=, saturation=, brightness=
-  #  Need reference for the hsba calcs.
-  #  There is not a perfect symmetry when converting back and forth between what you put into hsba and what you get back.
-
-  def rgba
-    return [red, green, blue, alpha]
-  end
-
-
-  def rgba=(color_array)
-    # For some reason, the 'self' is required here or else it doesn't work.
-    self.red = color_array[0]
-    self.green = color_array[1]
-    self.blue = color_array[2]
-    self.alpha = color_array[3]
-    return(self)
-  end
-
-
-  def hsba
-    # HSB = Hue, Saturation, Brightness; identical to HSV = hue, brightness, value
-    var_R = red / 255.to_f  # RGB values = 0 � 255
-    var_G = green / 255.to_f
-    var_B = blue / 255.to_f
-
-    var_Min = [var_R, var_G, var_B].min  # value of RGB
-    var_Max = [var_R, var_G, var_B].max  # value of RGB
-    del_Max = var_Max - var_Min          # Delta RGB value
-
-    v = var_Max
-
-    if (del_Max == 0)
-      # This is a gray, no chroma...
-      h = 0  # HSV results = 0 � 1
-      s = 0
-    else
-      # Chromatic data...
-      s = del_Max / var_Max
-
-      del_R = ( ( ( var_Max - var_R ) / 6 ) + ( del_Max / 2 ) ) / del_Max
-      del_G = ( ( ( var_Max - var_G ) / 6 ) + ( del_Max / 2 ) ) / del_Max
-      del_B = ( ( ( var_Max - var_B ) / 6 ) + ( del_Max / 2 ) ) / del_Max
-
-      if (var_R == var_Max)
-        h = del_B - del_G
-      elsif (var_G == var_Max)
-        h = (1 / 3) + del_R - del_B
-      elsif (var_B == var_Max)
-        h = (2 / 3) + del_G - del_R
-      end
-
-      h += 1 if (h < 0)
-      h -= 1 if (h > 1)
-    end
-
-    return([(h * 360).to_i, (s * 100).to_i, (v * 100).to_i, alpha])
-  end
-
-
-  def hsba=(color_array)
+  def self.set_hsba(color, color_array)
     h = color_array[0] / 360.to_f  # HSV values = 0 � 1
     s = color_array[1] / 100.to_f
     v = color_array[2] / 100.to_f
     a = color_array[3]
 
     if (s == 0)
-      self.red = v * 255
-      self.green = v * 255
-      self.blue = v * 255
-      self.alpha = a
+      color.red = v * 255
+      color.green = v * 255
+      color.blue = v * 255
+      color.alpha = a
     else
       var_h = h * 6
       var_h = 0 if (var_h == 6)  # H must be < 1
@@ -293,148 +107,176 @@ class Sketchup::Color
         var_b = var_2
       end
 
-      self.red = (var_r * 255).to_i  # RGB results = 0 � 255
-      self.green = (var_g * 255).to_i
-      self.blue = (var_b * 255).to_i
-      self.alpha = a
+      color.red = (var_r * 255).to_i  # RGB results = 0 � 255
+      color.green = (var_g * 255).to_i
+      color.blue = (var_b * 255).to_i
+      color.alpha = a
     end
-    return(self)
+    return(color)
+  end
+  
+  def self.get_openstudio_path(skp_model)
+    return(skp_model.get_attribute('OpenStudio', 'OpenStudioPath'))
   end
 
+  def self.set_openstudio_path(skp_model, path)
+    OpenStudio::Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
-  def hue
-    return hsba[0]
+    skp_model.set_attribute('OpenStudio', 'OpenStudioPath', path)
+  end
+  
+  def self.get_model_interface(skp_model)
+    object = nil
+    if (id_string = skp_model.get_attribute('OpenStudio', 'ModelInterface'))
+      begin
+        object = ObjectSpace._id2ref(id_string.to_i)
+      rescue
+        # The id_string does not reference an existing object!  Ignore the exception.
+      ensure
+        # Sometimes a bad reference can turn into a real object...but a random one, not the one we want.
+        if (object and not object.is_a?(OpenStudio::ModelInterface))
+          puts "OpenStudio.get_model_interface:  bad object reference"
+          object = nil
+        end
+      end
+    end
+    return(object)
   end
 
+  def self.set_model_interface(skp_model, object)
+    OpenStudio::Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
-  def saturation
-    return hsba[1]
+    skp_model.set_attribute('OpenStudio', 'ModelInterface', object.object_id.to_s)
+  end
+  
+  def self.get_openstudio_entities(skp_model)
+    result = []
+    skp_model.entities.each {|e| result << e if self.get_model_object_handle(e) }
+    return result
+  end
+  
+  def self.get_openstudio_materials(skp_model)
+    result = []
+    skp_model.materials.each {|m| result << m if self.get_model_object_handle(m) }
+    return result
+  end
+  
+  def self.delete_openstudio_entities(skp_model)
+    # DLM: for some reason there is no delete_attribute for SketchUp::Model
+    # delete_attribute('OpenStudio') # deletes entire attribute dictionary
+    skp_model.set_attribute('OpenStudio', 'OpenStudioPath', nil)
+    skp_model.set_attribute('OpenStudio', 'ModelInterface', nil)
+    skp_model.entities.erase_entities(skp_model.openstudio_entities)
+  end
+  
+  # returns a string
+  def self.get_model_object_handle(entity)
+    return(entity.get_attribute('OpenStudio', 'Handle'))
   end
 
+  # takes a OpenStudio::Handle or a string
+  def self.set_model_object_handle(entity, handle)
+    OpenStudio::Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
-  def brightness
-    return hsba[2]
+    entity.set_attribute('OpenStudio', 'Handle', handle.to_s)
   end
 
+  # returns the OpenStudio::DrawingInterface associated with this Entity
+  def self.get_drawing_interface(entity)
+    object = nil
+    if (id_string = entity.get_attribute('OpenStudio', 'DrawingInterface'))
+      begin
+        object = ObjectSpace._id2ref(id_string.to_i)
+      rescue
+        # The id_string does not reference an existing object!  Ignore the exception.
+      ensure
+        # Sometimes a bad reference can turn into a real object...but a random one, not the one we want.
+        if (object and not object.is_a?(OpenStudio::DrawingInterface))
+          puts "OpenStudio.get_drawing_interface:  bad object reference"
+          object = nil
+          # To detect copy-paste between SketchUp sessions, could set 'object' to a value that can be detected on the
+          # receiving end by whichever Observer the entity is pasted into.
+        end
+      end
+    end
+    return(object)
+  end
 
-  #def hue=(h)
-  #end
+  def self.set_drawing_interface(entity, object)
+    OpenStudio::Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
-end
-
-
-class Sketchup::Loop
-
-# should this return a polygon or a polygon loop?
-
-  def polygon_loop
+    entity.set_attribute('OpenStudio', 'DrawingInterface', object.object_id.to_s)
+  end
+  
+  def self.get_polygon_loop(loop)
     points = []
-    self.vertices.each do |vertex|
+    loop.vertices.each do |vertex|
       # DLM@20100920: weird bug in SU 8 that vertices can also return attribute dictionary for a loop's vertices
-      if vertex.class == Sketchup::Vertex
+      if vertex.is_a? Sketchup::Vertex
         points << vertex.position
       end
     end
-    return(Geom::PolygonLoop.new(points))
+    return(OpenStudio::PolygonLoop.new(points))
+  end
+  
+  def self.get_outer_polygon(face)
+    return(OpenStudio::Polygon.new(OpenStudio.get_polygon_loop(face.outer_loop)))
   end
 
-end
-
-
-
-
-class Sketchup::Face
-
-  def outer_polygon
-    return(Geom::Polygon.new(self.outer_loop.polygon_loop))
-  end
-
-
-  def full_polygon
-    this_polygon = self.outer_polygon
-    for this_loop in self.loops
+  def self.get_full_polygon(face)
+    this_polygon = OpenStudio.get_outer_polygon(face)
+    for this_loop in face.loops
       if (not this_loop.outer?)
-        this_polygon.add_loop(this_loop.polygon_loop.points)
+        this_polygon.add_loop(OpenStudio.get_polygon_loop(this_loop))
       end
     end
     return(this_polygon)
   end
 
-
-  def contains_point?(point, include_border = false)
-    return(Geom.point_in_polygon(point, self.full_polygon, include_border))
+  def self.face_contains_point?(face, point, include_border = false)
+    return(OpenStudio.point_in_polygon(point, self.get_full_polygon(face), include_border))
   end
 
-
-  def intersect(other_face)
-    return(Geom.intersect_polygon_polygon(self.full_polygon, other_face.full_polygon))  # array of polygons
+  def self.intersect_faces(face, other_face)
+    return(OpenStudio.intersect_polygon_polygon(self.get_full_polygon(face), self.get_full_polygon(other_face)))  # array of polygons
   end
-
-end
-
-
-
-class Sketchup::ShadowInfo
-
-  # Still need to reconcile daylight saving time between EnergyPlus and SketchUp
-
-
-  def time
+  
+  def self.get_time(shadow_info)
     # API bug:  ShadowTime is returning the hour incorrectly in UTC/GMT time, but the time zone is (correctly) the local one.
     #           Also year is ALWAYS 2002.
     # Example:  Noon on Nov 8 returns Fri Nov 08 04:50:11 Mountain Standard Time 2002
     # SUBTRACT the utc offset to get the correct local time.
-    return(convert_to_utc(self['ShadowTime']))
+    return(self.convert_to_utc(shadow_info['ShadowTime']))
   end
 
-
-  def time=(new_time)
+  def self.set_time(shadow_info, new_time)
     # API bug:  ShadowTime is returning the hour incorrectly in UTC/GMT time, but the time zone is (correctly) the local one.
     #           Also year is ALWAYS 2002.
     # Example:  Noon on Nov 8 returns Fri Nov 08 04:50:11 Mountain Standard Time 2002
     # ADD the utc offset to set the correct local time.
-    self['ShadowTime'] = new_time + new_time.utc_offset
+    shadow_info['ShadowTime'] = new_time + new_time.utc_offset
     # if ShadowTime is already in UTC, this won't do anything...offset = 0
     return(time)
   end
 
-
-  def dst?
-    return(time.dst?)
+  def self.get_sunrise(shadow_info)
+    return(self.convert_to_utc(shadow_info['SunRise']))
   end
 
-
-  def sunrise
-    return(convert_to_utc(self['SunRise']))
+  def self.get_sunset(shadow_info)
+    return(self.convert_to_utc(shadow_info['SunSet']))
+  end
+  
+  def self.get_north_angle(shadow_info)
+    return(shadow_info['NorthAngle'])
   end
 
-
-  def sunset
-    return(convert_to_utc(self['SunSet']))
-  end
-
-
-  def zone_offset=(new_zone_offset)
-    # Sets the time zone in hours offset from UTC/GMT.  NOTE:  Negative numbers indicate Western hemisphere.
-    # API bug:  Setting ShadowTime['TZOffset'] alone does not set this.
-    self['TZOffset'] = new_zone_offset
-    # No way to change the time zone for the Time object in Ruby...?
-    # Might consider putting all time as UTC, handle daylight savings myself.
-    return(nil)
-  end
-
-  def north_angle
-    return(self['NorthAngle'])
-  end
-
-private
-  def convert_to_utc(time)
+  def self.convert_to_utc(time)
     # API bug:  ShadowTime is returning the hour incorrectly in UTC/GMT time, but the time zone is (correctly) the local one.
     #           Also year is ALWAYS 2002.
     # Example:  Noon on Nov 8 returns Fri Nov 08 04:50:11 Mountain Standard Time 2002
     # SUBTRACT the utc offset to get the correct local time.
     a = (time - time.utc_offset).to_a
-    return( Time.utc(a[0], a[1], a[2], a[3], a[4], Time.now.year, a[6], a[7], a[8], a[9]) )
+    return( ::Time.utc(a[0], a[1], a[2], a[3], a[4], ::Time.now.year, a[6], a[7], a[8], a[9]) )
   end
-
 end

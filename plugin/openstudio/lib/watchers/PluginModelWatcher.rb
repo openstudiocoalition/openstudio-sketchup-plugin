@@ -40,27 +40,27 @@ module OpenStudio
     end
 
     #def clearState
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
     #def onChangeWorkspace
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
     #def onBecomeDirty
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
     #def onBecomeClean
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
     def onObjectAdd(addedObject)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
 
       # wrapper object is not fully constructed yet, just store the handle
@@ -68,7 +68,7 @@ module OpenStudio
     end
 
     def processAddedObjects
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       openstudio_model = @model_interface.openstudio_model
 
@@ -110,7 +110,7 @@ module OpenStudio
 
     # this is called before the object has been removed
     def onObjectRemove(removedObject)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
 
       if drawing_interface = removedObject.drawing_interface

@@ -32,17 +32,18 @@ require("openstudio/sketchup/Geom")
 
 
 # Everything in this module should be strictly based on entities and not drawing interfaces.
+module OpenStudio
 module DrawingUtils
 
   # returns true if entity is the base face of face
   def DrawingUtils.is_base_face(face, face_normal, face_points, entity)
-    if (entity.class == Sketchup::Face and not entity.equal?(face))
+    if (entity.is_a? Sketchup::Face and not entity.equal?(face))
       # Eliminate faces that are not parallel.
       # Another test would be to check if both are in the same plane.
       # There are some precision issues with 'face.plane' however.
       if (entity.normal.parallel?(face_normal))
         # Detect if the vertices of the entity are a subset of this face.
-        if (face_points.is_subset_of?(entity.full_polygon.reduce.points))
+        if (OpenStudio::is_subset_of?(face_points, OpenStudio.get_full_polygon(entity).reduce.points))
           return true
         end
       end
@@ -57,10 +58,10 @@ module DrawingUtils
     first_guess = nil
 
     # try the current parent as a first guess
-    if drawing_interface = face.drawing_interface
-      if drawing_interface.class == OpenStudio::SubSurface
+    if drawing_interface = OpenStudio.get_drawing_interface(face)
+      if drawing_interface.is_a? OpenStudio::SubSurface
         if parent = drawing_interface.parent
-          if temp = parent.entity and temp.class == Sketchup::Face
+          if temp = parent.entity and temp.is_a? Sketchup::Face
             first_guess = temp
           end
         end
@@ -68,7 +69,7 @@ module DrawingUtils
     end
 
     face_normal = face.normal
-    face_points = face.full_polygon.reduce.points
+    face_points = OpenStudio.get_full_polygon(face).reduce.points
 
     all_connected = face.all_connected
     if first_guess
@@ -98,7 +99,7 @@ module DrawingUtils
         #    check_entity(entity)  ...test before continuing
         #
         #    @entity = entity
-        #    @entity.drawing_interface = self
+        #    OpenStudio.set_drawing_interface(@entity, self)
         #    @entity.model_object_key = @model_object.key
         #      ? maybe call on_changed_entity
         #    ##add_observers  (optional)  or do externally
@@ -114,12 +115,12 @@ module DrawingUtils
   def DrawingUtils.clean_entity(entity)
     # This could be added as a method on Face and Group.
 
-    if (entity.drawing_interface)
-      entity.drawing_interface.remove_observers
+    if (OpenStudio.get_drawing_interface(entity))
+      OpenStudio.get_drawing_interface(entity).remove_observers
     end
 
-    entity.drawing_interface = nil
-    entity.model_object_handle = nil
+    OpenStudio.set_drawing_interface(entity, nil)
+    OpenStudio.set_model_object_handle(entity, nil)
   end
 
 
@@ -140,7 +141,7 @@ module DrawingUtils
       raise("entity.deleted? is true")
     end
 
-    drawing_interface = entity.drawing_interface
+    drawing_interface = OpenStudio.get_drawing_interface(entity)
     if drawing_interface.nil? or drawing_interface.deleted?
       raise("drawing_interface.nil? or drawing_interface.deleted? is true")
     end
@@ -163,8 +164,8 @@ module DrawingUtils
       return(false)
     end
 
-    new_face_points = entity.full_polygon.reduce.points
-    old_face_points = old_entity.full_polygon.reduce.points
+    new_face_points = OpenStudio.get_full_polygon(entity).reduce.points
+    old_face_points = OpenStudio.get_full_polygon(old_entity).reduce.points
 
     OpenStudio::Plugin.log(OpenStudio::Info, "new_face = #{entity}, entityID = #{entity.entityID}")
     OpenStudio::Plugin.log(OpenStudio::Info, "new_face_points = [#{new_face_points.join(',')}]")
@@ -175,7 +176,7 @@ module DrawingUtils
 
     # in the swap case, new_entity is the base surface and old_entity is the sub surface
 
-    swap = old_face_points.is_subset_of?(new_face_points)
+    swap = OpenStudio::is_subset_of?(old_face_points, new_face_points)
 
     OpenStudio::Plugin.log(OpenStudio::Info, "swap = #{swap}")
 
@@ -188,11 +189,9 @@ module DrawingUtils
     end
   end
 
-
-
   def DrawingUtils.swapped_face_on_pushpull?(entity)   # swal_on_pushpull?
     return(false)
   end
 
-
+end
 end

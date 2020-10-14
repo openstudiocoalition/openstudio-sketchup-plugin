@@ -32,7 +32,7 @@ module OpenStudio
   class PluginInspectorDialog < Modeleditor::InspectorDialog
 
     def initialize
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       super("SketchUpPlugin".to_InspectorDialogClient, OpenStudio::SketchUpWidget)
 
@@ -54,12 +54,12 @@ module OpenStudio
     end
 
     #def onIddObjectTypeChanged(iddObjectType)
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}, enabled? = #{enabled?}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, enabled? = #{enabled?}")
     #  super
     #end
 
     def onSelectedObjectHandlesChanged(handles)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, enabled? = #{enabled?}, handles = #{handles}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, enabled? = #{enabled?}, handles = #{handles}")
       super
 
       if enabled?
@@ -74,7 +74,7 @@ module OpenStudio
     end
 
     #def onModelChanged(model)
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}, enabled? = #{enabled?}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, enabled? = #{enabled?}")
     #  super
     #end
 
@@ -121,16 +121,16 @@ module OpenStudio
     end
 
     def show
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, enabled? = #{enabled?}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, enabled? = #{enabled?}")
       update
       super
       activateWindow
 
-      #$OpenStudioApplicationClass.instance.processEvents
+      #OpenStudio::ApplicationClass.instance.processEvents
     end
 
     def update
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}, enabled? = #{enabled?}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, enabled? = #{enabled?}")
 
       model_interface = Plugin.model_manager.model_interface
       if model_interface

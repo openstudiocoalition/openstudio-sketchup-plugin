@@ -27,15 +27,16 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
-if defined?(OpenStudio::Modeleditor::PathWatcher)
-  $OpenStudioPathWatcherClass = OpenStudio::Modeleditor::PathWatcher
-else
-  $OpenStudioPathWatcherClass = OpenStudio::PathWatcher
-end
 
 module OpenStudio
 
-  PluginPathWatcher = Class.new($OpenStudioPathWatcherClass) do
+  if defined?(OpenStudio::Modeleditor::PathWatcher)
+    OpenStudioPathWatcherClass = OpenStudio::Modeleditor::PathWatcher
+  else
+    OpenStudioPathWatcherClass = OpenStudio::PathWatcher
+  end
+
+  PluginPathWatcher = Class.new(OpenStudio::OpenStudioPathWatcherClass) do
   
     def initialize(model_interface, path)
       super(path)
@@ -44,7 +45,7 @@ module OpenStudio
     end
 
     def onPathChanged
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # ignore any further signals until we finish processing
       disable

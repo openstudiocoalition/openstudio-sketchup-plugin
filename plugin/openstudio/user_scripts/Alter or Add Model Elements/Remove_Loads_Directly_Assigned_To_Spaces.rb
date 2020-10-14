@@ -27,6 +27,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########################################################################################################################
 
+module OpenStudio
+
 # Each user script is implemented within a class that derives from OpenStudio::Ruleset::UserScript
 class RemoveLoadsDirectlyAssignedToSpaces < OpenStudio::Ruleset::ModelUserScript
 
@@ -82,3 +84,5 @@ end
 
 # this call registers your script with the OpenStudio SketchUp plug-in
 RemoveLoadsDirectlyAssignedToSpaces.new.registerWithApplication
+
+end

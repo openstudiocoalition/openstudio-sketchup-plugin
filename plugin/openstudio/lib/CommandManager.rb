@@ -85,7 +85,7 @@ module OpenStudio
           openstudio_dir = Plugin.model_manager.model_interface.openstudio_dir
         end
 
-        if (path = UI.open_panel("Open OpenStudio Model File", openstudio_dir, "*.osm"))  # bug in SU7 prevents file filters from working
+        if (path = OpenStudio.open_panel("Open OpenStudio Model File", openstudio_dir, "*.osm"))  # bug in SU7 prevents file filters from working
 
           success = Plugin.model_manager.open_openstudio(path, Sketchup.active_model)
 
@@ -123,7 +123,7 @@ module OpenStudio
     def save_openstudio_as
       result = false
 
-      if (path = UI.save_panel("Save OpenStudio Model", Plugin.model_manager.model_interface.openstudio_dir, Plugin.model_manager.model_interface.openstudio_name))
+      if (path = OpenStudio.save_panel("Save OpenStudio Model", Plugin.model_manager.model_interface.openstudio_dir, Plugin.model_manager.model_interface.openstudio_name))
 
         extension = OpenStudio::toString(OpenStudio::Path.new(path).extension)
         stem = OpenStudio::toString(OpenStudio::Path.new(path).stem)
@@ -199,7 +199,7 @@ module OpenStudio
           openstudio_dir = Plugin.model_manager.model_interface.openstudio_dir
         end
 
-        if (path = UI.open_panel("Import OpenStudio Model", openstudio_dir, "*.osm"))  # bug in SU7 prevents file filters from working
+        if (path = OpenStudio.open_panel("Import OpenStudio Model", openstudio_dir, "*.osm"))  # bug in SU7 prevents file filters from working
 
           success = Plugin.model_manager.open_openstudio(path, Sketchup.active_model, false, true)
 
@@ -220,7 +220,7 @@ module OpenStudio
         dir = Plugin.model_manager.model_interface.openstudio_dir
       end
 
-      if (path = UI.open_panel("Import Constructions", dir, "*.osm"))  # bug in SU7 prevents file filters from working
+      if (path = OpenStudio.open_panel("Import Constructions", dir, "*.osm"))  # bug in SU7 prevents file filters from working
         # Save the dir so we can start here next time
         Plugin.write_pref("Last Constructions Import Dir", File.dirname(path))
 
@@ -243,7 +243,7 @@ module OpenStudio
         dir = Plugin.model_manager.model_interface.openstudio_dir
       end
 
-      if (path = UI.open_panel("Import Schedules", dir, "*.osm"))  # bug in SU7 prevents file filters from working
+      if (path = OpenStudio.open_panel("Import Schedules", dir, "*.osm"))  # bug in SU7 prevents file filters from working
         # Save the dir so we can start here next time
         Plugin.write_pref("Last Schedules Import Dir", File.dirname(path))
 
@@ -266,7 +266,7 @@ module OpenStudio
         dir = Plugin.model_manager.model_interface.openstudio_dir
       end
 
-      if (path = UI.open_panel("Import Space Types", dir, "*.osm"))  # bug in SU7 prevents file filters from working
+      if (path = OpenStudio.open_panel("Import Space Types", dir, "*.osm"))  # bug in SU7 prevents file filters from working
         # Save the dir so we can start here next time
         Plugin.write_pref("Last Space Types Import Dir", File.dirname(path))
 
@@ -290,7 +290,7 @@ module OpenStudio
           idf_dir = Plugin.model_manager.model_interface.openstudio_dir
         end
 
-        if (path = UI.open_panel("Import EnergyPlus Idf", idf_dir, "*.idf"))  # bug in SU7 prevents file filters from working
+        if (path = OpenStudio.open_panel("Import EnergyPlus Idf", idf_dir, "*.idf"))  # bug in SU7 prevents file filters from working
 
           success = false
 
@@ -318,7 +318,7 @@ module OpenStudio
         dir = Plugin.model_manager.model_interface.openstudio_dir
       end
 
-      if (path = UI.open_panel("Import EnergyPlus Idf Constructions", dir, "*.idf; *.imf"))  # bug in SU7 prevents file filters from working
+      if (path = OpenStudio.open_panel("Import EnergyPlus Idf Constructions", dir, "*.idf; *.imf"))  # bug in SU7 prevents file filters from working
         # Save the dir so we can start here next time
         Plugin.write_pref("Last Idf Constructions Import Dir", File.dirname(path))
 
@@ -341,7 +341,7 @@ module OpenStudio
         dir = Plugin.model_manager.model_interface.openstudio_dir
       end
 
-      if (path = UI.open_panel("Import EnergyPlus Idf Schedules", dir, "*.idf; *.imf"))  # bug in SU7 prevents file filters from working
+      if (path = OpenStudio.open_panel("Import EnergyPlus Idf Schedules", dir, "*.idf; *.imf"))  # bug in SU7 prevents file filters from working
         # Save the dir so we can start here next time
         Plugin.write_pref("Last Idf Schedules Import Dir", File.dirname(path))
 
@@ -365,7 +365,7 @@ module OpenStudio
           gbxml_dir = Plugin.model_manager.model_interface.openstudio_dir
         end
 
-        if (path = UI.open_panel("Import gbXML Model", gbxml_dir, "*.xml"))  # bug in SU7 prevents file filters from working
+        if (path = OpenStudio.open_panel("Import gbXML Model", gbxml_dir, "*.xml"))  # bug in SU7 prevents file filters from working
 
           success = false
 
@@ -423,7 +423,7 @@ module OpenStudio
 
     def export_openstudio
 
-      if (path = UI.save_panel("Export OpenStudio Model", Plugin.model_manager.model_interface.openstudio_dir, Plugin.model_manager.model_interface.openstudio_name))
+      if (path = OpenStudio.save_panel("Export OpenStudio Model", Plugin.model_manager.model_interface.openstudio_dir, Plugin.model_manager.model_interface.openstudio_name))
 
         extension = OpenStudio::toString(OpenStudio::Path.new(path).extension)
         stem = OpenStudio::toString(OpenStudio::Path.new(path).stem)
@@ -479,7 +479,7 @@ module OpenStudio
 
     def export_untranslated_idf
 
-      if (path = UI.save_panel("Export Untranslated EnergyPlus Idf", Plugin.model_manager.model_interface.openstudio_dir, Plugin.model_manager.model_interface.openstudio_name.gsub(/\.osm$/, "-Untranslated.idf")))
+      if (path = OpenStudio.save_panel("Export Untranslated EnergyPlus Idf", Plugin.model_manager.model_interface.openstudio_dir, Plugin.model_manager.model_interface.openstudio_name.gsub(/\.osm$/, "-Untranslated.idf")))
 
         extension = OpenStudio::toString(OpenStudio::Path.new(path).extension)
         stem = OpenStudio::toString(OpenStudio::Path.new(path).stem)
@@ -541,7 +541,7 @@ module OpenStudio
         end
       end
 
-      if (path = UI.save_panel("Export EnergyPlus Idf", Plugin.model_manager.model_interface.openstudio_dir, Plugin.model_manager.model_interface.openstudio_name.gsub(/\.osm$/, ".idf")))
+      if (path = OpenStudio.save_panel("Export EnergyPlus Idf", Plugin.model_manager.model_interface.openstudio_dir, Plugin.model_manager.model_interface.openstudio_name.gsub(/\.osm$/, ".idf")))
 
         extension = OpenStudio::toString(OpenStudio::Path.new(path).extension)
         stem = OpenStudio::toString(OpenStudio::Path.new(path).stem)
@@ -603,7 +603,7 @@ module OpenStudio
         end
       end
 
-      if (path = UI.save_panel("Export gbXML Model", Plugin.model_manager.model_interface.openstudio_dir, Plugin.model_manager.model_interface.openstudio_name.gsub(/\.osm$/, ".xml")))
+      if (path = OpenStudio.save_panel("Export gbXML Model", Plugin.model_manager.model_interface.openstudio_dir, Plugin.model_manager.model_interface.openstudio_name.gsub(/\.osm$/, ".xml")))
 
         extension = OpenStudio::toString(OpenStudio::Path.new(path).extension)
         stem = OpenStudio::toString(OpenStudio::Path.new(path).stem)

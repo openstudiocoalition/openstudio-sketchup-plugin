@@ -37,7 +37,7 @@ module OpenStudio
   class Luminaire < DrawingInterface
 
     def initialize
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
       @observer = ComponentObserver.new(self)
     end
@@ -45,7 +45,7 @@ module OpenStudio
 ##### Begin override methods for the input object #####
 
     def self.model_object_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_object = Plugin.model_manager.model_interface.openstudio_model.getLuminaire(handle)
       if not model_object.empty?
@@ -58,7 +58,7 @@ module OpenStudio
     end
 
     def self.new_from_handle(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       drawing_interface = Luminaire.new
       model_object = model_object_from_handle(handle)
@@ -69,7 +69,7 @@ module OpenStudio
     end
 
     def create_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       model_watcher_enabled = @model_interface.model_watcher.disable
       added_object = @model_interface.openstudio_model.addObject(OpenStudio::IdfObject.new("OS_Luminaire".to_IddObjectType))
@@ -84,7 +84,7 @@ module OpenStudio
     end
 
     def check_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # Look up the Space drawing interface (might fail if the reference is bad)
       if (not parent_from_model_object)
@@ -102,11 +102,11 @@ module OpenStudio
 
     # Updates the ModelObject with new information from the SketchUp entity.
     def update_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
 
       if (valid_entity?)
-        if (@parent.class == Space)
+        if (@parent.is_a? Space)
           watcher_enabled = disable_watcher
 
           @model_object.setSpace(@parent.model_object)  # Parent should already have been updated.
@@ -124,7 +124,7 @@ module OpenStudio
 
     # Returns the parent drawing interface according to the input object.
     def parent_from_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       parent = nil
       if (@model_object)
@@ -139,7 +139,7 @@ module OpenStudio
 ##### Begin override methods for the entity #####
 
     def create_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (@parent.nil?)
       #  # Create a new space just for this Luminaire.
@@ -158,7 +158,7 @@ module OpenStudio
       end
 
       # add the component definition
-      path = "#{$OPENSTUDIO_SKETCHUPPLUGIN_DIR}/resources/components/OpenStudio_Luminaire.skp"
+      path = "#{OpenStudio::SKETCHUPPLUGIN_DIR}/resources/components/OpenStudio_Luminaire.skp"
       definition = Sketchup.active_model.definitions.load(path)
 
       # parent entity is first a Sketchup::Group corresponding to a space
@@ -178,13 +178,13 @@ module OpenStudio
 
     # Error checks, finalization, or cleanup needed after the entity is drawn.
     def confirm_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       return(super)
     end
 
     # Updates the SketchUp entity with new information from the ModelObject.
     def update_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       # do not want to call super if just want to redraw
       super
@@ -214,20 +214,20 @@ module OpenStudio
     # Final cleanup of the entity.
     # This method is called by the model interface after the entire input file is drawn.
     def cleanup_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
     end
 
     # Returns the parent drawing interface according to the entity.
     def parent_from_entity
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       parent = nil
       if (valid_entity?)
         # entity class will be a ComponentInstance
         # parent class will be a ComponentDefinition with one instance
-        if (@entity.parent.class == Sketchup::ComponentDefinition)
-          parent = @entity.parent.instances.first.drawing_interface
+        if (@entity.parent.is_a? Sketchup::ComponentDefinition)
+          parent = OpenStudio.get_drawing_interface(@entity.parent.instances.first)
         else
           # Somehow got outside of a ComponentInstance--maybe the ComponentInstance was exploded.
         end
@@ -240,7 +240,7 @@ module OpenStudio
 ##### Begin new methods for the interface #####
 
     def set_entity_name
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if (@model_object.name.empty?)
         @entity.name = "Luminaire:  " + "(Untitled)"
@@ -251,16 +251,16 @@ module OpenStudio
 
     # Gets the transformation of the ModelObject as it literally appears in the input fields.
     def model_object_transformation
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
-      return Geom.transformation_from_openstudio(@model_object.transformation)
+      return OpenStudio::transformation_from_openstudio(@model_object.transformation)
     end
 
     # Sets the transformation of the ModelObject as it literally appears in the input fields.
     def model_object_transformation=(transform)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
-      @model_object.setTransformation(transform.to_openstudio_transformation)
+      @model_object.setTransformation(OpenStudio::transformation_to_openstudio(transform))
     end
 
   end

@@ -39,7 +39,7 @@ module OpenStudio
     end
 
     def onChangeIdfObject
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
 
       # check if we have already recieved this signal in the current OpenStudio Model event loop
@@ -53,7 +53,7 @@ module OpenStudio
     end
 
     def call_on_change_model_object
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       @call_on_change_model_object_scheduled = false
 
@@ -64,38 +64,38 @@ module OpenStudio
     end
 
     #def onDataFieldChange
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
     #def onNameChange
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
     #def onBecomeDirty
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
     #def onBecomeClean
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
     #def clearState
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
     #def onRelationshipChange(index, newHandle, oldHandle)
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
     # this is called after the object has been removed
     def onRemoveFromWorkspace(handle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
 
       # DLM: scheduling on_delete_model_object for the next event loop was a problem for the window to wall ratio script

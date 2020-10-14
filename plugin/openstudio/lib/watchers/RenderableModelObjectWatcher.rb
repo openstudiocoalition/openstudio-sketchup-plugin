@@ -42,37 +42,37 @@ module OpenStudio
     end
 
     #def onChangeIdfObject
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
     #def onDataFieldChange
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
     #def onNameChange
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
     #def onBecomeDirty
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
     #def onBecomeClean
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
     #def clearState
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
     def onRelationshipChange(index, newHandle, oldHandle)
-      Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
       super
 
       if i = @rendering_indices.index(index)
@@ -83,7 +83,7 @@ module OpenStudio
     end
 
     #def onRemoveFromWorkspace(handle)
-    #  Plugin.log(OpenStudio::Trace, "#{current_method_name}")
+    #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
     #  super
     #end
 
