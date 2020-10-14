@@ -73,7 +73,7 @@ class DiagnosticScript < OpenStudio::Ruleset::ModelUserScript
       return false
     end
 
-    open_path = runner.getStringArgumentValue("open_path",user_arguments)
+    open_path = runner.getPathArgumentValue("open_path",user_arguments).to_s
     remove_errors = runner.getBoolArgumentValue("remove_errors",user_arguments)
     remove_warnings = runner.getBoolArgumentValue("remove_warnings",user_arguments)
 

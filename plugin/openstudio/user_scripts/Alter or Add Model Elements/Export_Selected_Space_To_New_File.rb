@@ -64,7 +64,7 @@ class ExportSpaces < OpenStudio::Ruleset::ModelUserScript
       return false
     end
 
-    osmPath_2 = runner.getStringArgumentValue("save_path",user_arguments)
+    osmPath_2 = runner.getPathArgumentValue("save_path",user_arguments).to_s
 
     # stop script if no spaces are selected.
     anyInSelection = false
