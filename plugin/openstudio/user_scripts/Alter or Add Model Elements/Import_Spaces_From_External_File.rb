@@ -63,7 +63,7 @@ class ImportSpaces < OpenStudio::Ruleset::ModelUserScript
       return false
     end
 
-    osmPath_2 = runner.getStringArgumentValue("import_path",user_arguments)
+    osmPath_2 = runner.getPathArgumentValue("import_path",user_arguments).to_s
     if osmPath_2.empty?
       runner.registerError("Non-empty path argument is required.")
       return false

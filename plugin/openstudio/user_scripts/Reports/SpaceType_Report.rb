@@ -217,7 +217,7 @@ class WriteSpaceTypeReport < OpenStudio::Ruleset::ModelUserScript
       return false
     end
 
-    save_path = runner.getStringArgumentValue("save_path",user_arguments)
+    save_path = runner.getPathArgumentValue("save_path",user_arguments).to_s
 
     # create file
     File.open(save_path, 'w') do |file|

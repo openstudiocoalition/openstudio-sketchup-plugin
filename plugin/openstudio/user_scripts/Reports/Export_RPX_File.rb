@@ -71,7 +71,7 @@ class ExportRPXFile < OpenStudio::Ruleset::ModelUserScript
     end
 
     thermal_zone = runner.getOptionalWorkspaceObjectChoiceValue("thermal_zone",user_arguments,model) #model is passed in because of argument type
-    save_path = runner.getStringArgumentValue("save_path",user_arguments)
+    save_path = runner.getPathArgumentValue("save_path",user_arguments).to_s
 
     if thermal_zone.empty?
       handle = runner.getStringArgumentValue("thermal_zone",user_arguments)
