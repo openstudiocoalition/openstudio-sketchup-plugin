@@ -34,7 +34,7 @@ do_load = true
 
 # check current settings
 openstudio_dir = Sketchup.read_default("OpenStudio", "OpenStudioDir")
-  
+
 while true
 
   if openstudio_dir.nil? || !File.exists?(openstudio_dir)
@@ -54,20 +54,20 @@ while true
         defaults = ['/Applications/OpenStudio-2*']
       end
     end
-    
+
     input = UI.inputbox(prompts, defaults, "Select OpenStudio Root Directory.")
-    
+
     # check if user cancelled
     if input.is_a? FalseClass
       do_load = false
       break
     end
-    
+
     openstudio_dir = input[0]
     openstudio_dir.gsub('\\', '/')
 
   end
-  
+
   # see if we can find the openstudio ruby file
   key_file = nil
   if sketchup_version >= 19
@@ -75,14 +75,14 @@ while true
   else
     key_file = File.join(openstudio_dir, "Ruby/openstudio.rb")
   end
-  
+
   if File.exists?(key_file)
     Sketchup.write_default("OpenStudio", "OpenStudioDir", openstudio_dir)
     break
   else
     openstudio_dir = nil
   end
-  
+
   UI.messagebox("File '#{key_file}' does not exist", MB_OK)
 end
 
