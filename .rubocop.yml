@@ -3,22 +3,25 @@ require: rubocop-sketchup
 AllCops:
   DisabledByDefault: true
   DisplayStyleGuide: true
+  Exclude:
+    - 'developer/GitHubIssueStats.rb'
+    - 'plugin/openstudio/startup.rb' #\lib\rubocop\sketchup\no_comment_disable.rb
   SketchUp:
-    SourcePath: src # Path to extension sources in project directory.
+    SourcePath: plugin # Path to extension sources in project directory.
     EncryptedExtension: false # Enable if you plan to encrypt your extension.
-    TargetSketchUpVersion: 2016 M1
+    TargetSketchUpVersion: 2019
 
 SketchupDeprecations:
   Enabled: true
 
 SketchupPerformance:
-  Enabled: true
+  Enabled: false
 
 SketchupRequirements:
   Enabled: true
 
 SketchupSuggestions:
-  Enabled: true
+  Enabled: false
 
 SketchupBugs:
   Enabled: true

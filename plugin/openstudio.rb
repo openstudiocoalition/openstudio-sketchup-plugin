@@ -31,8 +31,8 @@ require 'extensions.rb'   # defines the SketchupExtension class
 require 'rbconfig'
 
 module OpenStudio
-  SKETCHUPPLUGIN_NAME = "OpenStudio" 
-  SKETCHUPPLUGIN_VERSION = "1.0.1" 
+  SKETCHUPPLUGIN_NAME = "OpenStudio"
+  SKETCHUPPLUGIN_VERSION = "1.1.0"
   SKETCHUPPLUGIN_LAUNCH_GETTING_STARTED_ON_START = false
 end
 
