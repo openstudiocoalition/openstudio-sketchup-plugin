@@ -37,8 +37,7 @@ ruby_copyright += "#############################################################
 # first do c++
 
 # exceptions are files that are not part of OpenStudio
-exceptions = [basepath + "/src/qtwinmigrate/",
-              "mainpage.hpp"]
+exceptions = [basepath + "/developer"]
 
 # glob for hpp and cpp
 files = Dir.glob(basepath + "/src/**/*.[ch]pp")
@@ -96,7 +95,7 @@ end
 exceptions = []
 
 # glob for rb
-files = Dir.glob(basepath + "/ruby/**/*.rb")
+files = Dir.glob(basepath + "/plugin/**/*.rb")
 
 # reject exceptions
 files.reject! do |p|
