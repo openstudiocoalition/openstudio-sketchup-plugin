@@ -330,6 +330,8 @@ module OpenStudio
     # run a user script, returns true if script runs with no errors
     def run_user_script(name)
 
+      reset()
+
       user_script = nil
       @user_scripts.each do |script|
         if script.name == name
