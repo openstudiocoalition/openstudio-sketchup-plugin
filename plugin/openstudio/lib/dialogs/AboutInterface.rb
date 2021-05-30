@@ -1,5 +1,5 @@
 ########################################################################################################################
-#  OpenStudio(R), Copyright (c) 2008-2020, OpenStudio Coalition and other contributors. All rights reserved.
+#  OpenStudio(R), Copyright (c) 2008-2021, OpenStudio Coalition and other contributors. All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 #  following conditions are met:
@@ -42,6 +42,7 @@ module OpenStudio
 
     def populate_hash
       @hash['OPENSTUDIO_SKETCHUPPLUGIN_VERSION'] = "#{Plugin.version}"
+      @hash['OPENSTUDIO_APPLICATION_DIR'] = "#{Sketchup.read_default("OpenStudio", "OpenStudioDir")}"
       @hash['OPENSTUDIO_VERSION'] = "#{OpenStudio::openStudioVersion}"
     end
 
