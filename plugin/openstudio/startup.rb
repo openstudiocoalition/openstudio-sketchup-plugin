@@ -104,7 +104,12 @@ if do_load
       load("openstudio/lib/PluginManager.rb")
     end
   rescue LoadError => e
-    UI.messagebox("Error loading OpenStudio SketchUp Plug-In:\n  #{e.message}", MB_OK)
+    Sketchup.write_default("OpenStudio", "OpenStudioDir", nil)
+
+    result = UI.messagebox("Error loading OpenStudio SketchUp Plug-In:\n  #{e.message}\n\nDo you want to check the version compatibility matrix?", MB_YESNO)
+    if result == IDYES
+      UI.openURL("https://github.com/openstudiocoalition/openstudio-sketchup-plugin/wiki/OpenStudio-SketchUp-Plug-in-Wiki#openstudio-sketchup-plug-in-version-compatibility-matrix")
+    end
   end
 else
   UI.messagebox("User cancelled loading OpenStudio SketchUp Plug-In", MB_OK)
