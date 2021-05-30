@@ -42,6 +42,7 @@ module OpenStudio
 
     def populate_hash
       @hash['OPENSTUDIO_SKETCHUPPLUGIN_VERSION'] = "#{Plugin.version}"
+      @hash['OPENSTUDIO_APPLICATION_DIR'] = "#{Sketchup.read_default("OpenStudio", "OpenStudioDir")}"
       @hash['OPENSTUDIO_VERSION'] = "#{OpenStudio::openStudioVersion}"
     end
 
