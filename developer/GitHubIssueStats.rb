@@ -2,10 +2,10 @@ require 'github_api'
 require 'date'
 require 'yaml'
 
-begin_date = Time.parse('2020-4-27' + 'T06:00:00Z')
+begin_date = Time.parse('2020-10-31' + 'T06:00:00Z')
 
 end_date = Time.now
-end_date = Time.parse('2020-10-31' + 'T006:00:00Z')
+end_date = Time.parse('2021-05-31' + 'T006:00:00Z')
 
 repo_owner = 'openstudiocoalition'
 repo = 'openstudio-sketchup-plugin'
