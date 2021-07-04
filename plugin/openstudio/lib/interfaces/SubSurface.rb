@@ -267,7 +267,12 @@ module OpenStudio
         if (@parent.is_a? Surface)
           watcher_enabled = disable_watcher
 
+          surface_empty = @model_object.getTarget(4).empty?
           @model_object.setSurface(@parent.model_object)  # Parent should already have been updated.
+
+          if surface_empty
+            @model_object.assignDefaultSubSurfaceType
+          end
 
           enable_watcher if watcher_enabled
         end
