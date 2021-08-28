@@ -40,8 +40,8 @@ ext = SketchupExtension.new("OpenStudio", "OpenStudio/Startup")
 ext.name = OpenStudio::SKETCHUPPLUGIN_NAME
 ext.description = "Adds building energy modeling capabilities by coupling SketchUp to the OpenStudio suite of tools.  \r\n\r\nVisit openstudio.net for more information."
 ext.version = OpenStudio::SKETCHUPPLUGIN_VERSION
-ext.creator = "National Renewable Energy Laboratory"
-ext.copyright = "2008-2021, Alliance for Sustainable Energy, LLC, and other contributors."
+ext.creator = "OpenStudio Coalition"
+ext.copyright = "2008-2021, OpenStudio Coalition and other contributors."
 
 # 'true' automatically loads the extension the first time it is registered, e.g., after install
 Sketchup.register_extension(ext, true)
