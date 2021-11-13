@@ -232,8 +232,8 @@ module OpenStudio
       @export_sdd_cmd.set_validation_proc { enable_if_model_interface }
 
       @new_space_cmd = UI::Command.new("New Space") { Sketchup.active_model.select_tool(@new_space_tool) }
-      @new_space_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_new_space" + Plugin.image_ext
-      @new_space_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_new_space" + Plugin.image_ext
+      @new_space_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_new_space2" + Plugin.image_ext
+      @new_space_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_new_space2" + Plugin.image_ext
       @new_space_cmd.tooltip = "New Space"
       @new_space_cmd.status_bar_text = "Create a new space"
       @new_space_cmd.set_validation_proc { enable_if_model_interface }
@@ -608,8 +608,8 @@ module OpenStudio
 
       @xray_cmd = UI::Command.new("X-ray Rendering") {
         Sketchup.active_model.rendering_options["ModelTransparency"] = (not Sketchup.active_model.rendering_options["ModelTransparency"]) }
-      @xray_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_tb render transparent" + Plugin.image_ext
-      @xray_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_tb render transparent" + Plugin.image_ext
+      @xray_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_tb_render_transparent" + Plugin.image_ext
+      @xray_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_tb_render_transparent" + Plugin.image_ext
       @xray_cmd.tooltip = "View Model in X-Ray Mode"
       @xray_cmd.status_bar_text = "Turn transparent x-ray mode on and off"
       @xray_cmd.set_validation_proc {
