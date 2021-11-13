@@ -104,7 +104,7 @@ module OpenStudio
   # PluginManager is an App level class, its members correspond to global variables
   class PluginManager
 
-    attr_reader :name, :version, :dir, :profile_running
+    attr_reader :name, :version, :dir, :image_ext, :profile_running
     attr_reader :event_queue
     attr_reader :openstudio_application_dir
 
@@ -117,6 +117,7 @@ module OpenStudio
       @version = OpenStudio::SKETCHUPPLUGIN_VERSION
       @dir = File.dirname(__FILE__) + "/.."
       @profile_running = false
+      @image_ext = platform_select('.svg', '.pdf')
 
       # this global variable is set by openstudio.rb
       @openstudio_application_dir = eval("$OPENSTUDIO_APPLICATION_DIR")
