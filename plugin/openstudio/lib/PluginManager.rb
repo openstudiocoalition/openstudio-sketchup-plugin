@@ -200,7 +200,7 @@ module OpenStudio
       add_event( proc )
 
       if OpenStudio::SKETCHUPPLUGIN_LAUNCH_GETTING_STARTED_ON_START
-        UI.openURL("http://nrel.github.io/OpenStudio-user-documentation/reference/sketchup_plugin_interface/")
+        UI.openURL("https://openstudiocoalition.org/reference/sketchup_plugin_interface/")
       end
 
       @process_events_timer_id = nil
@@ -543,9 +543,9 @@ module OpenStudio
 
   # initialize QApplication
   OpenStudio::ApplicationClass::instance.application(true)
-  OpenStudio::ApplicationClass::instance.application.setOrganizationName("NREL")
-  OpenStudio::ApplicationClass::instance.application.setOrganizationDomain("nrel.gov")
-  OpenStudio::ApplicationClass::instance.application.setApplicationName("OpenStudio")
+  OpenStudio::ApplicationClass::instance.application.setOrganizationName("OpenStudio Coalition")
+  OpenStudio::ApplicationClass::instance.application.setOrganizationDomain("openstudiocoalition.org")
+  OpenStudio::ApplicationClass::instance.application.setApplicationName("OpenStudioSketchUpPlugIn")
 
   # get SketchUp Qt Widget if possible
   SketchUpWidget = OpenStudio::ApplicationClass::instance.sketchUpWidget
