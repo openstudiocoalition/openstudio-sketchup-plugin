@@ -316,7 +316,7 @@ module OpenStudio
       @inspector_dialog_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_inspector" + Plugin.image_ext
       @inspector_dialog_cmd.tooltip = "Inspector"
       @inspector_dialog_cmd.status_bar_text = "Display and edit the selected object"
-      @inspector_dialog_cmd.set_validation_proc { enable_if_model_interface }
+      @inspector_dialog_cmd.set_validation_proc { Plugin.dialog_manager.validate(PluginInspectorDialog) if (Plugin.dialog_manager) }
 
       @surface_search_cmd = UI::Command.new("Surface Search") { Plugin.dialog_manager.show(SurfaceSearchInterface) }
       @surface_search_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_surface search" + Plugin.image_ext

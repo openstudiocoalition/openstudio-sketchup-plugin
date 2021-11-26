@@ -118,6 +118,7 @@ module OpenStudio
       @dir = File.dirname(__FILE__) + "/.."
       @profile_running = false
       @image_ext = platform_select('.svg', '.pdf')
+      @refresh_toolbars = platform_select(false, true)
 
       # this global variable is set by openstudio.rb
       @openstudio_application_dir = eval("$OPENSTUDIO_APPLICATION_DIR")
@@ -301,6 +302,8 @@ module OpenStudio
         msg  = "An error occurred in the OpenStudio SketchUp plug-in.\n\n"
         msg += "It is advised that you save a backup of your current OpenStudio model and restart SketchUp."
         UI.messagebox(msg)
+      elsif @refresh_toolbars
+        UI.refresh_toolbars
       end
 
     end

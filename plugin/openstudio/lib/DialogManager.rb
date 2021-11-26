@@ -83,7 +83,7 @@ module OpenStudio
       #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       if interface_class == PluginInspectorDialog
-        return @inspector_dialog
+        return @inspector_dialog.isVisible
       end
       return(@dialog_interfaces.find { |interface| interface.is_a? interface_class })
     end
