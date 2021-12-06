@@ -76,15 +76,15 @@ module OpenStudio
 
           #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, @drawing_interface = #{@drawing_interface.class}")
 
-          # when push/pull tool is used not all changed faces will get this observer called
-          if(Sketchup.active_model.tools.active_tool_id == 21041)  # PushPullTool
-            #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, calling @drawing_interface.parent.on_change_entity")
-            @drawing_interface.parent.on_change_entity
-
           # Need to check the parent entity to make sure this face didn't find itself outside of a Group after an explode.
-          elsif (@drawing_interface.valid_entity? and @drawing_interface.parent_from_entity)
+          if (@drawing_interface.valid_entity? and @drawing_interface.parent_from_entity)
             #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, calling @drawing_interface.on_change_entity")
             @drawing_interface.on_change_entity
+
+            # when push/pull tool is used not all changed faces will get this observer called
+            if(Sketchup.active_model.tools.active_tool_id == 21041)  # PushPullTool
+              @drawing_interface.parent.on_change_entity
+            end
           end
 
         end

@@ -335,7 +335,7 @@ module OpenStudio
           Plugin.log(OpenStudio::Info, "redraw polygon")
 
           # do the erasing now
-          group = self.OpenStudio.get_drawing_interface(containing_entity)
+          group = OpenStudio.get_drawing_interface(containing_entity)
           group_had_observers = group.remove_observers if group
           all_children = recurse_children
           erase_entity
@@ -686,9 +686,14 @@ module OpenStudio
 
       vertices = vertices_from_polygon(polygon)
 
-      Plugin.log(OpenStudio::Info, "model_object_polygon=, polygon = #{polygon.points}")
-      Plugin.log(OpenStudio::Info, "vertices=, #{vertices.class} #{vertices}")
+      Plugin.log(OpenStudio::Info, "polygon = #{polygon.points}")
+      Plugin.log(OpenStudio::Info, "vertices= #{vertices.map {|v| v.to_s}}")
+      old_tilt = OpenStudio::radToDeg(@model_object.tilt)
       @model_object.setVertices(vertices)
+      new_tilt = OpenStudio::radToDeg(@model_object.tilt)
+      if old_tilt != new_tilt
+        on_tilt_updated(old_tilt, new_tilt)
+      end
     end
 
     # unknown if vertices_from_polygon may throw
@@ -704,6 +709,10 @@ module OpenStudio
       vertices = OpenStudio::reorderULC(vertices)
 
       return vertices
+    end
+
+    # Override in subclasses.
+    def on_tilt_updated(old_tilt, new_tilt)
     end
 
     # Override in subclasses.
