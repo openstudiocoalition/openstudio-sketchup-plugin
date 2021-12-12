@@ -281,6 +281,19 @@ module OpenStudio
 
 ##### Begin override methods for the interface #####
 
+    def on_tilt_updated(old_tilt, new_tilt)
+      super
+
+      # SU 2021 and above create new floor faces pointing up but then reverse them on extrude
+      if old_tilt && new_tilt && (old_tilt - new_tilt).abs > 179
+        @model_object.assignDefaultSurfaceType
+        @model_object.assignDefaultBoundaryCondition
+        @model_object.assignDefaultSunExposure
+        @model_object.assignDefaultWindExposure
+        paint_entity
+      end
+    end
+
     def paint_surface_type(info=nil)
       Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 

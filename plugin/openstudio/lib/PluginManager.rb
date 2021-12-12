@@ -505,7 +505,7 @@ module OpenStudio
       end
 
       def log(level, message)
-        if logging_enabled
+        if logging_enabled && !message.empty?
           #puts "[#{level}] <OpenStudio.SketchUpPlugin> #{message}"
           OpenStudio::logFree(level, "OpenStudio.SketchUpPlugin", message)
         end
