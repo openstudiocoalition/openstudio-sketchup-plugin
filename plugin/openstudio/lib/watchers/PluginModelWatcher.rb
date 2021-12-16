@@ -68,6 +68,10 @@ module OpenStudio
     end
 
     def processAddedObjects
+      if @added_object_handles.empty?
+        return
+      end
+
       Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
       openstudio_model = @model_interface.openstudio_model

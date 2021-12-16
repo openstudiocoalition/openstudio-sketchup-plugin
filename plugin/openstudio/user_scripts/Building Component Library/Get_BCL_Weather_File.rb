@@ -42,14 +42,6 @@ class GetBCLWeatherFile < OpenStudio::Ruleset::ModelUserScript
   def arguments(model)
     result = OpenStudio::Ruleset::OSArgumentVector.new
 
-    # Check Auth Key in LocalBCL instance
-    library = OpenStudio::LocalBCL::instance()
-    if (library::prodAuthKey().empty?)
-      authKey = OpenStudio::Ruleset::OSArgument::makeStringArgument("authKey")
-      authKey.setDisplayName("BCL AuthKey")
-      result << authKey
-    end
-
     city = OpenStudio::Ruleset::OSArgument::makeStringArgument("city",false)
     city.setDisplayName("City Name")
     city.setDefaultValue("Denver")
@@ -65,22 +57,6 @@ class GetBCLWeatherFile < OpenStudio::Ruleset::ModelUserScript
 
     if not runner.validateUserArguments(arguments(model),user_arguments)
       return false
-    end
-
-    # Check Auth Key in LocalBCL instance
-    library = OpenStudio::LocalBCL::instance()
-    if (library::prodAuthKey().empty?)
-      authKey = runner.getStringArgumentValue("authKey",user_arguments)
-
-      good_key = false
-      if authKey
-        good_key = library::setProdAuthKey(authKey)
-      end
-
-      if not good_key
-        runner.registerError("BCL authentication required for first time use, follow instructions at http://nrel.github.io/OpenStudio-user-documentation/getting_started/getting_started/ to get your auth key.")
-        return false
-      end
     end
 
     city = runner.getStringArgumentValue("city",user_arguments)

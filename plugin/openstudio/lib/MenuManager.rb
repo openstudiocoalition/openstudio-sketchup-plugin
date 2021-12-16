@@ -125,8 +125,8 @@ module OpenStudio
 
       # Create all the commands (They must still be added to menus and toolbars next)
       @new_cmd = UI::Command.new("New OpenStudio Model") { Plugin.command_manager.new_openstudio }
-      @new_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSNew-16.png"
-      @new_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSNew-24.png"
+      @new_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_os_new" + Plugin.image_ext
+      @new_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_os_new" + Plugin.image_ext
       @new_cmd.tooltip = "New OpenStudio Model"
       @new_cmd.status_bar_text = "Create a new OpenStudio model"
       @new_cmd.set_validation_proc {
@@ -143,29 +143,29 @@ module OpenStudio
 
       # Create all the commands (They must still be added to menus and toolbars next)
       @new_from_wizard_cmd = UI::Command.new("New OpenStudio Model From Wizard") { Plugin.command_manager.new_openstudio_from_wizard }
-      @new_from_wizard_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSNew-16.png"
-      @new_from_wizard_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSNew-24.png"
+      @new_from_wizard_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_os_new" + Plugin.image_ext
+      @new_from_wizard_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_os_new" + Plugin.image_ext
       @new_from_wizard_cmd.tooltip = "New OpenStudio Model From Wizard"
       @new_from_wizard_cmd.status_bar_text = "Create a new OpenStudio model from a wizard"
       @new_from_wizard_cmd.set_validation_proc { enable_if_model_interface }
 
       @open_cmd = UI::Command.new("Open OpenStudio Model") { Plugin.command_manager.open_openstudio }
-      @open_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSOpen-16.png"
-      @open_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSOpen-24.png"
+      @open_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_os_open" + Plugin.image_ext
+      @open_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_os_open" + Plugin.image_ext
       @open_cmd.tooltip = "Open OpenStudio Model"
       @open_cmd.status_bar_text = "Open an existing OpenStudio model"
       @open_cmd.set_validation_proc { enable_if_model_interface }
 
       @save_cmd = UI::Command.new("Save OpenStudio Model") { Plugin.command_manager.save_openstudio }
-      @save_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSSave-16.png"
-      @save_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSSave-24.png"
+      @save_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_os_save" + Plugin.image_ext
+      @save_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_os_save" + Plugin.image_ext
       @save_cmd.tooltip = "Save OpenStudio Model"
       @save_cmd.status_bar_text = "Save the OpenStudio model"
       @save_cmd.set_validation_proc { enable_if_model_interface }
 
       @save_as_cmd = UI::Command.new("Save OpenStudio Model As") { Plugin.command_manager.save_openstudio_as }
-      @save_as_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSSaveAs-16.png"
-      @save_as_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSSaveAs-24.png"
+      @save_as_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_os_save_as" + Plugin.image_ext
+      @save_as_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_os_save_as" + Plugin.image_ext
       @save_as_cmd.tooltip = "Save OpenStudio Model As"
       @save_as_cmd.status_bar_text = "Save the OpenStudio model as a new file"
       @save_as_cmd.set_validation_proc { enable_if_model_interface }
@@ -183,8 +183,8 @@ module OpenStudio
       @import_space_types_cmd.set_validation_proc { enable_if_model_interface }
 
       @import_idf_cmd = UI::Command.new("Import EnergyPlus Idf") { Plugin.command_manager.import_idf }
-      @import_idf_cmd.small_icon = Plugin.dir + "/lib/resources/icons/IDFImport-16.png"
-      @import_idf_cmd.large_icon = Plugin.dir + "/lib/resources/icons/IDFImport-24.png"
+      @import_idf_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_IDFimport" + Plugin.image_ext
+      @import_idf_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_IDFimport" + Plugin.image_ext
       @import_idf_cmd.tooltip = "Import EnergyPlus Idf"
       @import_idf_cmd.status_bar_text = "Import an EnergyPlus Idf to OpenStudio"
       @import_idf_cmd.set_validation_proc { enable_if_model_interface }
@@ -219,8 +219,8 @@ module OpenStudio
        }
 
       @export_idf_cmd = UI::Command.new("Export EnergyPlus Idf") { Plugin.command_manager.export_idf }
-      @export_idf_cmd.small_icon = Plugin.dir + "/lib/resources/icons/IDFExport-16.png"
-      @export_idf_cmd.large_icon = Plugin.dir + "/lib/resources/icons/IDFExport-24.png"
+      @export_idf_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_IDFexport" + Plugin.image_ext
+      @export_idf_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_IDFexport" + Plugin.image_ext
       @export_idf_cmd.tooltip = "Export EnergyPlus Idf"
       @export_idf_cmd.status_bar_text = "Export an OpenStudio model as an EnergyPlus Idf"
       @export_idf_cmd.set_validation_proc { enable_if_model_interface }
@@ -232,78 +232,78 @@ module OpenStudio
       @export_sdd_cmd.set_validation_proc { enable_if_model_interface }
 
       @new_space_cmd = UI::Command.new("New Space") { Sketchup.active_model.select_tool(@new_space_tool) }
-      @new_space_cmd.small_icon = Plugin.dir + "/lib/resources/icons/new_space_16.png"
-      @new_space_cmd.large_icon = Plugin.dir + "/lib/resources/icons/new_space.png"
+      @new_space_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_new_space2" + Plugin.image_ext
+      @new_space_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_new_space2" + Plugin.image_ext
       @new_space_cmd.tooltip = "New Space"
       @new_space_cmd.status_bar_text = "Create a new space"
       @new_space_cmd.set_validation_proc { enable_if_model_interface }
 
       @new_shading_surface_group_cmd = UI::Command.new("New Shading Surface Group") { Sketchup.active_model.select_tool(@new_shading_surface_group_tool)  }
-      @new_shading_surface_group_cmd.small_icon = Plugin.dir + "/lib/resources/icons/NewShading-16.png"
-      @new_shading_surface_group_cmd.large_icon = Plugin.dir + "/lib/resources/icons/NewShading-24.png"
+      @new_shading_surface_group_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_new_shading" + Plugin.image_ext
+      @new_shading_surface_group_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_new_shading" + Plugin.image_ext
       @new_shading_surface_group_cmd.tooltip = "New Shading Surface Group"
       @new_shading_surface_group_cmd.status_bar_text = "Create a new shading surface group"
       @new_shading_surface_group_cmd.set_validation_proc { enable_if_model_interface }
 
       @new_interior_partition_surface_cmd = UI::Command.new("New Interior Partition Surface Group") { Sketchup.active_model.select_tool(@new_interior_partition_surface_tool)  }
-      @new_interior_partition_surface_cmd.small_icon = Plugin.dir + "/lib/resources/icons/NewPartition-16.png"
-      @new_interior_partition_surface_cmd.large_icon = Plugin.dir + "/lib/resources/icons/NewPartition-24.png"
+      @new_interior_partition_surface_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_new_partition" + Plugin.image_ext
+      @new_interior_partition_surface_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_new_partition" + Plugin.image_ext
       @new_interior_partition_surface_cmd.tooltip = "New Interior Partition Surface Group"
       @new_interior_partition_surface_cmd.status_bar_text = "Create a new interior partition surface group"
       @new_interior_partition_surface_cmd.set_validation_proc { enable_if_model_interface }
 
       @new_daylighting_cmd = UI::Command.new("New Daylighting Control") { Sketchup.active_model.select_tool(@new_daylighting_tool)  }
-      @new_daylighting_cmd.small_icon = Plugin.dir + "/lib/resources/icons/NewDaylighting-16.png"
-      @new_daylighting_cmd.large_icon = Plugin.dir + "/lib/resources/icons/NewDaylighting-24.png"
+      @new_daylighting_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_new_daylighting" + Plugin.image_ext
+      @new_daylighting_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_new_daylighting" + Plugin.image_ext
       @new_daylighting_cmd.tooltip = "New Daylighting Control"
       @new_daylighting_cmd.status_bar_text = "Create a new daylighting control"
       @new_daylighting_cmd.set_validation_proc { enable_if_model_interface }
 
       @new_illuminance_cmd = UI::Command.new("New Illuminance Map") { Sketchup.active_model.select_tool(@new_illuminance_tool)  }
-      @new_illuminance_cmd.small_icon = Plugin.dir + "/lib/resources/icons/NewIlluminance-16.png"
-      @new_illuminance_cmd.large_icon = Plugin.dir + "/lib/resources/icons/NewIlluminance-24.png"
+      @new_illuminance_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_new_illuminance" + Plugin.image_ext
+      @new_illuminance_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_new_illuminance" + Plugin.image_ext
       @new_illuminance_cmd.tooltip = "New Illuminance Map"
       @new_illuminance_cmd.status_bar_text = "Create a new illuminance map"
       @new_illuminance_cmd.set_validation_proc { enable_if_model_interface }
 
       @new_luminaire_cmd = UI::Command.new("New Luminaire") { Sketchup.active_model.select_tool(@new_luminaire_tool)  }
-      @new_luminaire_cmd.small_icon = Plugin.dir + "/lib/resources/icons/NewLuminaire-16.png"
-      @new_luminaire_cmd.large_icon = Plugin.dir + "/lib/resources/icons/NewLuminaire-24.png"
+      @new_luminaire_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_new_luminaire" + Plugin.image_ext
+      @new_luminaire_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_new_luminaire" + Plugin.image_ext
       @new_luminaire_cmd.tooltip = "New Luminaire"
       @new_luminaire_cmd.status_bar_text = "Create a new luminaire"
       @new_luminaire_cmd.set_validation_proc { enable_if_model_interface }
 
       @new_glare_cmd = UI::Command.new("New Glare Sensor") { Sketchup.active_model.select_tool(@new_glare_tool)  }
-      @new_glare_cmd.small_icon = Plugin.dir + "/lib/resources/icons/NewGlare-16.png"
-      @new_glare_cmd.large_icon = Plugin.dir + "/lib/resources/icons/NewGlare-24.png"
+      @new_glare_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_new_glare" + Plugin.image_ext
+      @new_glare_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_new_glare" + Plugin.image_ext
       @new_glare_cmd.tooltip = "New Glare Sensor"
       @new_glare_cmd.status_bar_text = "Create a new glare sensor"
       @new_glare_cmd.set_validation_proc { enable_if_model_interface }
 
       @surface_matching_cmd = UI::Command.new("Surface Matching") { Plugin.dialog_manager.show(SurfaceMatchingInterface) }
-      @surface_matching_cmd.small_icon = Plugin.dir + "/lib/resources/icons/SurfaceMatchingSelected-16.png"
-      @surface_matching_cmd.large_icon = Plugin.dir + "/lib/resources/icons/SurfaceMatchingSelected-24.png"
+      @surface_matching_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_surface_matching_selected" + Plugin.image_ext
+      @surface_matching_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_surface_matching_selected" + Plugin.image_ext
       @surface_matching_cmd.tooltip = "Surface Matching"
       @surface_matching_cmd.status_bar_text = "Match surfaces of selected objects across Spaces"
       @surface_matching_cmd.set_validation_proc { Plugin.dialog_manager.validate(SurfaceMatchingInterface) if (Plugin.dialog_manager) }
 
       @space_attributes_cmd = UI::Command.new("Set Attributes for Selected Spaces") { load Plugin.dir + '/lib/dialogs/SpaceAttributesInterface.rb' }
-      @space_attributes_cmd.small_icon = Plugin.dir + "/lib/resources/icons/edit_spaces_16.png"
-      @space_attributes_cmd.large_icon = Plugin.dir + "/lib/resources/icons/edit_spaces.png"
+      @space_attributes_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_edit_spaces" + Plugin.image_ext
+      @space_attributes_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_edit_spaces" + Plugin.image_ext
       @space_attributes_cmd.tooltip = "Set Attributes for Selected Spaces"
       @space_attributes_cmd.status_bar_text = "Set Attributes for Selected Spaces"
       @space_attributes_cmd.set_validation_proc { enable_if_model_interface }
 
       @space_diagram_cmd = UI::Command.new("Create Spaces From Diagram") { load Plugin.dir + '/lib/dialogs/SpaceDiagramInterface.rb' }
-      @space_diagram_cmd.small_icon = Plugin.dir + "/lib/resources/icons/extrude_16.png"
-      @space_diagram_cmd.large_icon = Plugin.dir + "/lib/resources/icons/extrude.png"
+      @space_diagram_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_extrude" + Plugin.image_ext
+      @space_diagram_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_extrude" + Plugin.image_ext
       @space_diagram_cmd.tooltip = "Create Spaces From Diagram"
       @space_diagram_cmd.status_bar_text = "Create Spaces From Diagram"
       @space_diagram_cmd.set_validation_proc { enable_if_model_interface }
 
       @loose_geometry_cmd = UI::Command.new("Project Loose Geometry") { Plugin.dialog_manager.show(LooseGeometryInterface) }
-      @loose_geometry_cmd.small_icon = Plugin.dir + "/lib/resources/icons/windows_transparent-16.png"
-      @loose_geometry_cmd.large_icon = Plugin.dir + "/lib/resources/icons/windows_transparent.png"
+      @loose_geometry_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_windows_transparent" + Plugin.image_ext
+      @loose_geometry_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_windows_transparent" + Plugin.image_ext
       @loose_geometry_cmd.tooltip = "Project Loose Geometry"
       @loose_geometry_cmd.status_bar_text = "Project loose geometry onto OpenStudio surfaces"
       @loose_geometry_cmd.set_validation_proc { Plugin.dialog_manager.validate(LooseGeometryInterface) if (Plugin.dialog_manager) }
@@ -312,64 +312,39 @@ module OpenStudio
         Plugin.dialog_manager.inspector_dialog.restoreState
         Plugin.dialog_manager.inspector_dialog.show
       }
-      @inspector_dialog_cmd.small_icon = Plugin.dir + "/lib/resources/icons/Inspector-16.png"
-      @inspector_dialog_cmd.large_icon = Plugin.dir + "/lib/resources/icons/Inspector-24.png"
+      @inspector_dialog_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_inspector" + Plugin.image_ext
+      @inspector_dialog_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_inspector" + Plugin.image_ext
       @inspector_dialog_cmd.tooltip = "Inspector"
       @inspector_dialog_cmd.status_bar_text = "Display and edit the selected object"
-      @inspector_dialog_cmd.set_validation_proc { enable_if_model_interface }
+      @inspector_dialog_cmd.set_validation_proc { Plugin.dialog_manager.validate(PluginInspectorDialog) if (Plugin.dialog_manager) }
 
       @surface_search_cmd = UI::Command.new("Surface Search") { Plugin.dialog_manager.show(SurfaceSearchInterface) }
-      @surface_search_cmd.small_icon = Plugin.dir + "/lib/resources/icons/SurfaceSearch-16.png"
-      @surface_search_cmd.large_icon = Plugin.dir + "/lib/resources/icons/SurfaceSearch-24.png"
+      @surface_search_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_surface search" + Plugin.image_ext
+      @surface_search_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_surface search" + Plugin.image_ext
       @surface_search_cmd.tooltip = "Search Surfaces"
       @surface_search_cmd.status_bar_text = "Search surfaces in the model"
       @surface_search_cmd.set_validation_proc { Plugin.dialog_manager.validate(SurfaceSearchInterface) if (Plugin.dialog_manager) }
 
       @info_tool_cmd = UI::Command.new("Info Tool") { Sketchup.active_model.tools.push_tool(@info_tool) }
-      @info_tool_cmd.small_icon = Plugin.dir + "/lib/resources/icons/InfoTool-16.png"
-      @info_tool_cmd.large_icon = Plugin.dir + "/lib/resources/icons/InfoTool-24.png"
+      @info_tool_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_infotool" + Plugin.image_ext
+      @info_tool_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_infotool" + Plugin.image_ext
       @info_tool_cmd.tooltip = "Info Tool"
       @info_tool_cmd.status_bar_text = "Show object data at a glance"
       @info_tool_cmd.set_validation_proc { enable_if_model_interface }
 
       @show_errors_cmd = UI::Command.new("Show Errors And Warnings") { Plugin.model_manager.model_interface.show_errors }
-      @show_errors_cmd.small_icon = Plugin.dir + "/lib/resources/icons/Warning-16.png"
-      @show_errors_cmd.large_icon = Plugin.dir + "/lib/resources/icons/Warning-24.png"
+      @show_errors_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_warning" + Plugin.image_ext
+      @show_errors_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_warning" + Plugin.image_ext
       @show_errors_cmd.tooltip = "Show Errors And Warnings"
       @show_errors_cmd.status_bar_text = "Show errors and warnings"
       @show_errors_cmd.set_validation_proc { enable_if_model_interface }
-
-      #@render_defaults_cmd = UI::Command.new("Render Default Values") {
-      #  Plugin.model_manager.model_interface.materials_interface.render_defaults = (not Plugin.model_manager.model_interface.materials_interface.render_defaults) }
-      ##@render_defaults_cmd.small_icon = Plugin.dir + "/lib/resources/icons/tbRenderTransparentSmall.png"
-      ##@render_defaults_cmd.large_icon = Plugin.dir + "/lib/resources/icons/tbRenderTransparentLarge.png"
-      #@render_defaults_cmd.tooltip = "Render Default Values"
-      #@render_defaults_cmd.status_bar_text = "Render default values"
-      #@render_defaults_cmd.set_validation_proc {
-      #  result = MF_GRAYED
-      #  if model_manager = Plugin.model_manager
-      #    if model_interface = model_manager.model_interface
-      #      rendering_mode = model_interface.materials_interface.rendering_mode
-      #      if rendering_mode == RenderByConstruction
-      #        if (model_interface.materials_interface.render_defaults)
-      #          result = MF_CHECKED
-      #        else
-      #          result = MF_UNCHECKED
-      #        end
-      #      else
-      #        result = MF_GRAYED
-      #      end
-      #    end
-      #  end
-      #  result
-      #}
 
       @render_by_class_cmd = UI::Command.new("Render By Surface Type") {
         proc = Proc.new { Plugin.model_manager.model_interface.materials_interface.rendering_mode = RenderByClass }
         Plugin.add_event( proc )
       }
-      @render_by_class_cmd.small_icon = Plugin.dir + "/lib/resources/icons/render_surface_class_16.png"
-      @render_by_class_cmd.large_icon = Plugin.dir + "/lib/resources/icons/render_surface_class.png"
+      @render_by_class_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_render_surface_class" + Plugin.image_ext
+      @render_by_class_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_render_surface_class" + Plugin.image_ext
       @render_by_class_cmd.tooltip = "Render By SurfaceType"
       @render_by_class_cmd.status_bar_text = "Render objects by surface type"
       @render_by_class_cmd.set_validation_proc {
@@ -388,8 +363,8 @@ module OpenStudio
         proc = Proc.new { Plugin.model_manager.model_interface.materials_interface.rendering_mode = RenderByDataValue }
         Plugin.add_event( proc )
       }
-      @render_by_data_value_cmd.small_icon = Plugin.dir + "/lib/resources/icons/render_data_16.png"
-      @render_by_data_value_cmd.large_icon = Plugin.dir + "/lib/resources/icons/render_data.png"
+      @render_by_data_value_cmd.small_icon = Plugin.dir + "/lib/resources/icons/delete_this" + Plugin.image_ext
+      @render_by_data_value_cmd.large_icon = Plugin.dir + "/lib/resources/icons/delete_this" + Plugin.image_ext
       @render_by_data_value_cmd.tooltip = "Render By Data Value"
       @render_by_data_value_cmd.status_bar_text = "Render objects by data value"
       @render_by_data_value_cmd.set_validation_proc {
@@ -408,8 +383,8 @@ module OpenStudio
         proc = Proc.new { Plugin.model_manager.model_interface.materials_interface.rendering_mode = RenderByBoundary }
         Plugin.add_event( proc )
       }
-      @render_by_boundary_cmd.small_icon = Plugin.dir + "/lib/resources/icons/render_boundary_16.png"
-      @render_by_boundary_cmd.large_icon = Plugin.dir + "/lib/resources/icons/render_boundary.png"
+      @render_by_boundary_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_render_boundary" + Plugin.image_ext
+      @render_by_boundary_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_render_boundary" + Plugin.image_ext
       @render_by_boundary_cmd.tooltip = "Render By Boundary Condition"
       @render_by_boundary_cmd.status_bar_text = "Render objects by boundary condition"
       @render_by_boundary_cmd.set_validation_proc {
@@ -428,8 +403,8 @@ module OpenStudio
         proc = Proc.new { Plugin.model_manager.model_interface.materials_interface.rendering_mode = RenderByLayer }
         Plugin.add_event( proc )
       }
-      #@render_by_layer_cmd.small_icon = Plugin.dir + "/lib/resources/icons/DisplayColorByLayer-16x16.png"
-      #@render_by_layer_cmd.large_icon = Plugin.dir + "/lib/resources/icons/DisplayColorByLayer-24x24.png"
+      @render_by_layer_cmd.small_icon = Plugin.dir + "/lib/resources/icons/delete_this" + Plugin.image_ext
+      @render_by_layer_cmd.large_icon = Plugin.dir + "/lib/resources/icons/delete_this" + Plugin.image_ext
       @render_by_layer_cmd.tooltip = "Render By Layer"
       @render_by_layer_cmd.status_bar_text = "Render objects by layer"
       @render_by_layer_cmd.set_validation_proc {
@@ -448,8 +423,8 @@ module OpenStudio
         proc = Proc.new { Plugin.model_manager.model_interface.materials_interface.rendering_mode = RenderBySurfaceNormal }
         Plugin.add_event( proc )
       }
-      #@render_by_surface_normal_cmd.small_icon = Plugin.dir + "/lib/resources/icons/RenderMode5-16x16.png"
-      #@render_by_surface_normal_cmd.large_icon = Plugin.dir + "/lib/resources/icons/RenderMode5-24x24.png"
+      @render_by_surface_normal_cmd.small_icon = Plugin.dir + "/lib/resources/icons/delete_this" + Plugin.image_ext
+      @render_by_surface_normal_cmd.large_icon = Plugin.dir + "/lib/resources/icons/delete_this" + Plugin.image_ext
       @render_by_surface_normal_cmd.tooltip = "Render By Surface Normal"
       @render_by_surface_normal_cmd.status_bar_text = "Render objects by surface normal"
       @render_by_surface_normal_cmd.set_validation_proc {
@@ -468,8 +443,8 @@ module OpenStudio
         proc = Proc.new { Plugin.model_manager.model_interface.materials_interface.rendering_mode = RenderByConstruction }
         Plugin.add_event( proc )
       }
-      @render_by_construction_cmd.small_icon = Plugin.dir + "/lib/resources/icons/render_construction_16.png"
-      @render_by_construction_cmd.large_icon = Plugin.dir + "/lib/resources/icons/render_construction.png"
+      @render_by_construction_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_render_construction" + Plugin.image_ext
+      @render_by_construction_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_render_construction" + Plugin.image_ext
       @render_by_construction_cmd.tooltip = "Render By Construction"
       @render_by_construction_cmd.status_bar_text = "Render objects by construction"
       @render_by_construction_cmd.set_validation_proc {
@@ -488,8 +463,8 @@ module OpenStudio
         proc = Proc.new { Plugin.model_manager.model_interface.materials_interface.rendering_mode = RenderBySpaceType }
         Plugin.add_event( proc )
       }
-      @render_by_space_type_cmd.small_icon = Plugin.dir + "/lib/resources/icons/render_space_type_16.png"
-      @render_by_space_type_cmd.large_icon = Plugin.dir + "/lib/resources/icons/render_space_type.png"
+      @render_by_space_type_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_render_spacetype" + Plugin.image_ext
+      @render_by_space_type_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_render_spacetype" + Plugin.image_ext
       @render_by_space_type_cmd.tooltip = "Render By Space Type"
       @render_by_space_type_cmd.status_bar_text = "Render objects by space type"
       @render_by_space_type_cmd.set_validation_proc {
@@ -508,8 +483,8 @@ module OpenStudio
         proc = Proc.new { Plugin.model_manager.model_interface.materials_interface.rendering_mode = RenderByThermalZone }
         Plugin.add_event( proc )
       }
-      @render_by_thermal_zone_cmd.small_icon = Plugin.dir + "/lib/resources/icons/render_therm_zone_16.png"
-      @render_by_thermal_zone_cmd.large_icon = Plugin.dir + "/lib/resources/icons/render_therm_zone.png"
+      @render_by_thermal_zone_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_render_therm_zone" + Plugin.image_ext
+      @render_by_thermal_zone_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_render_therm_zone" + Plugin.image_ext
       @render_by_thermal_zone_cmd.tooltip = "Render By Thermal Zone"
       @render_by_thermal_zone_cmd.status_bar_text = "Render objects by thermal zone"
       @render_by_thermal_zone_cmd.set_validation_proc {
@@ -528,8 +503,8 @@ module OpenStudio
         proc = Proc.new { Plugin.model_manager.model_interface.materials_interface.rendering_mode = RenderByBuildingStory }
         Plugin.add_event( proc )
       }
-      @render_by_building_story_cmd.small_icon = Plugin.dir + "/lib/resources/icons/render_story_16.png"
-      @render_by_building_story_cmd.large_icon = Plugin.dir + "/lib/resources/icons/render_story.png"
+      @render_by_building_story_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_render_story" + Plugin.image_ext
+      @render_by_building_story_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_render_story" + Plugin.image_ext
       @render_by_building_story_cmd.tooltip = "Render By Building Story"
       @render_by_building_story_cmd.status_bar_text = "Render objects by building story"
       @render_by_building_story_cmd.set_validation_proc {
@@ -545,8 +520,8 @@ module OpenStudio
       }
 
       @color_scale_cmd = UI::Command.new("Color Scale") { Plugin.dialog_manager.show(ColorScaleInterface) }
-      @color_scale_cmd.small_icon = Plugin.dir + "/lib/resources/icons/render_color_scale_16.png"
-      @color_scale_cmd.large_icon = Plugin.dir + "/lib/resources/icons/render_color_scale.png"
+      @color_scale_cmd.small_icon = Plugin.dir + "/lib/resources/icons/delete_this" + Plugin.image_ext
+      @color_scale_cmd.large_icon = Plugin.dir + "/lib/resources/icons/delete_this" + Plugin.image_ext
       @color_scale_cmd.tooltip = "Color Scale"
       @color_scale_cmd.status_bar_text = "Show color scale window"
       @color_scale_cmd.set_validation_proc { Plugin.dialog_manager.validate(ColorScaleInterface) if (Plugin.dialog_manager) }
@@ -567,16 +542,15 @@ module OpenStudio
           end
         end
       end
-      @openstudio_cmd.small_icon = Plugin.dir + "/lib/resources/icons/os_16.png"
-# replace this with 24pix icon
-      @openstudio_cmd.large_icon = Plugin.dir + "/lib/resources/icons/os_24.png"
+      @openstudio_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_os" + Plugin.image_ext
+      @openstudio_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_os" + Plugin.image_ext
       @openstudio_cmd.tooltip = "Launch Openstudio"
       @openstudio_cmd.status_bar_text = "Launch Openstudio"
       @openstudio_cmd.set_validation_proc { enable_if_model_interface }
 
       @online_help_cmd = UI::Command.new("Online Reference") { UI.openURL("https://openstudiocoalition.org/reference/sketchup_plugin_interface/")  }
-      @online_help_cmd.small_icon = Plugin.dir + "/lib/resources/icons/Help-16.png"
-      @online_help_cmd.large_icon = Plugin.dir + "/lib/resources/icons/Help-24.png"
+      @online_help_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_help" + Plugin.image_ext
+      @online_help_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_help" + Plugin.image_ext
       @online_help_cmd.tooltip = "Online OpenStudio Help"
       @online_help_cmd.status_bar_text = "View the Online OpenStudio Help"
       @online_help_cmd.set_validation_proc { MF_ENABLED }
@@ -590,16 +564,16 @@ module OpenStudio
       # Shortcuts for SketchUp Commands
 
 #      @outliner_cmd = UI::Command.new("Outliner") { UI.show_inspector("Outliner") }
-#      @outliner_cmd.small_icon = Plugin.dir + "/lib/resources/icons/Outliner-16.png"
-#      @outliner_cmd.large_icon = Plugin.dir + "/lib/resources/icons/Outliner-24.png"
+#      @outliner_cmd.small_icon = Plugin.dir + "/lib/resources/icons/delete_this" + Plugin.image_ext
+#      @outliner_cmd.large_icon = Plugin.dir + "/lib/resources/icons/delete_this" + Plugin.image_ext
 #      @outliner_cmd.tooltip = "Show Outliner Window"
 #      @outliner_cmd.status_bar_text = "Show hierarchical outline of all SketchUp groups and components"
 #      @outliner_cmd.set_validation_proc { MF_ENABLED }
 
       @hide_rest_cmd = UI::Command.new("Hide Rest of Model") {
         Sketchup.active_model.rendering_options["InactiveHidden"] = (not Sketchup.active_model.rendering_options["InactiveHidden"]) }
-      @hide_rest_cmd.small_icon = Plugin.dir + "/lib/resources/icons/HideRest-16.png"
-      @hide_rest_cmd.large_icon = Plugin.dir + "/lib/resources/icons/HideRest-24.png"
+      @hide_rest_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_hiderest" + Plugin.image_ext
+      @hide_rest_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_hiderest" + Plugin.image_ext
       @hide_rest_cmd.tooltip = "Hide Rest of Model"
       @hide_rest_cmd.status_bar_text = "Hide all inactive SketchUp groups and components"
       @hide_rest_cmd.set_validation_proc {
@@ -616,8 +590,8 @@ module OpenStudio
 
       @hidden_geom_cmd = UI::Command.new("View Hidden Geometry") {
         Sketchup.active_model.rendering_options["DrawHidden"] = (not Sketchup.active_model.rendering_options["DrawHidden"]) }
-      @hidden_geom_cmd.small_icon = Plugin.dir + "/lib/resources/icons/SU_ViewHidden-16.png"
-      @hidden_geom_cmd.large_icon = Plugin.dir + "/lib/resources/icons/SU_ViewHidden-24.png"
+      @hidden_geom_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_SU_ViewHidden" + Plugin.image_ext
+      @hidden_geom_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_SU_ViewHidden" + Plugin.image_ext
       @hidden_geom_cmd.tooltip = "View Hidden Geometry"
       @hidden_geom_cmd.status_bar_text = "View/hide hidden geometry"
       @hidden_geom_cmd.set_validation_proc {
@@ -634,8 +608,8 @@ module OpenStudio
 
       @xray_cmd = UI::Command.new("X-ray Rendering") {
         Sketchup.active_model.rendering_options["ModelTransparency"] = (not Sketchup.active_model.rendering_options["ModelTransparency"]) }
-      @xray_cmd.small_icon = Plugin.dir + "/lib/resources/icons/tbRenderTransparentSmall.png"
-      @xray_cmd.large_icon = Plugin.dir + "/lib/resources/icons/tbRenderTransparentLarge.png"
+      @xray_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_tb_render_transparent" + Plugin.image_ext
+      @xray_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_tb_render_transparent" + Plugin.image_ext
       @xray_cmd.tooltip = "View Model in X-Ray Mode"
       @xray_cmd.status_bar_text = "Turn transparent x-ray mode on and off"
       @xray_cmd.set_validation_proc {
@@ -651,55 +625,11 @@ module OpenStudio
       }
 
       @shadow_settings_cmd = UI::Command.new("Shadow Settings") { UI.show_inspector("Shadows") }
-      @shadow_settings_cmd.small_icon = Plugin.dir + "/lib/resources/icons/SUShadows-16x16.png"
-      @shadow_settings_cmd.large_icon = Plugin.dir + "/lib/resources/icons/SUShadows-24x24.png"
+      @shadow_settings_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_SU_shadows" + Plugin.image_ext
+      @shadow_settings_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_SU_shadows" + Plugin.image_ext
       @shadow_settings_cmd.tooltip = "Show Shadow Settings Dialog"
       @shadow_settings_cmd.status_bar_text = "Show time of day and day of year for shadow settings"
       @shadow_settings_cmd.set_validation_proc { MF_ENABLED }
-
-      # Animation commands
-
-      @anim_settings_cmd = UI::Command.new("Settings") { Plugin.dialog_manager.show(AnimationSettingsInterface) }
-      @anim_settings_cmd.small_icon = Plugin.dir + "/lib/resources/icons/AnimationSettings~16.png"
-      @anim_settings_cmd.large_icon = Plugin.dir + "/lib/resources/icons/AnimationSettings~24.png"
-      @anim_settings_cmd.tooltip = "Animation Settings"
-      @anim_settings_cmd.status_bar_text = "Show animation settings"
-      @anim_settings_cmd.set_validation_proc { Plugin.dialog_manager.validate(AnimationSettingsInterface) if (Plugin.dialog_manager) }
-
-      @rwd_to_start_cmd = UI::Command.new("Reverse To Marker") { Plugin.animation_manager.reverse_to_marker }
-      @rwd_to_start_cmd.small_icon = Plugin.dir + "/lib/resources/icons/RewindFull16.png"
-      @rwd_to_start_cmd.large_icon = Plugin.dir + "/lib/resources/icons/RewindFull24.png"
-      @rwd_to_start_cmd.tooltip = "Reverse To Marker"
-      @rwd_to_start_cmd.status_bar_text = "Reverse animation to previous marker"
-      @rwd_to_start_cmd.set_validation_proc { Plugin.animation_manager.validate_reverse if (Plugin.animation_manager) }
-
-      @rwd_anim_cmd = UI::Command.new("Reverse") { Plugin.animation_manager.reverse }
-      @rwd_anim_cmd.small_icon = Plugin.dir + "/lib/resources/icons/Rewind16.png"
-      @rwd_anim_cmd.large_icon = Plugin.dir + "/lib/resources/icons/Rewind24.png"
-      @rwd_anim_cmd.tooltip = "Reverse Frame"
-      @rwd_anim_cmd.status_bar_text = "Reverse animation by one frame"
-      @rwd_anim_cmd.set_validation_proc { Plugin.animation_manager.validate_reverse if (Plugin.animation_manager) }
-
-      @play_anim_cmd = UI::Command.new("Play") { Plugin.animation_manager.play }
-      @play_anim_cmd.small_icon = Plugin.dir + "/lib/resources/icons/Play16.png"
-      @play_anim_cmd.large_icon = Plugin.dir + "/lib/resources/icons/Play24.png"
-      @play_anim_cmd.tooltip = "Play"
-      @play_anim_cmd.status_bar_text = "Play animation"
-      @play_anim_cmd.set_validation_proc { Plugin.animation_manager.validate_play_animation if (Plugin.animation_manager) }
-
-      @fwd_anim_cmd = UI::Command.new("Forward") { Plugin.animation_manager.forward }
-      @fwd_anim_cmd.small_icon = Plugin.dir + "/lib/resources/icons/Forward16.png"
-      @fwd_anim_cmd.large_icon = Plugin.dir + "/lib/resources/icons/Forward24.png"
-      @fwd_anim_cmd.tooltip = "Forward Frame"
-      @fwd_anim_cmd.status_bar_text = "Forward animation by one frame"
-      @fwd_anim_cmd.set_validation_proc { Plugin.animation_manager.validate_forward if (Plugin.animation_manager) }
-
-      @fwd_to_end_cmd = UI::Command.new("Forward To Marker") { Plugin.animation_manager.forward_to_marker }
-      @fwd_to_end_cmd.small_icon = Plugin.dir + "/lib/resources/icons/ForwardFull16.png"
-      @fwd_to_end_cmd.large_icon = Plugin.dir + "/lib/resources/icons/ForwardFull24.png"
-      @fwd_to_end_cmd.tooltip = "Forward To Marker"
-      @fwd_to_end_cmd.status_bar_text = "Forward animation to next marker"
-      @fwd_to_end_cmd.set_validation_proc { Plugin.animation_manager.validate_forward if (Plugin.animation_manager) }
 
       # Commands that don't go on the toolbar
 
@@ -782,7 +712,7 @@ module OpenStudio
       @help_menu.set_validation_proc(id) { MF_ENABLED }
 
       id = @plugin_menu.add_item(@update_cmd)
-      @plugin_menu.set_validation_proc(id) { 
+      @plugin_menu.set_validation_proc(id) {
         if OpenStudio::UPDATE_MANAGER && Plugin.update_manager.nil?
           MF_ENABLED
         else

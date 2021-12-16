@@ -59,6 +59,8 @@ module OpenStudio
 
       return if not @enabled
 
+      return if entity.is_a?(Sketchup::Edge)
+
       proc = Proc.new {
 
         Plugin.log(OpenStudio::Info, "SurfaceGroupEntitiesObserver.onElementAdded: adding #{entity} to #{@drawing_interface.entity}")
