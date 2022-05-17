@@ -50,11 +50,11 @@ module OpenStudio
     attr_reader :space_shading_back, :building_shading_back, :site_shading_back, :interior_partition_surface_back
 
     #for boundary render mode
-    attr_reader :surface_ext, :adiabatic_ext, :space_ext, :ground_ext, :groundfcfactormethod_ext, :groundslabpreprocessoraverage_ext
+    attr_reader :surface_ext, :adiabatic_ext, :space_ext, :ground_ext, :foundation_ext, :groundfcfactormethod_ext, :groundslabpreprocessoraverage_ext
     attr_reader :groundslabpreprocessorcore_ext, :groundslabpreprocessorperimeter_ext, :groundbasementpreprocessoraveragewall_ext
     attr_reader :groundbasementpreprocessoraveragefloor_ext, :groundbasementpreprocessorupperwall_ext, :groundbasementpreprocessorlowerwall_ext
     attr_reader :othersidecoefficients_ext, :othersideconditionsmodel_ext
-    attr_reader :surface_int, :adiabatic_int, :space_int, :outdoors_int, :ground_int, :groundfcfactormethod_int, :groundslabpreprocessoraverage_int
+    attr_reader :surface_int, :adiabatic_int, :space_int, :outdoors_int, :ground_int, :foundation_int, :groundfcfactormethod_int, :groundslabpreprocessoraverage_int
     attr_reader :groundslabpreprocessorcore_int, :groundslabpreprocessorperimeter_int, :groundbasementpreprocessoraveragewall_int
     attr_reader :groundbasementpreprocessoraveragefloor_int, :groundbasementpreprocessorupperwall_int, :groundbasementpreprocessorlowerwall_int
     attr_reader :othersidecoefficients_int, :othersideconditionsmodel_int
@@ -135,6 +135,9 @@ module OpenStudio
 
       @ground_ext = get_material("OpenStudio_Ground_Ext", Sketchup::Color.new(204, 183, 122, 1.0))
       @ground_int = get_material("OpenStudio_Ground_Int", Sketchup::Color.new(204, 183, 122, 1.0))
+
+      @foundation_ext = get_material("OpenStudio_Foundation_Ext", Sketchup::Color.new(117, 30, 122, 1.0))
+      @foundation_int = get_material("OpenStudio_Foundation_Int", Sketchup::Color.new(117, 30, 122, 1.0))
 
       @groundfcfactormethod_ext = get_material("OpenStudio_Groundfcfactormethod_Ext", Sketchup::Color.new(153, 122, 30, 1.0))
       @groundfcfactormethod_int = get_material("OpenStudio_Groundfcfactormethod_Int", Sketchup::Color.new(153, 122, 30, 1.0))

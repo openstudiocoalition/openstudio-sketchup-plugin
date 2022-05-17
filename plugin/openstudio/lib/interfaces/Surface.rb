@@ -356,6 +356,9 @@ module OpenStudio
       elsif (outsideBoundaryCondition == "GROUND")
         @entity.material = @model_interface.materials_interface.ground_ext
         @entity.back_material = @model_interface.materials_interface.ground_int
+      elsif (outsideBoundaryCondition == "FOUNDATION")
+        @entity.material = @model_interface.materials_interface.foundation_ext
+        @entity.back_material = @model_interface.materials_interface.foundation_int
       elsif (outsideBoundaryCondition == "GROUNDFCFACTORMETHOD")
         @entity.material = @model_interface.materials_interface.groundfcfactormethod_ext
         @entity.back_material = @model_interface.materials_interface.groundfcfactormethod_int
