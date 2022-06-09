@@ -36,7 +36,7 @@ module OpenStudio
   SKETCHUPPLUGIN_CURRENT_METHOD_NAME = false # default is false, disable to speed up
   SKETCHUPPLUGIN_LOGGING = false # default is false, disable to speed up
   SKETCHUPPLUGIN_DISABLE_OBSERVERS = true # default is true, disables observers rather than adding/removing as SketchUp does not handle that well
-  SKETCHUPPLUGIN_DISABLE_OPERATIONS = true # default is false, enabling operations speeds things up but might introduce problems
+  SKETCHUPPLUGIN_DISABLE_OPERATIONS = false # default is false, enabling operations speeds things up but might introduce problems
 
   Platform_Unknown = 0
   Platform_Windows = 1
@@ -105,7 +105,7 @@ module OpenStudio
   class PluginManager
 
     attr_reader :name, :version, :dir, :image_ext, :profile_running
-    attr_reader :event_queue, :refresh_toolbars, :last_toolbar
+    attr_reader :event_queue, :refresh_toolbars
     attr_reader :openstudio_application_dir
 
     attr_accessor :model_manager, :command_manager, :menu_manager, :dialog_manager, :animation_manager, :simulation_manager, :preferences
