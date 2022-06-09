@@ -105,7 +105,7 @@ module OpenStudio
   class PluginManager
 
     attr_reader :name, :version, :dir, :image_ext, :profile_running
-    attr_reader :event_queue
+    attr_reader :event_queue, :refresh_toolbars
     attr_reader :openstudio_application_dir
 
     attr_accessor :model_manager, :command_manager, :menu_manager, :dialog_manager, :animation_manager, :simulation_manager, :preferences
@@ -303,6 +303,8 @@ module OpenStudio
         msg += "It is advised that you save a backup of your current OpenStudio model and restart SketchUp."
         UI.messagebox(msg)
       elsif @refresh_toolbars
+        # I don't know why but calling this just once results in the current selected tool flashing
+        UI.refresh_toolbars
         UI.refresh_toolbars
       end
 

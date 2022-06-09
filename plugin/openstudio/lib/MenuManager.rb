@@ -108,12 +108,20 @@ module OpenStudio
       end
     end
 
-    def enable_if_model_interface
+    def enable_if_model_interface(tool = nil)
 
       result = MF_GRAYED
       if model_manager = Plugin.model_manager
         if model_manager.model_interface
-          result = MF_ENABLED
+          if tool
+            if tool == Sketchup.active_model.tools.active_tool
+              result = MF_CHECKED
+            else
+              result = MF_UNCHECKED
+            end
+          else
+            result = MF_ENABLED
+          end
         end
       end
 
@@ -236,49 +244,49 @@ module OpenStudio
       @new_space_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_new_space2" + Plugin.image_ext
       @new_space_cmd.tooltip = "New Space"
       @new_space_cmd.status_bar_text = "Create a new space"
-      @new_space_cmd.set_validation_proc { enable_if_model_interface }
+      @new_space_cmd.set_validation_proc { enable_if_model_interface(@new_space_tool) }
 
       @new_shading_surface_group_cmd = UI::Command.new("New Shading Surface Group") { Sketchup.active_model.select_tool(@new_shading_surface_group_tool)  }
       @new_shading_surface_group_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_new_shading" + Plugin.image_ext
       @new_shading_surface_group_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_new_shading" + Plugin.image_ext
       @new_shading_surface_group_cmd.tooltip = "New Shading Surface Group"
       @new_shading_surface_group_cmd.status_bar_text = "Create a new shading surface group"
-      @new_shading_surface_group_cmd.set_validation_proc { enable_if_model_interface }
+      @new_shading_surface_group_cmd.set_validation_proc { enable_if_model_interface(@new_shading_surface_group_tool) }
 
       @new_interior_partition_surface_cmd = UI::Command.new("New Interior Partition Surface Group") { Sketchup.active_model.select_tool(@new_interior_partition_surface_tool)  }
       @new_interior_partition_surface_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_new_partition" + Plugin.image_ext
       @new_interior_partition_surface_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_new_partition" + Plugin.image_ext
       @new_interior_partition_surface_cmd.tooltip = "New Interior Partition Surface Group"
       @new_interior_partition_surface_cmd.status_bar_text = "Create a new interior partition surface group"
-      @new_interior_partition_surface_cmd.set_validation_proc { enable_if_model_interface }
+      @new_interior_partition_surface_cmd.set_validation_proc { enable_if_model_interface(@new_interior_partition_surface_tool) }
 
       @new_daylighting_cmd = UI::Command.new("New Daylighting Control") { Sketchup.active_model.select_tool(@new_daylighting_tool)  }
       @new_daylighting_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_new_daylighting" + Plugin.image_ext
       @new_daylighting_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_new_daylighting" + Plugin.image_ext
       @new_daylighting_cmd.tooltip = "New Daylighting Control"
       @new_daylighting_cmd.status_bar_text = "Create a new daylighting control"
-      @new_daylighting_cmd.set_validation_proc { enable_if_model_interface }
+      @new_daylighting_cmd.set_validation_proc { enable_if_model_interface(@new_daylighting_tool) }
 
       @new_illuminance_cmd = UI::Command.new("New Illuminance Map") { Sketchup.active_model.select_tool(@new_illuminance_tool)  }
       @new_illuminance_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_new_illuminance" + Plugin.image_ext
       @new_illuminance_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_new_illuminance" + Plugin.image_ext
       @new_illuminance_cmd.tooltip = "New Illuminance Map"
       @new_illuminance_cmd.status_bar_text = "Create a new illuminance map"
-      @new_illuminance_cmd.set_validation_proc { enable_if_model_interface }
+      @new_illuminance_cmd.set_validation_proc { enable_if_model_interface(@new_illuminance_tool) }
 
       @new_luminaire_cmd = UI::Command.new("New Luminaire") { Sketchup.active_model.select_tool(@new_luminaire_tool)  }
       @new_luminaire_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_new_luminaire" + Plugin.image_ext
       @new_luminaire_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_new_luminaire" + Plugin.image_ext
       @new_luminaire_cmd.tooltip = "New Luminaire"
       @new_luminaire_cmd.status_bar_text = "Create a new luminaire"
-      @new_luminaire_cmd.set_validation_proc { enable_if_model_interface }
+      @new_luminaire_cmd.set_validation_proc { enable_if_model_interface(@new_luminaire_tool) }
 
       @new_glare_cmd = UI::Command.new("New Glare Sensor") { Sketchup.active_model.select_tool(@new_glare_tool)  }
       @new_glare_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_new_glare" + Plugin.image_ext
       @new_glare_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_new_glare" + Plugin.image_ext
       @new_glare_cmd.tooltip = "New Glare Sensor"
       @new_glare_cmd.status_bar_text = "Create a new glare sensor"
-      @new_glare_cmd.set_validation_proc { enable_if_model_interface }
+      @new_glare_cmd.set_validation_proc { enable_if_model_interface(@new_glare_tool) }
 
       @surface_matching_cmd = UI::Command.new("Surface Matching") { Plugin.dialog_manager.show(SurfaceMatchingInterface) }
       @surface_matching_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_surface_matching_selected" + Plugin.image_ext
@@ -316,7 +324,9 @@ module OpenStudio
       @inspector_dialog_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_inspector" + Plugin.image_ext
       @inspector_dialog_cmd.tooltip = "Inspector"
       @inspector_dialog_cmd.status_bar_text = "Display and edit the selected object"
-      @inspector_dialog_cmd.set_validation_proc { Plugin.dialog_manager.validate(PluginInspectorDialog) if (Plugin.dialog_manager) }
+      @inspector_dialog_cmd.set_validation_proc { 
+        Plugin.dialog_manager.validate(PluginInspectorDialog) if (Plugin.dialog_manager) 
+      }
 
       @surface_search_cmd = UI::Command.new("Surface Search") { Plugin.dialog_manager.show(SurfaceSearchInterface) }
       @surface_search_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_surface search" + Plugin.image_ext
@@ -330,7 +340,7 @@ module OpenStudio
       @info_tool_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_infotool" + Plugin.image_ext
       @info_tool_cmd.tooltip = "Info Tool"
       @info_tool_cmd.status_bar_text = "Show object data at a glance"
-      @info_tool_cmd.set_validation_proc { enable_if_model_interface }
+      @info_tool_cmd.set_validation_proc { enable_if_model_interface(@info_tool) }
 
       @show_errors_cmd = UI::Command.new("Show Errors And Warnings") { Plugin.model_manager.model_interface.show_errors }
       @show_errors_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_warning" + Plugin.image_ext
