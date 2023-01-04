@@ -1,5 +1,5 @@
 ########################################################################################################################
-#  OpenStudio(R), Copyright (c) 2008-2021, OpenStudio Coalition and other contributors. All rights reserved.
+#  OpenStudio(R), Copyright (c) 2008-2022, OpenStudio Coalition and other contributors. All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 #  following conditions are met:
@@ -66,7 +66,7 @@ module OpenStudio
       model = Plugin.model_manager.model_interface.skp_model
       intersect(model.selection)
     end
-
+	
     def on_intersect_all
       model_interface = Plugin.model_manager.model_interface
       model = model_interface.skp_model
@@ -85,7 +85,7 @@ module OpenStudio
 
     def intersect(selection)
 
-      # canel if there is no selection
+      # cancel if there is no selection
       if selection.empty?
         UI.messagebox("Selection is empty, please select objects for intersection routine or choose 'Intersect in Entire Model'.")
         return
@@ -136,13 +136,32 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
 
       # iterate through spaces to create intersecting geometry
       spaces.each do |space|
-        entity = space.entity
-        entity.entities.intersect_with(true, entity.transformation, entity.entities.parent, entity.transformation, false, selection.to_a)
+		entity = space.entity
+		before_faces = entity.entities.grep(Sketchup::Face) #create array of faces before the intersect
+		entity.entities.intersect_with(true, entity.transformation, entity.entities.parent, entity.transformation, false, selection.to_a)
+        edges = entity.entities.grep(Sketchup::Edge)
+		edges.each {|edge| edge.find_faces} #Heal empty loops (no face) after intersection, this may not be necessary?
+
+		#Ski90Moo:This will find faces with AttributeDictionaries copied from the base face (this is causing the faces to be added to the drawing_interface but a new model surface object is not created because all the copies point to an existing surface object.) Rough work around solution is to delete the dictionary, delete the sketchup entity, and redraw it.  This prompts the downstream observer to create a new model surface object and add the sketchup entities to the drawing_interface.  There is probably a more direct solution without having to delete and redraw, but I do not fully understand how the observer works.
+		
+		after_faces = entity.entities.grep(Sketchup::Face)  #create array of faces after the intersect
+		new_faces = after_faces - before_faces  #find the new faces (that just copied the attributes from the base face)
+		temp = []  #create array to temporarily store new_faces vertices
+		new_faces.each do |face|
+			face.delete_attribute('OpenStudio')  #delete dictionary attributes from the copied face so it will not delete the OS model object when deleted
+			temp << face.outer_loop.vertices 
+		end
+		entity.entities.erase_entities(new_faces)  #delete the copied faces
+		temp.each do |face|
+			face = entity.entities.add_face(face)  #add the copied faces back to the model
+		end
+		edges = entity.entities.grep(Sketchup::Edge)
+		edges.each {|edge| edge.find_faces}  #Heal empty loops (no face) after intersection
 
         num_complete += 1
         progress_dialog.setValue((100*num_complete)/num_total)
       end
-
+	  
       # unhide everything
       model_interface.skp_model.entities.each {|e| e.visible = true}
       model_interface.shading_surface_groups.each { |group| group.entity.visible = true }
@@ -164,7 +183,7 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
 
       # resume event processing
       Plugin.start_event_processing if event_processing_stopped
-
+	  
     end
 
     def on_match_selected
@@ -207,7 +226,32 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
 
       return result
     end
-
+	
+	def get_centroid(pts) #calculates the centroid of the polygon
+        total_area = 0
+        total_centroids = Geom::Vector3d.new(0,0,0)
+        third = Geom::Transformation.scaling(1.0 / 3.0)
+        npts = pts.length
+        vec1 = Geom::Vector3d.new(pts[1].x - pts[0].x, pts[1].y - pts[0].y, pts[1].z - pts[0].z)
+        vec2 = Geom::Vector3d.new(pts[2].x - pts[0].x, pts[2].y - pts[0].y, pts[2].z - pts[0].z)
+        ref_sense = vec1.cross vec2
+        for i in 0...(npts-2)
+          vec1 = Geom::Vector3d.new(pts[i+1].x - pts[0].x, pts[i+1].y - pts[0].y, pts[i+1].z - pts[0].z)
+          vec2 = Geom::Vector3d.new(pts[i+2].x - pts[0].x, pts[i+2].y - pts[0].y, pts[i+2].z - pts[0].z)
+          vec = vec1.cross vec2
+          area = vec.length / 2.0
+          if(ref_sense.dot(vec) < 0)
+             area *= -1.0
+          end
+          total_area += area
+          centroid = (vec1 + vec2).transform(third)
+          t = Geom::Transformation.scaling(area)
+          total_centroids += centroid.transform(t)
+        end
+        c = Geom::Transformation.scaling(1.0 / total_area)
+        total_centroids.transform!(c) + Geom::Vector3d.new(pts[0].x,pts[0].y,pts[0].z)
+    end
+	
     def match(selection)
 
       @last_report = "Surface Matching Report:\n"
@@ -244,7 +288,6 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
 
       # get all base surfaces
       surfaces = model_interface.surfaces.to_a
-
       inspector_dialog_enabled = Plugin.dialog_manager.inspector_dialog.disable
 
       begin
@@ -295,7 +338,6 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
 
           # get the parents transformation
           transform = surfaces[i].parent.coordinate_transformation
-
           # make a new bounding box in global coordinates
           global_bounds = Geom::BoundingBox.new
           (0..7).each do |j|
@@ -314,72 +356,42 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
           surface_intersections[i] = Array.new(surfaces.length, false)
           surface_names[i] = surfaces[i].name
         end
-
+		
+		centroid_hash = Hash.new
+		matched_surf = []
         # loop over all base surfaces
         surfaces.each_index do |i|
 
           next if not (surfaces[i].is_a?(Surface) and
                        surfaces[i].parent.is_a?(Space))
-
+			
           # get the parents transformation
           transform_i = surfaces[i].parent.coordinate_transformation
-
+			
           # get the polygon, reverse it
           reverse_face_polygon = surfaces[i].face_polygon.reverse.transform(transform_i)
 
-          # get the normal
-          face_normal = surfaces[i].entity.normal.transform(transform_i)
+			#Get vertices of polygon
+			surf_global_vertices = reverse_face_polygon.points
 
-          # don't process empty polygons
-          next if reverse_face_polygon.empty?
-
-          # loop over remaining surfaces
-          (i+1..surfaces.length-1).each do |j|
-
-            # update number of comparisons
-            processed_num += 1
-            percent_complete = (100*processed_num)/total_num
-            progress_dialog.setValue(percent_complete)
-
-            next if not (surfaces[j].is_a?(Surface) and
-                         surfaces[j].parent.is_a?(Space))
-
-            # get the parents transformation
-            transform_j = surfaces[j].parent.coordinate_transformation
-
-            # check for intersection of spaces
-            space_i = surface_space_indices[i]
-            space_j = surface_space_indices[j]
-            next if not space_intersections[space_i][space_j]
-
-            # check for intersection of bounding boxes
-            next if not surface_bounds[i].contains?(surface_bounds[j])
-
-            # add to base surface intersections
-            surface_intersections[i][j] = true
-            surface_intersections[j][i] = true
-
-            # selection must contain either surface
-            next if not (selection.contains?(surfaces[i].entity) or
-                         selection.contains?(surfaces[i].parent.entity) or
-                         selection.contains?(surfaces[j].entity) or
-                         selection.contains?(surfaces[j].parent.entity))
-
-            # check normal dot product
-            next if not face_normal.dot(surfaces[j].entity.normal.transform(transform_j)) < -0.98
-
-            # check if the reverse of this polygon equals the other polygon
-            if (reverse_face_polygon.circular_eql?(surfaces[j].face_polygon.transform(transform_j)))
-
-              @last_report << "Match, '#{surfaces[i].name}', '#{surfaces[i].model_object.getString(4,true)}', '#{surfaces[j].name}', '#{surfaces[j].model_object.getString(4,true)}' \n"
-
-              surfaces[i].model_object.setAdjacentSurface(surfaces[j].model_object)
-
-              break
-            end
-          end
+			#Check if surface is a valid polygon, write to report and return if not, otherwise calculate centroid
+			npts = surf_global_vertices.length
+			if npts == 0
+			@last_report << "Surface '#{surfaces[i].name}' has an error' \n"
+			else
+			center = get_centroid(surf_global_vertices)
+				#Test if centroid is already in hash.  If true, match surfaces and delete them from hash.  If false, add to hash.
+				if centroid_hash.has_value?(center)
+				matched_surf = centroid_hash.index(center)
+				surfaces[i].model_object.setAdjacentSurface(matched_surf.model_object)
+				centroid_hash.delete(matched_surf)
+				@last_report << "Match, '#{surfaces[i].name}' to '#{matched_surf.name}' \n"
+				else
+				hsh = centroid_hash.store(surfaces[i],center)
+				end
+			end
         end
-
+			
       ensure
 
         progress_dialog.destroy
@@ -410,6 +422,7 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
           surface_indices[i] = surface_index
         end
 
+		centroid_hash.clear
         # loop over all sub surfaces
         sub_surfaces.each_index do |i|
 
@@ -423,53 +436,25 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
           # get the polygon, reverse it
           reverse_face_polygon = sub_surfaces[i].face_polygon.reverse.transform(transform_i)
 
-          # get the normal
-          face_normal = sub_surfaces[i].entity.normal.transform(transform_i)
-
-          # don't process empty polygons
-          next if reverse_face_polygon.empty?
-
-          # loop over remaining surfaces
-          (i+1..sub_surfaces.length-1).each do |j|
-
-            # update number of comparisons
-            processed_num += 1
-            percent_complete = (100*processed_num)/total_num
-            progress_dialog.setValue(percent_complete)
-
-            next if not (sub_surfaces[j].is_a?(SubSurface) and
-                         sub_surfaces[j].parent.is_a?(Surface) and
-                         sub_surfaces[j].parent.parent.is_a?(Space))
-
-            # selection must contain either sub surface
-            next if not (selection.contains?(sub_surfaces[i].entity) or
-                         selection.contains?(sub_surfaces[i].parent.entity) or
-                         selection.contains?(sub_surfaces[i].parent.parent.entity) or
-                         selection.contains?(sub_surfaces[j].entity) or
-                         selection.contains?(sub_surfaces[j].parent.entity) or
-                         selection.contains?(sub_surfaces[j].parent.parent.entity))
-
-            # get the parents transformation
-            transform_j = sub_surfaces[j].parent.parent.coordinate_transformation
-
-            # check for intersection of base surfaces
-            surface_i = surface_indices[i]
-            surface_j = surface_indices[j]
-            next if not surface_intersections[surface_i][surface_j]
-
-            # check normal dot product
-            next if not face_normal.dot(sub_surfaces[j].entity.normal.transform(transform_j)) < -0.98
-
-            # check if this polygon equals the reverse of the other polygon
-            if (reverse_face_polygon.circular_eql?(sub_surfaces[j].face_polygon.transform(transform_j)))
-
-              @last_report << "Match, '#{sub_surfaces[i].name}', '#{sub_surfaces[i].model_object.getString(4,true)}', '#{sub_surfaces[j].name}', '#{sub_surfaces[j].model_object.getString(4,true)}'\n"
-
-              sub_surfaces[i].model_object.setAdjacentSubSurface(sub_surfaces[j].model_object)
-
-              break
-            end
-          end
+          	#Get vertices of polygon, calculate centroid
+			surf_global_vertices = reverse_face_polygon.points
+			
+			#Check if surface is a valid polygon, write to report and return if not, otherwise calculate centroid
+			npts = surf_global_vertices.length
+			if npts == 0
+			@last_report << "Surface '#{surfaces[i].name}' has an error' \n"
+			else
+			center = get_centroid(surf_global_vertices)
+				#Test if centroid is already in hash.  If true, match subsurfaces and delete them from hash.  If false, add to hash.
+				if centroid_hash.has_value?(center)
+				matched_surf = centroid_hash.index(center)
+				sub_surfaces[i].model_object.setAdjacentSubSurface(matched_surf.model_object)
+				centroid_hash.delete(matched_surf)
+				@last_report << "Match, '#{sub_surfaces[i].name}' to '#{matched_surf.name}' \n"
+				else
+				hsh = centroid_hash.store(sub_surfaces[i],center)
+				end
+			end
         end
 
       ensure
