@@ -85,7 +85,7 @@ module OpenStudio
 
     def intersect(selection)
 
-      # canel if there is no selection
+      # cancel if there is no selection
       if selection.empty?
         UI.messagebox("Selection is empty, please select objects for intersection routine or choose 'Intersect in Entire Model'.")
         return
@@ -134,6 +134,8 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
       num_total = spaces.size
       num_complete = 0
 
+      area_before = model_interface.openstudio_model.getSurfaces.inject(0) {|sum, s| sum += s.grossArea }
+
       # iterate through spaces to create intersecting geometry
       spaces.each do |space|
         entity = space.entity
@@ -142,6 +144,8 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
         num_complete += 1
         progress_dialog.setValue((100*num_complete)/num_total)
       end
+
+      area_after = model_interface.openstudio_model.getSurfaces.inject(0) {|sum, s| sum += s.grossArea }
 
       # unhide everything
       model_interface.skp_model.entities.each {|e| e.visible = true}
@@ -164,6 +168,11 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
 
       # resume event processing
       Plugin.start_event_processing if event_processing_stopped
+      puts "area_before=#{area_before} area_after=#{area_after} #{(area_after-area_before).abs / area_before}"
+      if (area_after-area_before).abs / area_before > 0.005
+        @last_report = "Warning!!!"
+        on_last_report
+      end
 
     end
 
@@ -369,7 +378,8 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
             next if not face_normal.dot(surfaces[j].entity.normal.transform(transform_j)) < -0.98
 
             # check if the reverse of this polygon equals the other polygon
-            if (reverse_face_polygon.circular_eql?(surfaces[j].face_polygon.transform(transform_j)))
+            #if (reverse_face_polygon.circular_eql?(surfaces[j].face_polygon.transform(transform_j)))
+            if (reverse_face_polygon.loose_match?(surfaces[j].face_polygon.transform(transform_j)))
 
               @last_report << "Match, '#{surfaces[i].name}', '#{surfaces[i].model_object.getString(4,true)}', '#{surfaces[j].name}', '#{surfaces[j].model_object.getString(4,true)}' \n"
 

@@ -73,7 +73,7 @@ module OpenStudio
     end
 
   end
-  
+
   # return a Geom::Transformation from a OpenStudio::Transformation
   def self.transformation_from_openstudio(t)
     os_array = t.vector
@@ -93,7 +93,7 @@ module OpenStudio
     os_array[15] = skp_array[15].to_f
     return OpenStudio::Transformation.new(os_array)
   end
-  
+
 
   # This is a surrogate class for things I can't do directly with the regular Sketchup::Loop class.
   # The pure geometric analog of the Sketchup::Loop class.
@@ -477,6 +477,198 @@ module OpenStudio
       return result
     end
 
+    def get_area(points)
+      newell = newell_vector(points)
+      return newell.length / 2.0;
+    end
+
+    def newell_vector(points)
+      result = Geom::Vector3d.new
+      for i in 1...points.length-1
+        v1 = points[i] - points[0]
+        v2 = points[i + 1] - points[0]
+        result = result + v1.cross(v2)
+      end
+      return result
+    end
+
+    def get_centroid(pts) #calculates the centroid of the polygon
+      total_area = 0
+      total_centroids = Geom::Vector3d.new(0,0,0)
+      third = Geom::Transformation.scaling(1.0 / 3.0)
+      npts = pts.length
+      vec1 = Geom::Vector3d.new(pts[1].x - pts[0].x, pts[1].y - pts[0].y, pts[1].z - pts[0].z)
+      vec2 = Geom::Vector3d.new(pts[2].x - pts[0].x, pts[2].y - pts[0].y, pts[2].z - pts[0].z)
+      ref_sense = vec1.cross vec2
+      for i in 0...(npts-2)
+        vec1 = Geom::Vector3d.new(pts[i+1].x - pts[0].x, pts[i+1].y - pts[0].y, pts[i+1].z - pts[0].z)
+        vec2 = Geom::Vector3d.new(pts[i+2].x - pts[0].x, pts[i+2].y - pts[0].y, pts[i+2].z - pts[0].z)
+        vec = vec1.cross vec2
+        area = vec.length / 2.0
+        if(ref_sense.dot(vec) < 0)
+           area *= -1.0
+        end
+        total_area += area
+        centroid = (vec1 + vec2).transform(third)
+        t = Geom::Transformation.scaling(area)
+        total_centroids += centroid.transform(t)
+      end
+      c = Geom::Transformation.scaling(1.0 / total_area)
+      vec = total_centroids.transform!(c) + Geom::Vector3d.new(pts[0].x,pts[0].y,pts[0].z)
+      return Geom::Point3d.new(vec.x, vec.y, vec.z)
+    end
+
+    def loose_match?(other, debug = false)
+      points1 = self.reduce.points
+      points2 = other.reduce.points
+
+      centroid1 = get_centroid(points1)
+      centroid2 = get_centroid(points2)
+
+      if centroid1.distance(centroid2) > 1*Length::Centimeter
+        puts "centroids differ too much #{centroid1.distance(centroid2)}" if debug
+        return false
+      end
+
+      area1 = get_area(points1)
+      area2 = get_area(points2)
+
+      tol = 0.005
+      if (area1-area2).abs/area1 > tol or (area1-area2).abs/area2 > tol
+        puts "areas differ too much #{area1}, #{area2}, #{(area1-area2).abs/area1}, #{(area1-area2).abs/area2}" if debug
+        return false
+      end
+
+      # search for one point in common
+      i = 0
+      j = 0
+      found = false
+      for i in 0..points1.length-1
+        for j in 0..points2.length-1
+          if points1[i] == points2[j]
+            done = true
+            break
+          end
+        end
+        break if done
+      end
+
+      if not done
+        puts "no points in common" if debug
+        return false
+      end
+
+      # shift points, after this points1[0] == points2[0]
+      points1 = points1[i..-1].concat(points1[0..i-1]) if i > 0
+      points2 = points2[j..-1].concat(points2[0..j-1]) if j > 0
+
+      puts "points1 = #{points1}" if debug
+      puts "points2 = #{points2}" if debug
+
+      # matches1 is the index in points2 (j) which matches the point1 at i
+      j = 0
+      last_match = 0
+      matches1 = [0]
+      for i in 1..points1.length-1
+        matches1[i] = nil
+        for j in last_match..points2.length-1
+          if points1[i] == points2[j]
+            last_match = j
+            matches1[i] = j
+            break
+          end
+        end
+      end
+
+      # matches2 is the index in points1 (i) which matches the point2 at j
+      i = 0
+      last_match = 0
+      matches2 = [0]
+      for j in 1..points2.length-1
+        matches2[j] = nil
+        for i in last_match..points1.length-1
+          if points1[i] == points2[j]
+            last_match = i
+            matches2[j] = i
+            break
+          end
+        end
+      end
+
+      puts "matches1 = #{matches1}" if debug
+      puts "matches2 = #{matches2}" if debug
+
+      # create polygons that go from last match to next match and then back to first match
+      polygons = []
+      polygon = [points1[0]]
+      puts "start first polygon 0" if debug
+      puts "add point1 0" if debug
+      for i in 1..points1.length-1
+        puts "add point1 #{i}" if debug
+        polygon << points1[i]
+        if matches1[i]
+          # just added points1[i] which is the same as points2[matches1[i]]
+          # now go backward until the previous match
+          j = matches1[i] - 1
+          while matches2[j].nil?
+            puts "add point2 #{j}" if debug
+            polygon << points2[j]
+            j -= 1
+            break if j < 0
+          end
+          if polygon.length > 2
+            puts "close #{polygon}" if debug
+            polygons << polygon
+          end
+          puts "start new polygon #{i}" if debug
+          puts "add point1 #{i}" if debug
+          polygon = [points1[i]]
+        elsif i == points1.length-1
+          # polygon was not closed, start at end of points2
+          # now go backward until the previous match
+          j = matches2.length - 1
+          while matches2[j].nil?
+            puts "add point2 #{j}" if debug
+            polygon << points2[j]
+            j -= 1
+            break if j < 0
+          end
+          if polygon.length > 2
+            puts "close #{polygon}" if debug
+            polygons << polygon
+          end
+        end
+      end
+
+      puts "polygons = #{polygons}" if debug
+
+      deconstructed_polygons = []
+      polygons.each do |polygon|
+        for i in 1..polygon.length-2
+          # the area of these deconstructed_polygons blows up for non-simple polygons but that is what we want
+          deconstructed_polygons << [polygon[0], polygon[i], polygon[i+1]]
+        end
+      end
+
+      areas = []
+      deconstructed_polygons.each {|p| areas << get_area(p).abs}
+
+      puts "areas = #{areas}" if debug
+
+      area = 0
+      areas.each {|a| area+= a}
+
+      puts "area = #{area}" if debug
+
+      tol = 0.005
+      if area/area1 > tol || area/area2 > tol
+        puts "relative area too large #{area/area1} #{area/area2}" if debug
+        return false
+      end
+
+      return true
+    end
+
     def intersect(other_polygon)
       return(Geom.intersect_polygon_polygon(self, other_polygon))  # array of polygons
     end
@@ -601,8 +793,8 @@ module OpenStudio
     else
       return(true)  # Odd:  According to Crossing Number Algorithm => inside of polygon
     end
-    
-  end 
+
+  end
 
 
   # check if a point is inside a polygon
@@ -625,8 +817,8 @@ module OpenStudio
     end
 
   end
-  
-  
+
+
   # Crossing Number version
   # This version is computationally faster, but has problems with multiple vertices on a shared edge.
   # That's why I'm trying the Midpoint Test version
@@ -701,8 +893,8 @@ module OpenStudio
     return(line_segments)
 
   end
-  
-  
+
+
   # Midpoint Test version
   #
   def self.find_shared_line_segments(polygon1, polygon2)
@@ -889,8 +1081,8 @@ module OpenStudio
 
     return(polygons)  # an array of polygons
   end
-  
-  
+
+
 
   # the following are test methods which rely on the SketchUp API, they can be called manually
 
@@ -952,7 +1144,7 @@ module OpenStudio
 
 
   def self.test_intersect_polygon_polygon
-  
+
     polygon1 = Polygon.new( [ Point3d.new(0,0,0), Point3d.new(0,5,0), Point3d.new(5,5,0), Point3d.new(5,0,0) ] )
     #points2 = [ Point3d.new(5,0,0), Point3d.new(5,5,0), Point3d.new(10,5,0), Point3d.new(10,0,0) ]
 
@@ -960,5 +1152,45 @@ module OpenStudio
 
   end
 
+
+  def self.test_loose_match
+
+    polygon1 = Polygon.new( [ Geom::Point3d.new(0,0,0), Geom::Point3d.new(0,5,0), Geom::Point3d.new(5,5,0), Geom::Point3d.new(5,0,0) ] )
+    polygon2 = Polygon.new( [ Geom::Point3d.new(0,0,0), Geom::Point3d.new(0,5,0), Geom::Point3d.new(5,5,0), Geom::Point3d.new(5,0,0) ] )
+    puts "1 #{polygon1.loose_match?(polygon2)} should be true"
+
+    polygon1 = Polygon.new( [ Geom::Point3d.new(0,0,0), Geom::Point3d.new(0,5,0), Geom::Point3d.new(5,5,0), Geom::Point3d.new(5,0,0) ] )
+    polygon2 = Polygon.new( [ Geom::Point3d.new(0,0,0), Geom::Point3d.new(0,5,0), Geom::Point3d.new(5,5,0), Geom::Point3d.new(5.01,2,0), Geom::Point3d.new(5,0,0) ] )
+    puts "2 #{polygon1.loose_match?(polygon2)} should be true"
+
+    polygon1 = Polygon.new( [ Geom::Point3d.new(0,0,0), Geom::Point3d.new(0,5,0), Geom::Point3d.new(5,5,0), Geom::Point3d.new(5.01,2,0), Geom::Point3d.new(5,0,0) ] )
+    polygon2 = Polygon.new( [ Geom::Point3d.new(0,0,0), Geom::Point3d.new(0,5,0), Geom::Point3d.new(5,5,0), Geom::Point3d.new(5,0,0) ] )
+    puts "3 #{polygon1.loose_match?(polygon2)} should be true"
+
+    polygon1 = Polygon.new( [ Geom::Point3d.new(0,0,0), Geom::Point3d.new(0,5,0), Geom::Point3d.new(5,5,0), Geom::Point3d.new(6,5,0), Geom::Point3d.new(5,0,0) ] )
+    polygon2 = Polygon.new( [ Geom::Point3d.new(0,0,0), Geom::Point3d.new(0,5,0), Geom::Point3d.new(5,5,0), Geom::Point3d.new(6,0,0), Geom::Point3d.new(5,0,0) ] )
+    puts "4 #{polygon1.loose_match?(polygon2)} should be false"
+
+    polygon1 = Polygon.new( [ Geom::Point3d.new(0,0,0), Geom::Point3d.new(0,5,0), Geom::Point3d.new(5,5,0), Geom::Point3d.new(5.01,0,0) ] )
+    polygon2 = Polygon.new( [ Geom::Point3d.new(0,0,0), Geom::Point3d.new(0,5,0), Geom::Point3d.new(5,5,0), Geom::Point3d.new(5,0,0) ] )
+    puts "5 #{polygon1.loose_match?(polygon2)} should be true"
+
+    polygon1 = Polygon.new( [ Geom::Point3d.new(0,0,0), Geom::Point3d.new(0,5,0), Geom::Point3d.new(5,5,0), Geom::Point3d.new(5,0,0) ] )
+    polygon2 = Polygon.new( [ Geom::Point3d.new(0,0,0), Geom::Point3d.new(0,5,0), Geom::Point3d.new(5,5,0), Geom::Point3d.new(5.01,0,0) ] )
+    puts "6 #{polygon1.loose_match?(polygon2)} should be true"
+
+    polygon1 = Polygon.new( [ Geom::Point3d.new(5.01,2,0), Geom::Point3d.new(5,0,0), Geom::Point3d.new(0,0,0), Geom::Point3d.new(0,5,0), Geom::Point3d.new(5,5,0) ] )
+    polygon2 = Polygon.new( [ Geom::Point3d.new(5,0,0), Geom::Point3d.new(0,0,0), Geom::Point3d.new(0,5,0), Geom::Point3d.new(5,5,0) ] )
+    puts "7 #{polygon1.loose_match?(polygon2)} should be true"
+
+    polygon1 = Polygon.new( [ Geom::Point3d.new(0,0,0), Geom::Point3d.new(0,5,0), Geom::Point3d.new(5,5,0), Geom::Point3d.new(5,0,0) ] )
+    polygon2 = Polygon.new( [ Geom::Point3d.new(5,0,0), Geom::Point3d.new(5,5,0), Geom::Point3d.new(10,5,0), Geom::Point3d.new(10,0,0) ] )
+    puts "8 #{polygon1.loose_match?(polygon2)} should be false"
+
+    polygon1 = Polygon.new( [ Geom::Point3d.new(0,2,0), Geom::Point3d.new(0,3,0), Geom::Point3d.new(5,3,0), Geom::Point3d.new(5,2,0) ] )
+    polygon2 = Polygon.new( [ Geom::Point3d.new(2,0,0), Geom::Point3d.new(2,5,0), Geom::Point3d.new(3,5,0), Geom::Point3d.new(3,0,0) ] )
+    puts "9 #{polygon1.loose_match?(polygon2)} should be false"
+
+  end
 
 end
