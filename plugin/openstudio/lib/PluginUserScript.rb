@@ -59,5 +59,26 @@ class ReportingUserScript
   end
 end
 
+end #Ruleset
+module Measure
+
+class ModelMeasure
+  def registerWithApplication
+    Plugin.user_script_runner.add_user_script(self)
+  end
 end
+
+class EnergyPlusMeasure
+  def registerWithApplication
+    Plugin.user_script_runner.add_user_script(self)
+  end
+end
+
+class ReportingMeasure
+  def registerWithApplication
+    Plugin.user_script_runner.add_user_script(self)
+  end
+end
+
+end #Measure
 end

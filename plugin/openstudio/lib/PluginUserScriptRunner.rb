@@ -296,6 +296,7 @@ module OpenStudio
       dirs.each do |dir|
         next if /resource[s]?/i.match(dir)
         next if /test[s]?/i.match(dir)
+        next if /doc[s]?/i.match(dir)
 
         menu = current_menu.add_submenu(File.basename(dir))
         discover_user_script_directory(dir, menu)
@@ -364,11 +365,11 @@ module OpenStudio
       #SKETCHUP_CONSOLE.show
 
       arguments = nil
-      if user_script.is_a?(OpenStudio::Ruleset::ModelUserScript)
+      if user_script.is_a?(OpenStudio::Ruleset::ModelUserScript) or user_script.is_a?(OpenStudio::Measure::ModelMeasure)
         arguments = user_script.arguments(model_interface.openstudio_model)
       end
 
-      if user_script.is_a?(OpenStudio::Ruleset::ReportingUserScript)
+      if user_script.is_a?(OpenStudio::Ruleset::ReportingUserScript) or user_script.is_a?(OpenStudio::Measure::ReportingMeasure)
         arguments = user_script.arguments()
       end
 
@@ -384,9 +385,9 @@ module OpenStudio
 
           error_msg += "Running #{user_script.name}\n"
 
-          if user_script.is_a?(OpenStudio::Ruleset::ModelUserScript)
+          if user_script.is_a?(OpenStudio::Ruleset::ModelUserScript) or user_script.is_a?(OpenStudio::Measure::ModelMeasure)
             user_script.run(model_interface.openstudio_model, self, arguments)
-          elsif user_script.is_a?(OpenStudio::Ruleset::ReportingUserScript)
+          elsif user_script.is_a?(OpenStudio::Ruleset::ReportingUserScript) or user_script.is_a?(OpenStudio::Measure::ReportingMeasure)
             user_script.run(self, arguments)
           end
 
