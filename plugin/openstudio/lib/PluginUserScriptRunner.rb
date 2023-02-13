@@ -355,16 +355,13 @@ module OpenStudio
 
       weather_file = @model_workflow_json.weatherFile
       if (not weather_file.empty?)
-        puts "weather_file #{weather_file}"
         @workflow.setWeatherFile(weather_file.get)
       end
 
       @working_files_dir = @working_dir / OpenStudio::toPath("generated_files")
-      puts "path #{@working_files_dir}"
       @workflow.addFilePath(@working_files_dir)
 
       @model_workflow_json.absoluteFilePaths().each do |file_path|
-        puts "path #{file_path}"
         @workflow.addFilePath(file_path)
       end
 
