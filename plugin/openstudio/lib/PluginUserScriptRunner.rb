@@ -32,6 +32,7 @@ require("openstudio/lib/PluginUserScript")
 module OpenStudio
 
   class PluginUserScriptRunner < OpenStudio::Ruleset::OSRunner
+    attr_accessor :workflow
 
     def initialize
       super
@@ -347,6 +348,29 @@ module OpenStudio
 
       model_interface = Plugin.model_manager.model_interface
 
+      # set up fake workflow, mirror OpenStudioApplication ApplyMeasureNowDialog
+      @working_dir = model_interface.model_temp_dir
+      @model_workflow_json = model_interface.openstudio_model.workflowJSON
+      @workflow = OpenStudio::WorkflowJSON.new
+
+      weather_file = @model_workflow_json.weatherFile
+      if (not weather_file.empty?)
+        puts "weather_file #{weather_file}"
+        @workflow.setWeatherFile(weather_file.get)
+      end
+
+      @working_files_dir = @working_dir / OpenStudio::toPath("generated_files")
+      puts "path #{@working_files_dir}"
+      @workflow.addFilePath(@working_files_dir)
+
+      @model_workflow_json.absoluteFilePaths().each do |file_path|
+        puts "path #{file_path}"
+        @workflow.addFilePath(file_path)
+      end
+
+      # temporarily swap models's workflow for this one
+      model_interface.openstudio_model.setWorkflowJSON(@workflow)
+
       # pause event processing
       event_processing_stopped = Plugin.stop_event_processing
 
@@ -399,6 +423,9 @@ module OpenStudio
           error_msg += "#{error.backtrace}\n"
 
         end
+
+        # restore models's workflow
+        model_interface.openstudio_model.setWorkflowJSON(@model_workflow_json)
 
         result = self.result
         if not result.stepErrors.empty?
