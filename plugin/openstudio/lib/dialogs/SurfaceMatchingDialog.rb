@@ -52,6 +52,12 @@ module OpenStudio
       @container.web_dialog.add_action_callback("on_intersect_selected") { on_intersect_selected }
       @container.web_dialog.add_action_callback("on_match_selected") { on_match_selected }
       @container.web_dialog.add_action_callback("on_match_all") { on_match_all }
+	  #Begin Beta testing
+	  @container.web_dialog.add_action_callback("on_intersect_all_beta") { on_intersect_all_beta }
+      @container.web_dialog.add_action_callback("on_intersect_selected_beta") { on_intersect_selected_beta }
+      @container.web_dialog.add_action_callback("on_match_selected_beta") { on_match_selected_beta }
+      @container.web_dialog.add_action_callback("on_match_all_beta") { on_match_all_beta }
+	  #End Beta testing
       @container.web_dialog.add_action_callback("on_unmatch_selected") { on_unmatch_selected }
       @container.web_dialog.add_action_callback("on_unmatch_all") { on_unmatch_all }
       @container.web_dialog.add_action_callback("on_last_report") { on_last_report }
@@ -67,6 +73,14 @@ module OpenStudio
       intersect(model.selection)
     end
 	
+	#Begin Beta testing
+	def on_intersect_selected_beta
+      model = Plugin.model_manager.model_interface.skp_model
+      intersectbeta(model.selection)
+    end
+	#End Beta testing
+	
+
     def on_intersect_all
       model_interface = Plugin.model_manager.model_interface
       model = model_interface.skp_model
@@ -83,7 +97,110 @@ module OpenStudio
       model.selection.clear
     end
 
+	#Begin Beta testing
+	def on_intersect_all_beta
+      model_interface = Plugin.model_manager.model_interface
+      model = model_interface.skp_model
+      model.selection.clear
+
+      entities = []
+      model_interface.spaces.each do |space|
+        entities << space.entity
+      end
+      model.selection.add(entities)
+
+      intersectbeta(model.selection)
+
+      model.selection.clear
+    end
+	#End Beta testing
+
     def intersect(selection)
+
+      # cancel if there is no selection
+      if selection.empty?
+        UI.messagebox("Selection is empty, please select objects for intersection routine or choose 'Intersect in Entire Model'.")
+        return
+      end
+
+      # offer user chance to cancel
+      result = UI.messagebox(
+"Warning this will create new geometry in your spaces.\n
+This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
+
+      if result == 2 # cancel
+        return false
+      end
+
+      model_interface = Plugin.model_manager.model_interface
+
+      # pause event processing
+      event_processing_stopped = Plugin.stop_event_processing
+
+      # store starting render mode
+      starting_rendermode = model_interface.materials_interface.rendering_mode
+
+      # switch render mode to speed things up
+      model_interface.materials_interface.rendering_mode = RenderWaiting
+
+      # DLM: creating a lot of subsurfaces in an operation appears to create problems when multiple surfaces
+      # are swapped simultaneously, need more testing to understand this
+      #begin
+      #  # start an operation
+      #  model_interface.start_operation("Intersect Space Geometry", true)
+
+      # create a progress bar
+      progress_dialog = ProgressDialog.new("Intersecting Space Geometry")
+
+      # temporarily hide everything but heat transfer surfaces
+      model_interface.skp_model.entities.each {|e| e.visible = false}
+      model_interface.shading_surface_groups.each { |group| group.entity.visible = false }
+      model_interface.interior_partition_surface_groups.each { |group| group.entity.visible = false }
+      model_interface.illuminance_maps.each { |group| group.entity.visible = false }
+      model_interface.daylighting_controls.each { |group| group.entity.visible = false }
+
+      # get all spaces
+      spaces = model_interface.spaces
+      spaces.each { |space| space.entity.visible = true }
+
+      num_total = spaces.size
+      num_complete = 0
+
+      # iterate through spaces to create intersecting geometry
+      spaces.each do |space|
+        entity = space.entity
+        entity.entities.intersect_with(true, entity.transformation, entity.entities.parent, entity.transformation, false, selection.to_a)
+
+        num_complete += 1
+        progress_dialog.setValue((100*num_complete)/num_total)
+      end
+
+      # unhide everything
+      model_interface.skp_model.entities.each {|e| e.visible = true}
+      model_interface.shading_surface_groups.each { |group| group.entity.visible = true }
+      model_interface.interior_partition_surface_groups.each { |group| group.entity.visible = true }
+      model_interface.illuminance_maps.each { |group| group.entity.visible = true }
+      model_interface.daylighting_controls.each { |group| group.entity.visible = true }
+
+      #ensure
+      #
+      #  model_interface.commit_operation
+      #
+      #end
+
+      progress_dialog.destroy
+
+      # switch render mode back to original
+      proc = Proc.new { model_interface.materials_interface.rendering_mode = starting_rendermode }
+      Plugin.add_event( proc )
+
+      # resume event processing
+      Plugin.start_event_processing if event_processing_stopped
+
+    end
+
+	#Begin Beta testing
+	def intersectbeta(selection)
 
       # cancel if there is no selection
       if selection.empty?
@@ -185,12 +302,20 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
       Plugin.start_event_processing if event_processing_stopped
 	  
     end
+	#End Beta testing
 
     def on_match_selected
       model = Plugin.model_manager.model_interface.skp_model
       match(model.selection)
     end
-
+	
+	#Begin Beta testing
+	def on_match_selected_beta
+      model = Plugin.model_manager.model_interface.skp_model
+      matchbeta(model.selection)
+    end
+	#End Beta testing
+	
     def on_match_all
       model = Plugin.model_manager.model_interface.skp_model
       model.selection.clear
@@ -198,6 +323,16 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
       match(model.selection)
       model.selection.clear
     end
+
+	#Begin Beta testing
+	def on_match_all_beta
+      model = Plugin.model_manager.model_interface.skp_model
+      model.selection.clear
+      model.selection.add(model.entities.to_a)
+      matchbeta(model.selection)
+      model.selection.clear
+    end
+	#End Beta testing
 
     def on_unmatch_selected
       model = Plugin.model_manager.model_interface.skp_model
@@ -227,6 +362,7 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
       return result
     end
 	
+	#Begin Beta testing
 	def get_centroid(pts) #calculates the centroid of the polygon
         total_area = 0
         total_centroids = Geom::Vector3d.new(0,0,0)
@@ -251,7 +387,8 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
         c = Geom::Transformation.scaling(1.0 / total_area)
         total_centroids.transform!(c) + Geom::Vector3d.new(pts[0].x,pts[0].y,pts[0].z)
     end
-	
+	#End Beta testing
+
     def match(selection)
 
       @last_report = "Surface Matching Report:\n"
@@ -288,6 +425,7 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
 
       # get all base surfaces
       surfaces = model_interface.surfaces.to_a
+
       inspector_dialog_enabled = Plugin.dialog_manager.inspector_dialog.disable
 
       begin
@@ -338,6 +476,289 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
 
           # get the parents transformation
           transform = surfaces[i].parent.coordinate_transformation
+
+          # make a new bounding box in global coordinates
+          global_bounds = Geom::BoundingBox.new
+          (0..7).each do |j|
+            global_bounds.add(transform*bounds.corner(j))
+          end
+
+          # put the global bounding box into the array
+          surface_bounds[i] = grow_bounds(global_bounds)
+
+        end
+
+        # array for matching base surfaces
+        surface_intersections = []
+        surface_names = []
+        surfaces.each_index do |i|
+          surface_intersections[i] = Array.new(surfaces.length, false)
+          surface_names[i] = surfaces[i].name
+        end
+
+        # loop over all base surfaces
+        surfaces.each_index do |i|
+
+          next if not (surfaces[i].is_a?(Surface) and
+                       surfaces[i].parent.is_a?(Space))
+
+          # get the parents transformation
+          transform_i = surfaces[i].parent.coordinate_transformation
+
+          # get the polygon, reverse it
+          reverse_face_polygon = surfaces[i].face_polygon.reverse.transform(transform_i)
+
+          # get the normal
+          face_normal = surfaces[i].entity.normal.transform(transform_i)
+
+          # don't process empty polygons
+          next if reverse_face_polygon.empty?
+
+          # loop over remaining surfaces
+          (i+1..surfaces.length-1).each do |j|
+
+            # update number of comparisons
+            processed_num += 1
+            percent_complete = (100*processed_num)/total_num
+            progress_dialog.setValue(percent_complete)
+
+            next if not (surfaces[j].is_a?(Surface) and
+                         surfaces[j].parent.is_a?(Space))
+
+            # get the parents transformation
+            transform_j = surfaces[j].parent.coordinate_transformation
+
+            # check for intersection of spaces
+            space_i = surface_space_indices[i]
+            space_j = surface_space_indices[j]
+            next if not space_intersections[space_i][space_j]
+
+            # check for intersection of bounding boxes
+            next if not surface_bounds[i].contains?(surface_bounds[j])
+
+            # add to base surface intersections
+            surface_intersections[i][j] = true
+            surface_intersections[j][i] = true
+
+            # selection must contain either surface
+            next if not (selection.contains?(surfaces[i].entity) or
+                         selection.contains?(surfaces[i].parent.entity) or
+                         selection.contains?(surfaces[j].entity) or
+                         selection.contains?(surfaces[j].parent.entity))
+
+            # check normal dot product
+            next if not face_normal.dot(surfaces[j].entity.normal.transform(transform_j)) < -0.98
+
+            # check if the reverse of this polygon equals the other polygon
+            if (reverse_face_polygon.circular_eql?(surfaces[j].face_polygon.transform(transform_j)))
+
+              @last_report << "Match, '#{surfaces[i].name}', '#{surfaces[i].model_object.getString(4,true)}', '#{surfaces[j].name}', '#{surfaces[j].model_object.getString(4,true)}' \n"
+
+              surfaces[i].model_object.setAdjacentSurface(surfaces[j].model_object)
+
+              break
+            end
+          end
+        end
+
+      ensure
+
+        progress_dialog.destroy
+
+      end
+
+      @last_report << "\nSubSurface Matching Report:\n"
+      @last_report << "Action, SubSurface #1, Surface #1, Surface #2, SubSurface #2\n"
+
+      # get all sub surfaces
+      sub_surfaces = model_interface.sub_surfaces.to_a
+      begin
+
+        # create a progress dialog
+        progress_dialog = ProgressDialog.new("Matching SubSurfaces")
+
+        # processed and total number of comparisons
+        processed_num = 0
+        total_num = (sub_surfaces.length * (sub_surfaces.length-1)) / 2
+
+        surface_indices = []
+        sub_surfaces.each_index do |i|
+          next if not (sub_surfaces[i].is_a?(SubSurface) and
+                       sub_surfaces[i].parent.is_a?(Surface) and
+                       sub_surfaces[i].parent.parent.is_a?(Space))
+
+          surface_index = surface_names.index(sub_surfaces[i].parent.name)
+          surface_indices[i] = surface_index
+        end
+
+        # loop over all sub surfaces
+        sub_surfaces.each_index do |i|
+
+          next if not (sub_surfaces[i].is_a?(SubSurface) and
+                       sub_surfaces[i].parent.is_a?(Surface) and
+                       sub_surfaces[i].parent.parent.is_a?(Space))
+
+          # get the parents transformation
+          transform_i = sub_surfaces[i].parent.parent.coordinate_transformation
+
+          # get the polygon, reverse it
+          reverse_face_polygon = sub_surfaces[i].face_polygon.reverse.transform(transform_i)
+
+          # get the normal
+          face_normal = sub_surfaces[i].entity.normal.transform(transform_i)
+
+          # don't process empty polygons
+          next if reverse_face_polygon.empty?
+
+          # loop over remaining surfaces
+          (i+1..sub_surfaces.length-1).each do |j|
+
+            # update number of comparisons
+            processed_num += 1
+            percent_complete = (100*processed_num)/total_num
+            progress_dialog.setValue(percent_complete)
+
+            next if not (sub_surfaces[j].is_a?(SubSurface) and
+                         sub_surfaces[j].parent.is_a?(Surface) and
+                         sub_surfaces[j].parent.parent.is_a?(Space))
+
+            # selection must contain either sub surface
+            next if not (selection.contains?(sub_surfaces[i].entity) or
+                         selection.contains?(sub_surfaces[i].parent.entity) or
+                         selection.contains?(sub_surfaces[i].parent.parent.entity) or
+                         selection.contains?(sub_surfaces[j].entity) or
+                         selection.contains?(sub_surfaces[j].parent.entity) or
+                         selection.contains?(sub_surfaces[j].parent.parent.entity))
+
+            # get the parents transformation
+            transform_j = sub_surfaces[j].parent.parent.coordinate_transformation
+
+            # check for intersection of base surfaces
+            surface_i = surface_indices[i]
+            surface_j = surface_indices[j]
+            next if not surface_intersections[surface_i][surface_j]
+
+            # check normal dot product
+            next if not face_normal.dot(sub_surfaces[j].entity.normal.transform(transform_j)) < -0.98
+
+            # check if this polygon equals the reverse of the other polygon
+            if (reverse_face_polygon.circular_eql?(sub_surfaces[j].face_polygon.transform(transform_j)))
+
+              @last_report << "Match, '#{sub_surfaces[i].name}', '#{sub_surfaces[i].model_object.getString(4,true)}', '#{sub_surfaces[j].name}', '#{sub_surfaces[j].model_object.getString(4,true)}'\n"
+
+              sub_surfaces[i].model_object.setAdjacentSubSurface(sub_surfaces[j].model_object)
+
+              break
+            end
+          end
+        end
+
+      ensure
+
+        progress_dialog.destroy
+
+      end
+
+      # switch render mode back to original
+      proc = Proc.new { model_interface.materials_interface.rendering_mode = starting_rendermode }
+      Plugin.add_event( proc )
+
+      Plugin.dialog_manager.inspector_dialog.enable if inspector_dialog_enabled
+
+      # resume event processing
+      Plugin.start_event_processing if event_processing_stopped
+
+    end
+
+	#Begin Beta testing
+	 def matchbeta(selection)
+
+      @last_report = "Surface Matching Report:\n"
+      @last_report << "Action, Surface #1, Space #1, Surface #2, Space #2\n"
+
+      if selection.empty?
+        UI.messagebox("Selection is empty, please select objects for matching routine or choose 'Match in Entire Model'.")
+        return
+      end
+
+      result = UI.messagebox(
+"Warning this will match surfaces and subsurfaces
+within and surrounding the selected Spaces.\n
+This will also reassign constructions on affected surfaces.\n
+This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
+
+      if result == 2 # cancel
+        return false
+      end
+
+      model_interface = Plugin.model_manager.model_interface
+
+      # pause event processing
+      event_processing_stopped = Plugin.stop_event_processing
+
+      # store starting render mode
+      starting_rendermode = model_interface.materials_interface.rendering_mode
+
+      # switch render mode to speed things up
+      model_interface.materials_interface.rendering_mode = RenderWaiting
+
+      # get all spaces
+      spaces = model_interface.spaces.to_a
+
+      # get all base surfaces
+      surfaces = model_interface.surfaces.to_a
+
+      inspector_dialog_enabled = Plugin.dialog_manager.inspector_dialog.disable
+
+      begin
+
+        # create a progress dialog
+        progress_dialog = ProgressDialog.new("Matching Surfaces")
+
+        # processed and total number of comparisons
+        processed_num = 0
+        total_num = (surfaces.length * (surfaces.length-1)) / 2
+
+        # num matches found
+        num_matches = 0
+
+        # precompute which spaces intersect with each other space
+        space_names = []
+        space_bounds = []
+        space_intersections = []
+        spaces.each_index do |i|
+          space_names[i] = spaces[i].name
+          space_bounds[i] = grow_bounds( spaces[i].entity.bounds )
+          space_intersections[i]=[]
+        end
+        spaces.each_index do |i|
+          space_intersections[i][i] = false
+          # loop over remaining spaces
+          (i+1..spaces.length-1).each do |j|
+            #intersect api may have bugs, isn't fully functional here
+            bbox = space_bounds[i].intersect(space_bounds[j])
+            test = (not bbox.empty?)
+            space_intersections[i][j] = test
+            space_intersections[j][i] = test
+          end
+        end
+
+        # loop over all base surfaces
+        surface_bounds = []
+        surface_space_indices = []
+        surfaces.each_index do |i|
+          next if not (surfaces[i].is_a?(Surface) and
+                       surfaces[i].parent.is_a?(Space))
+
+          surface_space_index = space_names.index(surfaces[i].parent.name)
+          surface_space_indices[i] = surface_space_index
+
+          # get the local bounding box
+          bounds = surfaces[i].entity.bounds
+
+          # get the parents transformation
+          transform = surfaces[i].parent.coordinate_transformation
+
           # make a new bounding box in global coordinates
           global_bounds = Geom::BoundingBox.new
           (0..7).each do |j|
@@ -371,8 +792,53 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
           # get the polygon, reverse it
           reverse_face_polygon = surfaces[i].face_polygon.reverse.transform(transform_i)
 
+						  
+																		
+
+										
+											 
+
 			#Get vertices of polygon
+											  
+
+										  
+							  
+															
+													  
+
+													   
+														 
+
+											
+																	  
+
+											  
+											  
+											  
+															 
+
+													  
+																	  
+
+											   
+											  
+											  
+
+												   
+																   
+																		  
+																   
+																		
+
+									  
+																								 
+
+																		   
 			surf_global_vertices = reverse_face_polygon.points
+
+																																														
+
+																				   
 
 			#Check if surface is a valid polygon, write to report and return if not, otherwise calculate centroid
 			npts = surf_global_vertices.length
@@ -436,6 +902,50 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
           # get the polygon, reverse it
           reverse_face_polygon = sub_surfaces[i].face_polygon.reverse.transform(transform_i)
 
+						  
+																			
+
+										
+											 
+
+										
+												  
+
+										  
+							  
+															
+													  
+
+															  
+																  
+																	
+
+													   
+																	   
+																			  
+																					 
+																	   
+																			  
+																				   
+
+											
+																				 
+
+													 
+										  
+										  
+																   
+
+									  
+																									 
+
+																		   
+																										
+
+																																																																		 
+
+																							  
+
           	#Get vertices of polygon, calculate centroid
 			surf_global_vertices = reverse_face_polygon.points
 			
@@ -473,6 +983,7 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
       Plugin.start_event_processing if event_processing_stopped
 
     end
+	#End Beta testing
 
     def unmatch(selection)
 
