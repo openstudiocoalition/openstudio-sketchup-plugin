@@ -1,3 +1,12 @@
 {
-   "signedContributors": []
+  "signedContributors": [
+    {
+      "name": "macumber",
+      "id": 1327850,
+      "comment_id": 1530850651,
+      "created_at": "2023-05-02T04:16:07Z",
+      "repoId": 175247722,
+      "pullRequestNo": 118
+    }
+  ]
 }
