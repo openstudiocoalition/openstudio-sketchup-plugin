@@ -1,5 +1,5 @@
 ########################################################################################################################
-#  OpenStudio(R), Copyright (c) 2008-2021, OpenStudio Coalition and other contributors. All rights reserved.
+#  OpenStudio(R), Copyright (c) 2008-2023, OpenStudio Coalition and other contributors. All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 #  following conditions are met:
@@ -32,6 +32,7 @@ require("openstudio/lib/PluginUserScript")
 module OpenStudio
 
   class PluginUserScriptRunner < OpenStudio::Ruleset::OSRunner
+    attr_accessor :workflow
 
     def initialize
       super
@@ -296,6 +297,7 @@ module OpenStudio
       dirs.each do |dir|
         next if /resource[s]?/i.match(dir)
         next if /test[s]?/i.match(dir)
+        next if /doc[s]?/i.match(dir)
 
         menu = current_menu.add_submenu(File.basename(dir))
         discover_user_script_directory(dir, menu)
@@ -346,6 +348,26 @@ module OpenStudio
 
       model_interface = Plugin.model_manager.model_interface
 
+      # set up fake workflow, mirror OpenStudioApplication ApplyMeasureNowDialog
+      @working_dir = model_interface.model_temp_dir
+      @model_workflow_json = model_interface.openstudio_model.workflowJSON
+      @workflow = OpenStudio::WorkflowJSON.new
+
+      weather_file = @model_workflow_json.weatherFile
+      if (not weather_file.empty?)
+        @workflow.setWeatherFile(weather_file.get)
+      end
+
+      @working_files_dir = @working_dir / OpenStudio::toPath("generated_files")
+      @workflow.addFilePath(@working_files_dir)
+
+      @model_workflow_json.absoluteFilePaths().each do |file_path|
+        @workflow.addFilePath(file_path)
+      end
+
+      # temporarily swap models's workflow for this one
+      model_interface.openstudio_model.setWorkflowJSON(@workflow)
+
       # pause event processing
       event_processing_stopped = Plugin.stop_event_processing
 
@@ -364,11 +386,11 @@ module OpenStudio
       #SKETCHUP_CONSOLE.show
 
       arguments = nil
-      if user_script.is_a?(OpenStudio::Ruleset::ModelUserScript)
+      if user_script.is_a?(OpenStudio::Ruleset::ModelUserScript) or user_script.is_a?(OpenStudio::Measure::ModelMeasure)
         arguments = user_script.arguments(model_interface.openstudio_model)
       end
 
-      if user_script.is_a?(OpenStudio::Ruleset::ReportingUserScript)
+      if user_script.is_a?(OpenStudio::Ruleset::ReportingUserScript) or user_script.is_a?(OpenStudio::Measure::ReportingMeasure)
         arguments = user_script.arguments()
       end
 
@@ -384,9 +406,9 @@ module OpenStudio
 
           error_msg += "Running #{user_script.name}\n"
 
-          if user_script.is_a?(OpenStudio::Ruleset::ModelUserScript)
+          if user_script.is_a?(OpenStudio::Ruleset::ModelUserScript) or user_script.is_a?(OpenStudio::Measure::ModelMeasure)
             user_script.run(model_interface.openstudio_model, self, arguments)
-          elsif user_script.is_a?(OpenStudio::Ruleset::ReportingUserScript)
+          elsif user_script.is_a?(OpenStudio::Ruleset::ReportingUserScript) or user_script.is_a?(OpenStudio::Measure::ReportingMeasure)
             user_script.run(self, arguments)
           end
 
@@ -398,6 +420,9 @@ module OpenStudio
           error_msg += "#{error.backtrace}\n"
 
         end
+
+        # restore models's workflow
+        model_interface.openstudio_model.setWorkflowJSON(@model_workflow_json)
 
         result = self.result
         if not result.stepErrors.empty?

@@ -1,5 +1,5 @@
 ########################################################################################################################
-#  OpenStudio(R), Copyright (c) 2008-2021, OpenStudio Coalition and other contributors. All rights reserved.
+#  OpenStudio(R), Copyright (c) 2008-2023, OpenStudio Coalition and other contributors. All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 #  following conditions are met:
@@ -59,5 +59,26 @@ class ReportingUserScript
   end
 end
 
+end #Ruleset
+module Measure
+
+class ModelMeasure
+  def registerWithApplication
+    Plugin.user_script_runner.add_user_script(self)
+  end
 end
+
+class EnergyPlusMeasure
+  def registerWithApplication
+    Plugin.user_script_runner.add_user_script(self)
+  end
+end
+
+class ReportingMeasure
+  def registerWithApplication
+    Plugin.user_script_runner.add_user_script(self)
+  end
+end
+
+end #Measure
 end
