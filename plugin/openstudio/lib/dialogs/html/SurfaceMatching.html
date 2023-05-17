@@ -12,14 +12,26 @@ function onLoad() {
 function onMatchSelected() {
   window.location='skp:on_match_selected';
 }
+function onMatchSelectedBeta() {
+  window.location='skp:on_match_selected_beta';
+}
 function onMatchAll() {
   window.location='skp:on_match_all';
+}
+function onMatchAllBeta() {
+  window.location='skp:on_match_all_beta';
 }
 function onIntersectAll() {
   window.location='skp:on_intersect_all';
 }
+function onIntersectAllBeta() {
+  window.location='skp:on_intersect_all_beta';
+}
 function onIntersectSelected() {
   window.location='skp:on_intersect_selected';
+}
+function onIntersectSelectedBeta() {
+  window.location='skp:on_intersect_selected_beta';
 }
 function onUnmatchSelected() {
   window.location='skp:on_unmatch_selected';
@@ -41,13 +53,13 @@ function onCancel() {
 <fieldset>
 <legend>Intersect and Divide Inter-Zone Surfaces <a href="http://openstudiocoalition.org/reference/sketchup_plugin_interface/#surface-matching" target="_blank">(help)</a></legend>
 
-<i>Some users have reported issues with the intersect functionality in this dialog.  If you experience problems, please try to using the "IntersectSpaceGeometry" user script.</i>
+<i>Some users have reported issues with the intersect functionality in this dialog.  If you experience problems, please try to using the "IntersectSpaceGeometry" user script.
 
 <table border="0" cellpadding="4" width="100%" align="center">
 
 <tr>
 <td style="text-align:center;">
-<input id="INTERSECT_ALL" onclick="onIntersectAll()" type="button" class="button" value="Intersect in Entire Model" style="text-align:center;width:150px; margin-left:3px;">
+<input id="INTERSECT_ALL" onclick="onIntersectAll()" type="button" class="button" value="Intersect in Entire Model" style="text-align:center;width:155px; margin-left:3px;">
 <input id="INTERSECT_SELECTED" onclick="onIntersectSelected()" type="button" class="button" value="Intersect in Selection" style="text-align:center;width:150px; margin-left:3px;">
 </td>
 </tr>
@@ -80,6 +92,31 @@ function onCancel() {
 <td style="text-align:center;">
 <input id="LAST_REPORT" onclick="onLastReport()" type="button" class="button" value="Last Report" style="text-align:center;width:75px; margin-left:3px;">
 <input id="CANCEL" onclick="onCancel()" type="button" class="button" value="Cancel" style="text-align:center;width:75px; margin-left:3px;">
+</td>
+</tr>
+
+</table>
+
+</fieldset>
+
+
+<fieldset>
+<legend>Beta Methods</legend>
+Beta methods for intersection and matching should be used only in cases where other primary intersection and matching methods have failed. SAVE A COPY BEFORE USING BETA!  Please report problems as <a href="https://github.com/openstudiocoalition/openstudio-sketchup-plugin/issues" target="_blank">GitHub Issues</a><br><br>
+
+<table border="0" cellpadding="4" width="100%" align="center">
+
+<tr>
+<td style="text-align:center;">
+<input id="INTERSECT_ALL_BETA" onclick="onIntersectAllBeta()" type="button" class="button" value="Intersect Whole Model BETA" style="text-align:center;width:185px; margin-left:3px;">
+<input id="INTERSECT_SELECTED_BETA" onclick="onIntersectSelectedBeta()" type="button" class="button" value="Intersect Selection BETA" style="text-align:center;width:160px; margin-left:3px;">
+</td>
+</tr>
+
+<tr>
+<td style="text-align:center;">
+<input id="MATCH_ALL_BETA" onclick="onMatchAllBeta()" type="button" class="button" value="Match in Entire Model BETA" style="text-align:center;width:180px; margin-left:3px;">
+<input id="MATCH_SELECTED_BETA" onclick="onMatchSelectedBeta()" type="button" class="button" value="Match in Selection BETA" style="text-align:center;width:165px; margin-left:3px;">
 </td>
 </tr>
 
