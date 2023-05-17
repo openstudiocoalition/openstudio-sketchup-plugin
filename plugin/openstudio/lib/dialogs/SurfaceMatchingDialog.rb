@@ -38,7 +38,7 @@ module OpenStudio
 
     def initialize(container, interface, hash)
       super
-      @container = WindowContainer.new("Surface Matching", 380, 200, 150, 150)
+      @container = WindowContainer.new("Surface Matching", 650, 440, 150, 150)
       @container.set_file(Plugin.dir + "/lib/dialogs/html/SurfaceMatching.html")
 
       @last_report = ""
@@ -52,10 +52,17 @@ module OpenStudio
       @container.web_dialog.add_action_callback("on_intersect_selected") { on_intersect_selected }
       @container.web_dialog.add_action_callback("on_match_selected") { on_match_selected }
       @container.web_dialog.add_action_callback("on_match_all") { on_match_all }
+
       @container.web_dialog.add_action_callback("on_unmatch_selected") { on_unmatch_selected }
       @container.web_dialog.add_action_callback("on_unmatch_all") { on_unmatch_all }
       @container.web_dialog.add_action_callback("on_last_report") { on_last_report }
       @container.web_dialog.add_action_callback("on_cancel") { on_cancel }
+
+      #Begin Beta testing
+      @container.web_dialog.add_action_callback("on_intersect_all_beta") { on_intersect_all_beta }
+      @container.web_dialog.add_action_callback("on_intersect_selected_beta") { on_intersect_selected_beta }
+      @container.web_dialog.add_action_callback("on_match_selected_beta") { on_match_selected_beta }
+      @container.web_dialog.add_action_callback("on_match_all_beta") { on_match_all_beta }
     end
 
     def on_load
@@ -85,7 +92,7 @@ module OpenStudio
 
     def intersect(selection)
 
-      # canel if there is no selection
+      # cancel if there is no selection
       if selection.empty?
         UI.messagebox("Selection is empty, please select objects for intersection routine or choose 'Intersect in Entire Model'.")
         return
@@ -644,6 +651,347 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
     def on_cancel
       close
     end
+
+    #Begin Beta testing
+
+    def get_centroid_beta(pts) #calculates the centroid of the polygon
+      total_area = 0
+      total_centroids = Geom::Vector3d.new(0,0,0)
+      third = Geom::Transformation.scaling(1.0 / 3.0)
+      npts = pts.length
+      vec1 = Geom::Vector3d.new(pts[1].x - pts[0].x, pts[1].y - pts[0].y, pts[1].z - pts[0].z)
+      vec2 = Geom::Vector3d.new(pts[2].x - pts[0].x, pts[2].y - pts[0].y, pts[2].z - pts[0].z)
+      ref_sense = vec1.cross vec2
+      for i in 0...(npts-2)
+        vec1 = Geom::Vector3d.new(pts[i+1].x - pts[0].x, pts[i+1].y - pts[0].y, pts[i+1].z - pts[0].z)
+        vec2 = Geom::Vector3d.new(pts[i+2].x - pts[0].x, pts[i+2].y - pts[0].y, pts[i+2].z - pts[0].z)
+        vec = vec1.cross vec2
+        area = vec.length / 2.0
+        if(ref_sense.dot(vec) < 0)
+           area *= -1.0
+        end
+        total_area += area
+        centroid = (vec1 + vec2).transform(third)
+        t = Geom::Transformation.scaling(area)
+        total_centroids += centroid.transform(t)
+      end
+      c = Geom::Transformation.scaling(1.0 / total_area)
+      total_centroids.transform!(c) + Geom::Vector3d.new(pts[0].x,pts[0].y,pts[0].z)
+    end
+
+    def intersect_beta(selection)
+
+      # cancel if there is no selection
+      if selection.empty?
+        UI.messagebox("Selection is empty, please select objects for intersection routine or choose 'Intersect in Entire Model'.")
+        return
+      end
+
+      # offer user chance to cancel
+      result = UI.messagebox(
+"Warning this will create new geometry in your spaces.\n
+This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
+
+      if result == 2 # cancel
+        return false
+      end
+
+      model_interface = Plugin.model_manager.model_interface
+
+      # pause event processing
+      event_processing_stopped = Plugin.stop_event_processing
+
+      # store starting render mode
+      starting_rendermode = model_interface.materials_interface.rendering_mode
+
+      # switch render mode to speed things up
+      model_interface.materials_interface.rendering_mode = RenderWaiting
+
+      # DLM: creating a lot of subsurfaces in an operation appears to create problems when multiple surfaces
+      # are swapped simultaneously, need more testing to understand this
+      #begin
+      #  # start an operation
+      #  model_interface.start_operation("Intersect Space Geometry", true)
+
+      # create a progress bar
+      progress_dialog = ProgressDialog.new("Intersecting Space Geometry")
+
+      # temporarily hide everything but heat transfer surfaces
+      model_interface.skp_model.entities.each {|e| e.visible = false}
+      model_interface.shading_surface_groups.each { |group| group.entity.visible = false }
+      model_interface.interior_partition_surface_groups.each { |group| group.entity.visible = false }
+      model_interface.illuminance_maps.each { |group| group.entity.visible = false }
+      model_interface.daylighting_controls.each { |group| group.entity.visible = false }
+
+      # get all spaces
+      spaces = model_interface.spaces
+      spaces.each { |space| space.entity.visible = true }
+
+      num_total = spaces.size
+      num_complete = 0
+
+      # iterate through spaces to create intersecting geometry
+      spaces.each do |space|
+        entity = space.entity
+        before_faces = entity.entities.grep(Sketchup::Face) # create array of faces before the intersect
+        entity.entities.intersect_with(true, entity.transformation, entity.entities.parent, entity.transformation, false, selection.to_a)
+        edges = entity.entities.grep(Sketchup::Edge)
+        edges.each {|edge| edge.find_faces} # Heal empty loops (no face) after intersection, this may not be necessary?
+
+        #Ski90Moo:This will find faces with AttributeDictionaries copied from the base face (this is causing the faces to be added to the drawing_interface but a new model surface object is not created because all the copies point to an existing surface object.) Rough work around solution is to delete the dictionary, delete the sketchup entity, and redraw it.  This prompts the downstream observer to create a new model surface object and add the sketchup entities to the drawing_interface.  There is probably a more direct solution without having to delete and redraw, but I do not fully understand how the observer works.
+
+        after_faces = entity.entities.grep(Sketchup::Face)  # create array of faces after the intersect
+        new_faces = after_faces - before_faces  # find the new faces (that just copied the attributes from the base face)
+        temp = []  # create array to temporarily store new_faces vertices
+        new_faces.each do |face|
+          face.delete_attribute('OpenStudio')  # delete dictionary attributes from the copied face so it will not delete the OS model object when deleted
+          temp << face.outer_loop.vertices
+        end
+        entity.entities.erase_entities(new_faces)  # delete the copied faces
+        temp.each do |face|
+          face = entity.entities.add_face(face)  # add the copied faces back to the model
+        end
+        edges = entity.entities.grep(Sketchup::Edge)
+        edges.each {|edge| edge.find_faces}  # Heal empty loops (no face) after intersection
+
+        num_complete += 1
+        progress_dialog.setValue((100*num_complete)/num_total)
+      end
+
+      # unhide everything
+      model_interface.skp_model.entities.each {|e| e.visible = true}
+      model_interface.shading_surface_groups.each { |group| group.entity.visible = true }
+      model_interface.interior_partition_surface_groups.each { |group| group.entity.visible = true }
+      model_interface.illuminance_maps.each { |group| group.entity.visible = true }
+      model_interface.daylighting_controls.each { |group| group.entity.visible = true }
+
+      #ensure
+      #
+      #  model_interface.commit_operation
+      #
+      #end
+
+      progress_dialog.destroy
+
+      # switch render mode back to original
+      proc = Proc.new { model_interface.materials_interface.rendering_mode = starting_rendermode }
+      Plugin.add_event( proc )
+
+      # resume event processing
+      Plugin.start_event_processing if event_processing_stopped
+
+    end
+
+    def on_intersect_all_beta
+      model_interface = Plugin.model_manager.model_interface
+      model = model_interface.skp_model
+      model.selection.clear
+
+      entities = []
+      model_interface.spaces.each do |space|
+        entities << space.entity
+      end
+      model.selection.add(entities)
+
+      intersect_beta(model.selection)
+
+      model.selection.clear
+    end
+
+    def on_intersect_selected_beta
+      model = Plugin.model_manager.model_interface.skp_model
+      intersect_beta(model.selection)
+    end
+
+    def match_beta(selection)
+
+      @last_report = "Surface Matching Report:\n"
+      @last_report << "Action, Surface #1, Surface #2\n"
+
+      if selection.empty?
+        UI.messagebox("Selection is empty, please select objects for matching routine or choose 'Match in Entire Model'.")
+        return
+      end
+
+      result = UI.messagebox(
+"Warning this will match surfaces and subsurfaces
+within and surrounding the selected Spaces.\n
+This will also reassign constructions on affected surfaces.\n
+This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
+
+      if result == 2 # cancel
+        return false
+      end
+
+      model_interface = Plugin.model_manager.model_interface
+
+      # pause event processing
+      event_processing_stopped = Plugin.stop_event_processing
+
+      # store starting render mode
+      starting_rendermode = model_interface.materials_interface.rendering_mode
+
+      # switch render mode to speed things up
+      model_interface.materials_interface.rendering_mode = RenderWaiting
+
+      # get all spaces
+      spaces = model_interface.spaces.to_a
+
+      # get all base surfaces
+      surfaces = model_interface.surfaces.to_a
+
+      # get all sub surfaces
+      sub_surfaces = model_interface.sub_surfaces.to_a
+
+      inspector_dialog_enabled = Plugin.dialog_manager.inspector_dialog.disable
+
+      begin
+
+        # create a progress dialog
+        progress_dialog = ProgressDialog.new("Matching Surfaces")
+
+        # processed and total number of comparisons
+        processed_num = 0
+        total_num = surfaces.length
+
+        # num matches found
+        num_matches = 0
+        centroid_hash = Hash.new
+
+        # loop over all base surfaces
+        surfaces.each do |surface|
+
+          # update number of comparisons
+          processed_num += 1
+          percent_complete = (100*processed_num)/total_num
+          progress_dialog.setValue(percent_complete)
+
+          next if not (surface.is_a?(Surface) and
+                       surface.parent.is_a?(Space))
+
+          # get the parents transformation
+          transform_i = surface.parent.coordinate_transformation
+
+          # get the polygon, reverse it
+          reverse_face_polygon = surface.face_polygon.reverse.transform(transform_i)
+
+          #Get vertices of polygon
+          surf_global_vertices = reverse_face_polygon.points
+
+          #Check if surface is a valid polygon, write to report and return if not, otherwise calculate centroid
+          npts = surf_global_vertices.length
+          if npts == 0
+            @last_report << "Surface '#{surface.name}' has an error' \n"
+          else
+            centroid = get_centroid_beta(surf_global_vertices)
+
+            # Test if centroid is already in hash using ==.  If true, match surfaces and prevent centroid from re-matching.  If false, add to hash.
+            hash_pair = centroid_hash.assoc(centroid)
+            if hash_pair
+              matched_surf = hash_pair[1]
+              if matched_surf
+                surface.model_object.setAdjacentSurface(matched_surf.model_object)
+                centroid_hash[hash_pair[0]] = false
+                @last_report << "Match, '#{surface.name}' to '#{matched_surf.name}' \n"
+              else
+                @last_report << "Duplicate centroid, '#{surface.name}' \n"
+              end
+            else
+              centroid_hash[centroid] = surface
+            end
+          end
+        end
+      ensure
+        progress_dialog.destroy
+      end
+
+      @last_report << "\nSubSurface Matching Report:\n"
+      @last_report << "Action, SubSurface #1, SubSurface #2\n"
+
+      begin
+
+        # create a progress dialog
+        progress_dialog = ProgressDialog.new("Matching SubSurfaces")
+
+        # processed and total number of comparisons
+        processed_num = 0
+        total_num = sub_surfaces.length
+
+        centroid_hash.clear
+
+        # loop over all sub surfaces
+        sub_surfaces.each do |sub_surface|
+
+          # update number of comparisons
+          processed_num += 1
+          percent_complete = (100*processed_num)/total_num
+          progress_dialog.setValue(percent_complete)
+
+          next if not (sub_surface.is_a?(SubSurface) and
+                       sub_surface.parent.is_a?(Surface) and
+                       sub_surface.parent.parent.is_a?(Space))
+
+          # get the parents transformation
+          transform_i = sub_surface.parent.parent.coordinate_transformation
+
+          # get the polygon, reverse it
+          reverse_face_polygon = sub_surface.face_polygon.reverse.transform(transform_i)
+
+          #Get vertices of polygon, calculate centroid
+          surf_global_vertices = reverse_face_polygon.points
+
+          #Check if surface is a valid polygon, write to report and return if not, otherwise calculate centroid
+          npts = surf_global_vertices.length
+          if npts == 0
+            @last_report << "SubSurface '#{sub_surface.name}' has an error' \n"
+          else
+            centroid = get_centroid_beta(surf_global_vertices)
+
+            # Test if centroid is already in hash using ==.  If true, match subsurfaces and prevent centroid from re-matching.  If false, add to hash.
+            hash_pair = centroid_hash.assoc(centroid)
+            if hash_pair
+              matched_sub_surf = hash_pair[1]
+              if matched_sub_surf
+                sub_surface.model_object.setAdjacentSubSurface(matched_sub_surf.model_object)
+                centroid_hash[hash_pair[0]] = false
+                @last_report << "Match, '#{sub_surface.name}' to '#{matched_sub_surf.name}' \n"
+              else
+                 @last_report << "Duplicate centroid, '#{sub_surface.name}' \n"
+              end
+            else
+              centroid_hash[centroid] = sub_surface
+            end
+          end
+        end
+      ensure
+        progress_dialog.destroy
+      end
+
+      # switch render mode back to original
+      proc = Proc.new { model_interface.materials_interface.rendering_mode = starting_rendermode }
+      Plugin.add_event( proc )
+
+      Plugin.dialog_manager.inspector_dialog.enable if inspector_dialog_enabled
+
+      # resume event processing
+      Plugin.start_event_processing if event_processing_stopped
+
+    end
+
+    def on_match_selected_beta
+      model = Plugin.model_manager.model_interface.skp_model
+      match_beta(model.selection)
+    end
+
+    def on_match_all_beta
+      model = Plugin.model_manager.model_interface.skp_model
+      model.selection.clear
+      model.selection.add(model.entities.to_a)
+      match_beta(model.selection)
+      model.selection.clear
+    end
+
+    #End Beta testing
 
   end
 
