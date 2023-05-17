@@ -90,9 +90,6 @@ module OpenStudio
       model.selection.clear
     end
 
-
-
-
     def intersect(selection)
 
       # cancel if there is no selection
@@ -217,33 +214,6 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
 
       return result
     end
-
-	#Begin Beta testing
-	def get_centroid(pts) #calculates the centroid of the polygon
-        total_area = 0
-        total_centroids = Geom::Vector3d.new(0,0,0)
-        third = Geom::Transformation.scaling(1.0 / 3.0)
-        npts = pts.length
-        vec1 = Geom::Vector3d.new(pts[1].x - pts[0].x, pts[1].y - pts[0].y, pts[1].z - pts[0].z)
-        vec2 = Geom::Vector3d.new(pts[2].x - pts[0].x, pts[2].y - pts[0].y, pts[2].z - pts[0].z)
-        ref_sense = vec1.cross vec2
-        for i in 0...(npts-2)
-          vec1 = Geom::Vector3d.new(pts[i+1].x - pts[0].x, pts[i+1].y - pts[0].y, pts[i+1].z - pts[0].z)
-          vec2 = Geom::Vector3d.new(pts[i+2].x - pts[0].x, pts[i+2].y - pts[0].y, pts[i+2].z - pts[0].z)
-          vec = vec1.cross vec2
-          area = vec.length / 2.0
-          if(ref_sense.dot(vec) < 0)
-             area *= -1.0
-          end
-          total_area += area
-          centroid = (vec1 + vec2).transform(third)
-          t = Geom::Transformation.scaling(area)
-          total_centroids += centroid.transform(t)
-        end
-        c = Geom::Transformation.scaling(1.0 / total_area)
-        total_centroids.transform!(c) + Geom::Vector3d.new(pts[0].x,pts[0].y,pts[0].z)
-    end
-	#End Beta testing
 
     def match(selection)
 
@@ -526,10 +496,6 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
 
     end
 
-
-
-	#End Beta testing
-
     def unmatch(selection)
 
       @last_report = "Surface Unmatching Report:\n"
@@ -688,7 +654,32 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
 
     #Begin Beta testing
 
-    def intersectbeta(selection)
+    def get_centroid_beta(pts) #calculates the centroid of the polygon
+      total_area = 0
+      total_centroids = Geom::Vector3d.new(0,0,0)
+      third = Geom::Transformation.scaling(1.0 / 3.0)
+      npts = pts.length
+      vec1 = Geom::Vector3d.new(pts[1].x - pts[0].x, pts[1].y - pts[0].y, pts[1].z - pts[0].z)
+      vec2 = Geom::Vector3d.new(pts[2].x - pts[0].x, pts[2].y - pts[0].y, pts[2].z - pts[0].z)
+      ref_sense = vec1.cross vec2
+      for i in 0...(npts-2)
+        vec1 = Geom::Vector3d.new(pts[i+1].x - pts[0].x, pts[i+1].y - pts[0].y, pts[i+1].z - pts[0].z)
+        vec2 = Geom::Vector3d.new(pts[i+2].x - pts[0].x, pts[i+2].y - pts[0].y, pts[i+2].z - pts[0].z)
+        vec = vec1.cross vec2
+        area = vec.length / 2.0
+        if(ref_sense.dot(vec) < 0)
+           area *= -1.0
+        end
+        total_area += area
+        centroid = (vec1 + vec2).transform(third)
+        t = Geom::Transformation.scaling(area)
+        total_centroids += centroid.transform(t)
+      end
+      c = Geom::Transformation.scaling(1.0 / total_area)
+      total_centroids.transform!(c) + Geom::Vector3d.new(pts[0].x,pts[0].y,pts[0].z)
+    end
+
+    def intersect_beta(selection)
 
       # cancel if there is no selection
       if selection.empty?
@@ -742,26 +733,26 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
       # iterate through spaces to create intersecting geometry
       spaces.each do |space|
         entity = space.entity
-        before_faces = entity.entities.grep(Sketchup::Face) #create array of faces before the intersect
+        before_faces = entity.entities.grep(Sketchup::Face) # create array of faces before the intersect
         entity.entities.intersect_with(true, entity.transformation, entity.entities.parent, entity.transformation, false, selection.to_a)
         edges = entity.entities.grep(Sketchup::Edge)
-        edges.each {|edge| edge.find_faces} #Heal empty loops (no face) after intersection, this may not be necessary?
+        edges.each {|edge| edge.find_faces} # Heal empty loops (no face) after intersection, this may not be necessary?
 
         #Ski90Moo:This will find faces with AttributeDictionaries copied from the base face (this is causing the faces to be added to the drawing_interface but a new model surface object is not created because all the copies point to an existing surface object.) Rough work around solution is to delete the dictionary, delete the sketchup entity, and redraw it.  This prompts the downstream observer to create a new model surface object and add the sketchup entities to the drawing_interface.  There is probably a more direct solution without having to delete and redraw, but I do not fully understand how the observer works.
 
-        after_faces = entity.entities.grep(Sketchup::Face)  #create array of faces after the intersect
-        new_faces = after_faces - before_faces  #find the new faces (that just copied the attributes from the base face)
-        temp = []  #create array to temporarily store new_faces vertices
+        after_faces = entity.entities.grep(Sketchup::Face)  # create array of faces after the intersect
+        new_faces = after_faces - before_faces  # find the new faces (that just copied the attributes from the base face)
+        temp = []  # create array to temporarily store new_faces vertices
         new_faces.each do |face|
-          face.delete_attribute('OpenStudio')  #delete dictionary attributes from the copied face so it will not delete the OS model object when deleted
+          face.delete_attribute('OpenStudio')  # delete dictionary attributes from the copied face so it will not delete the OS model object when deleted
           temp << face.outer_loop.vertices
         end
-        entity.entities.erase_entities(new_faces)  #delete the copied faces
+        entity.entities.erase_entities(new_faces)  # delete the copied faces
         temp.each do |face|
-          face = entity.entities.add_face(face)  #add the copied faces back to the model
+          face = entity.entities.add_face(face)  # add the copied faces back to the model
         end
         edges = entity.entities.grep(Sketchup::Edge)
-        edges.each {|edge| edge.find_faces}  #Heal empty loops (no face) after intersection
+        edges.each {|edge| edge.find_faces}  # Heal empty loops (no face) after intersection
 
         num_complete += 1
         progress_dialog.setValue((100*num_complete)/num_total)
@@ -802,20 +793,20 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
       end
       model.selection.add(entities)
 
-      intersectbeta(model.selection)
+      intersect_beta(model.selection)
 
       model.selection.clear
     end
 
     def on_intersect_selected_beta
       model = Plugin.model_manager.model_interface.skp_model
-      intersectbeta(model.selection)
+      intersect_beta(model.selection)
     end
 
-    def matchbeta(selection)
+    def match_beta(selection)
 
       @last_report = "Surface Matching Report:\n"
-      @last_report << "Action, Surface #1, Space #1, Surface #2, Space #2\n"
+      @last_report << "Action, Surface #1, Surface #2\n"
 
       if selection.empty?
         UI.messagebox("Selection is empty, please select objects for matching routine or choose 'Match in Entire Model'.")
@@ -849,6 +840,9 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
       # get all base surfaces
       surfaces = model_interface.surfaces.to_a
 
+      # get all sub surfaces
+      sub_surfaces = model_interface.sub_surfaces.to_a
+
       inspector_dialog_enabled = Plugin.dialog_manager.inspector_dialog.disable
 
       begin
@@ -858,80 +852,28 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
 
         # processed and total number of comparisons
         processed_num = 0
-        total_num = (surfaces.length * (surfaces.length-1)) / 2
+        total_num = surfaces.length
 
         # num matches found
         num_matches = 0
-
-        # precompute which spaces intersect with each other space
-        space_names = []
-        space_bounds = []
-        space_intersections = []
-        spaces.each_index do |i|
-          space_names[i] = spaces[i].name
-          space_bounds[i] = grow_bounds( spaces[i].entity.bounds )
-          space_intersections[i]=[]
-        end
-        spaces.each_index do |i|
-          space_intersections[i][i] = false
-          # loop over remaining spaces
-          (i+1..spaces.length-1).each do |j|
-            #intersect api may have bugs, isn't fully functional here
-            bbox = space_bounds[i].intersect(space_bounds[j])
-            test = (not bbox.empty?)
-            space_intersections[i][j] = test
-            space_intersections[j][i] = test
-          end
-        end
-
-        # loop over all base surfaces
-        surface_bounds = []
-        surface_space_indices = []
-        surfaces.each_index do |i|
-          next if not (surfaces[i].is_a?(Surface) and
-                       surfaces[i].parent.is_a?(Space))
-
-          surface_space_index = space_names.index(surfaces[i].parent.name)
-          surface_space_indices[i] = surface_space_index
-
-          # get the local bounding box
-          bounds = surfaces[i].entity.bounds
-
-          # get the parents transformation
-          transform = surfaces[i].parent.coordinate_transformation
-
-          # make a new bounding box in global coordinates
-          global_bounds = Geom::BoundingBox.new
-          (0..7).each do |j|
-            global_bounds.add(transform*bounds.corner(j))
-          end
-
-          # put the global bounding box into the array
-          surface_bounds[i] = grow_bounds(global_bounds)
-
-        end
-
-        # array for matching base surfaces
-        surface_intersections = []
-        surface_names = []
-        surfaces.each_index do |i|
-          surface_intersections[i] = Array.new(surfaces.length, false)
-          surface_names[i] = surfaces[i].name
-        end
-
         centroid_hash = Hash.new
-        matched_surf = []
-        # loop over all base surfaces
-        surfaces.each_index do |i|
 
-          next if not (surfaces[i].is_a?(Surface) and
-                       surfaces[i].parent.is_a?(Space))
+        # loop over all base surfaces
+        surfaces.each do |surface|
+
+          # update number of comparisons
+          processed_num += 1
+          percent_complete = (100*processed_num)/total_num
+          progress_dialog.setValue(percent_complete)
+
+          next if not (surface.is_a?(Surface) and
+                       surface.parent.is_a?(Space))
 
           # get the parents transformation
-          transform_i = surfaces[i].parent.coordinate_transformation
+          transform_i = surface.parent.coordinate_transformation
 
           # get the polygon, reverse it
-          reverse_face_polygon = surfaces[i].face_polygon.reverse.transform(transform_i)
+          reverse_face_polygon = surface.face_polygon.reverse.transform(transform_i)
 
           #Get vertices of polygon
           surf_global_vertices = reverse_face_polygon.points
@@ -939,18 +881,23 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
           #Check if surface is a valid polygon, write to report and return if not, otherwise calculate centroid
           npts = surf_global_vertices.length
           if npts == 0
-            @last_report << "Surface '#{surfaces[i].name}' has an error' \n"
+            @last_report << "Surface '#{surface.name}' has an error' \n"
           else
-            center = get_centroid(surf_global_vertices)
+            centroid = get_centroid_beta(surf_global_vertices)
 
-            #Test if centroid is already in hash.  If true, match surfaces and delete them from hash.  If false, add to hash.
-            if centroid_hash.has_value?(center)
-              matched_surf = centroid_hash.index(center)
-              surfaces[i].model_object.setAdjacentSurface(matched_surf.model_object)
-              centroid_hash.delete(matched_surf)
-              @last_report << "Match, '#{surfaces[i].name}' to '#{matched_surf.name}' \n"
+            # Test if centroid is already in hash.  If true, match surfaces and prevent centroid from re-matching.  If false, add to hash.
+            hash_pair = centroid_hash.assoc(centroid)
+            if hash_pair
+              matched_surf = hash_pair[1]
+              if matched_surf
+                surface.model_object.setAdjacentSurface(matched_surf.model_object)
+                centroid_hash[hash_pair[0]] = false
+                @last_report << "Match, '#{surface.name}' to '#{matched_surf.name}' \n"
+              else
+                @last_report << "Duplicate centroid, '#{surface.name}' \n"
+              end
             else
-              hsh = centroid_hash.store(surfaces[i],center)
+              centroid_hash[centroid] = surface
             end
           end
         end
@@ -959,10 +906,8 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
       end
 
       @last_report << "\nSubSurface Matching Report:\n"
-      @last_report << "Action, SubSurface #1, Surface #1, Surface #2, SubSurface #2\n"
+      @last_report << "Action, SubSurface #1, SubSurface #2\n"
 
-      # get all sub surfaces
-      sub_surfaces = model_interface.sub_surfaces.to_a
       begin
 
         # create a progress dialog
@@ -970,31 +915,27 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
 
         # processed and total number of comparisons
         processed_num = 0
-        total_num = (sub_surfaces.length * (sub_surfaces.length-1)) / 2
-
-        surface_indices = []
-        sub_surfaces.each_index do |i|
-          next if not (sub_surfaces[i].is_a?(SubSurface) and
-                       sub_surfaces[i].parent.is_a?(Surface) and
-                       sub_surfaces[i].parent.parent.is_a?(Space))
-
-          surface_index = surface_names.index(sub_surfaces[i].parent.name)
-          surface_indices[i] = surface_index
-        end
+        total_num = sub_surfaces.length
 
         centroid_hash.clear
-        # loop over all sub surfaces
-        sub_surfaces.each_index do |i|
 
-          next if not (sub_surfaces[i].is_a?(SubSurface) and
-                       sub_surfaces[i].parent.is_a?(Surface) and
-                       sub_surfaces[i].parent.parent.is_a?(Space))
+        # loop over all sub surfaces
+        sub_surfaces.each do |sub_surface|
+
+          # update number of comparisons
+          processed_num += 1
+          percent_complete = (100*processed_num)/total_num
+          progress_dialog.setValue(percent_complete)
+
+          next if not (sub_surface.is_a?(SubSurface) and
+                       sub_surface.parent.is_a?(Surface) and
+                       sub_surface.parent.parent.is_a?(Space))
 
           # get the parents transformation
-          transform_i = sub_surfaces[i].parent.parent.coordinate_transformation
+          transform_i = sub_surface.parent.parent.coordinate_transformation
 
           # get the polygon, reverse it
-          reverse_face_polygon = sub_surfaces[i].face_polygon.reverse.transform(transform_i)
+          reverse_face_polygon = sub_surface.face_polygon.reverse.transform(transform_i)
 
           #Get vertices of polygon, calculate centroid
           surf_global_vertices = reverse_face_polygon.points
@@ -1002,17 +943,23 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
           #Check if surface is a valid polygon, write to report and return if not, otherwise calculate centroid
           npts = surf_global_vertices.length
           if npts == 0
-            @last_report << "Surface '#{surfaces[i].name}' has an error' \n"
+            @last_report << "SubSurface '#{sub_surface.name}' has an error' \n"
           else
-          center = get_centroid(surf_global_vertices)
-            #Test if centroid is already in hash.  If true, match subsurfaces and delete them from hash.  If false, add to hash.
-            if centroid_hash.has_value?(center)
-              matched_surf = centroid_hash.index(center)
-              sub_surfaces[i].model_object.setAdjacentSubSurface(matched_surf.model_object)
-              centroid_hash.delete(matched_surf)
-              @last_report << "Match, '#{sub_surfaces[i].name}' to '#{matched_surf.name}' \n"
+            centroid = get_centroid_beta(surf_global_vertices)
+
+            # Test if centroid is already in hash.  If true, match subsurfaces and prevent centroid from re-matching.  If false, add to hash.
+            hash_pair = centroid_hash.assoc(centroid)
+            if hash_pair
+              matched_sub_surf = hash_pair[1]
+              if matched_sub_surf
+                sub_surface.model_object.setAdjacentSubSurface(matched_sub_surf.model_object)
+                centroid_hash[hash_pair[0]] = false
+                @last_report << "Match, '#{sub_surface.name}' to '#{matched_sub_surf.name}' \n"
+              else
+                 @last_report << "Duplicate centroid, '#{sub_surface.name}' \n"
+              end
             else
-              hsh = centroid_hash.store(sub_surfaces[i],center)
+              centroid_hash[centroid] = sub_surface
             end
           end
         end
@@ -1033,16 +980,18 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
 
     def on_match_selected_beta
       model = Plugin.model_manager.model_interface.skp_model
-      matchbeta(model.selection)
+      match_beta(model.selection)
     end
 
     def on_match_all_beta
       model = Plugin.model_manager.model_interface.skp_model
       model.selection.clear
       model.selection.add(model.entities.to_a)
-      matchbeta(model.selection)
+      match_beta(model.selection)
       model.selection.clear
     end
+
+    #End Beta testing
 
   end
 
