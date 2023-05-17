@@ -885,7 +885,7 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
           else
             centroid = get_centroid_beta(surf_global_vertices)
 
-            # Test if centroid is already in hash.  If true, match surfaces and prevent centroid from re-matching.  If false, add to hash.
+            # Test if centroid is already in hash using ==.  If true, match surfaces and prevent centroid from re-matching.  If false, add to hash.
             hash_pair = centroid_hash.assoc(centroid)
             if hash_pair
               matched_surf = hash_pair[1]
@@ -947,7 +947,7 @@ This operation cannot be undone. Do you want to continue?", MB_OKCANCEL)
           else
             centroid = get_centroid_beta(surf_global_vertices)
 
-            # Test if centroid is already in hash.  If true, match subsurfaces and prevent centroid from re-matching.  If false, add to hash.
+            # Test if centroid is already in hash using ==.  If true, match subsurfaces and prevent centroid from re-matching.  If false, add to hash.
             hash_pair = centroid_hash.assoc(centroid)
             if hash_pair
               matched_sub_surf = hash_pair[1]
