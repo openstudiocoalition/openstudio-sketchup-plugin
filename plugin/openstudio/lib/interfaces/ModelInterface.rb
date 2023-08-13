@@ -919,7 +919,17 @@ module OpenStudio
         end
 
         # Sort the drawing interfaces according to the "draw order".
-        drawing_interfaces.sort! { |a, b| @draw_order.index(a.class) <=> @draw_order.index(b.class) }
+        drawing_interfaces.sort! do |a, b|
+          result = @draw_order.index(a.class) <=> @draw_order.index(b.class)
+          if result == 0
+            # class specific sorting
+            if a.is_a?(PlanarSurface)
+              result = b.model_object.grossArea.to_f <=> a.model_object.grossArea.to_f
+            end
+          end
+
+          result
+        end
 
         # Reattach drawing interfaces and entities.
         for drawing_interface in drawing_interfaces
