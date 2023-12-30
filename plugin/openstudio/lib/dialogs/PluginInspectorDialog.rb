@@ -1,5 +1,5 @@
 ########################################################################################################################
-#  OpenStudio(R), Copyright (c) 2008-2023, OpenStudio Coalition and other contributors. All rights reserved.
+#  OpenStudio(R), Copyright (c) 2008-2022, OpenStudio Coalition and other contributors. All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 #  following conditions are met:
@@ -29,12 +29,37 @@
 
 module OpenStudio
 
-  class PluginInspectorDialog < Modeleditor::InspectorDialog
+  class PluginInspectorDialog
+
+    def create_dialog
+      html_file = File.join(__dir__, 'html', 'step4.html') # Use external HTML
+      options = {
+        :dialog_title => "Material",
+        :preferences_key => "example.htmldialog.materialinspector",
+        :style => UI::HtmlDialog::STYLE_DIALOG
+      }
+      dialog = UI::HtmlDialog.new(options)
+      dialog.set_file(html_file) # Can be set here.
+      dialog.center
+
+      dialog.add_action_callback('idd_object_type_ready') { |action_context|
+        puts "idd_object_type_ready"
+        puts "action_context = #{action_context}"
+        self.idd_object_type_ready()
+        nil
+      }
+      dialog.add_action_callback('select_idd_object_type') { |action_context, json|
+        puts "select_idd_object_type"
+        puts "action_context = #{action_context}"
+        self.select_idd_object_type(json)
+        nil
+      }
+
+      dialog
+    end
 
     def initialize
       Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
-
-      super("SketchUpPlugin".to_InspectorDialogClient, OpenStudio::SketchUpWidget)
 
       @ignore = false
     end
@@ -53,6 +78,35 @@ module OpenStudio
       return watcher_enabled
     end
 
+    def displayIP(display)
+    end
+
+    def idd_object_type_ready()
+      puts "idd_object_type_ready"
+      update
+    end
+
+    def select_idd_object_type(args)
+      puts "select_idd_object_type:"
+      puts "#{args}"
+    end
+
+    def setIddObjectType(iddObjectType)
+    end
+
+    def setSelectedObjectHandles(handles)
+    end
+
+    def saveState
+    end
+
+    def restoreState
+    end
+
+    def isVisible
+      return true
+    end
+
     #def onIddObjectTypeChanged(iddObjectType)
     #  Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, enabled? = #{enabled?}")
     #  super
@@ -60,7 +114,7 @@ module OpenStudio
 
     def onSelectedObjectHandlesChanged(handles)
       Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, enabled? = #{enabled?}, handles = #{handles}")
-      super
+      #super
 
       if enabled?
         model_interface =  Plugin.model_manager.model_interface
@@ -87,60 +141,76 @@ module OpenStudio
     def onPushButtonNew(checked)
       model_interface =  Plugin.model_manager.model_interface
       if model_interface.model_watcher.enabled
-        super(checked)
+      #  super(checked)
       else
-        show_error
+      #  show_error
       end
     end
 
     def onPushButtonCopy(checked)
       model_interface =  Plugin.model_manager.model_interface
       if model_interface.model_watcher.enabled
-        super(checked)
+      #  super(checked)
       else
-        show_error
+      #  show_error
       end
     end
 
     def onPushButtonDelete(checked)
       model_interface =  Plugin.model_manager.model_interface
       if model_interface.model_watcher.enabled
-        super(checked)
+      #  super(checked)
       else
-        show_error
+      #  show_error
       end
     end
 
     def onPushButtonPurge(checked)
       model_interface =  Plugin.model_manager.model_interface
       if model_interface.model_watcher.enabled
-        super(checked)
+      #  super(checked)
       else
-        show_error
+      #  show_error
       end
     end
 
     def show
       Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, enabled? = #{enabled?}")
+
+      @dialog = create_dialog if !@dialog
+
       update
-      super
-      activateWindow
+      #super
+      #activateWindow
+
+      @dialog.show
+      @dialog.bring_to_front
 
       #OpenStudio::ApplicationClass.instance.processEvents
     end
+
+    def hide
+      Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, enabled? = #{enabled?}")
+
+      @dialog.close if @dialog
+      #OpenStudio::ApplicationClass.instance.processEvents
+    end
+
 
     def update
       Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}, enabled? = #{enabled?}")
 
       model_interface = Plugin.model_manager.model_interface
       if model_interface
-        setModel(model_interface.openstudio_model)
-        setEnabled(true)
+      #  setModel(model_interface.openstudio_model)
+      #  setEnabled(true)
       else
         openstudio_model = OpenStudio::Model::Model.new
-        setModel(openstudio_model)
-        setEnabled(false)
+      #  setModel(openstudio_model)
+      #  setEnabled(false)
       end
+
+      @dialog.execute_script("table.setData([{id:1, iddobjecttype:'Dan'}, {id:1, iddobjecttype:'More Dan'}]);") if @dialog
     end
 
   end

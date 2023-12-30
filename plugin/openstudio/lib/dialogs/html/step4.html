@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="tabulator.min.css" rel="stylesheet">
+  <link href="modus/modus.min.css" rel="stylesheet">
+  <script src="modus/jquery.js"></script>
+  <script src="modus/bootstrap.bundle.min.js"></script>
+  <script src="tabulator.min.js"></script>
+  <script src="vue.js"></script>
+</head>
+<body>
+
+  <div id="iddobjecttypes-div"></div>
+
+  <script>
+
+    var table = new Tabulator("#iddobjecttypes-div", {
+      selectable:1,
+      selectablePersistence:true,
+      height:205, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
+      data:[], //assign data to table
+      layout:"fitColumns", //fit columns to width of table (optional)
+      columns:[ //Define Table Columns
+        {title:"Idd Object Type", field:"iddobjecttype", width:150},
+      ],
+    });
+
+    table.on("tableBuilt", function(){
+      sketchup.idd_object_type_ready();
+    });
+
+    table.on("rowClick", function(e, row){
+      sketchup.select_idd_object_type(JSON.stringify(row.getData()));
+    });
+
+  </script>
+
+</body>
+</html>
