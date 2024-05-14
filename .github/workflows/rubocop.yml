@@ -8,21 +8,25 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
+
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
 
     - name: Run rubocop
       shell: bash
       run: |
           which ruby
           which gem
-          sudo gem install rubocop -v 0.88
-          sudo gem install rubocop-sketchup
+          gem install rubocop -v 1.50
+          gem install rubocop-sketchup
           cd plugin
           rubocop -f extension_review -o report.html
 
     - name: Upload rubocop results as artifact
       if: ${{ always() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
           name: Rubocop-${{ github.sha }}-report.html
           path: plugin/report.html
