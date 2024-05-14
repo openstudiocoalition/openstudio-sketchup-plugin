@@ -67,9 +67,9 @@ module OpenStudio
   
       if (openstudio_dir.nil? or openstudio_dir.empty?)
         # do nothing, assume user wants to clear
-      elsif (not File.exists?(openstudio_dir))
+      elsif (not File.exist?(openstudio_dir))
         UI.messagebox("WARNING: #{openstudio_dir} does not exist.")
-      elsif (not File.exists?(key_file))
+      elsif (not File.exist?(key_file))
         UI.messagebox("WARNING: #{key_file} does not exist.")
       end
 

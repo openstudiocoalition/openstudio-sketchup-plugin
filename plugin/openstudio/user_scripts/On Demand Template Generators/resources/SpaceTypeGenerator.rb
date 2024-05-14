@@ -436,7 +436,7 @@ def generate_space_type(template, clim, building_type, spc_type, model = nil)
   #puts "component_dir = #{component_dir}"
 
   puts "creating directories"
-  FileUtils.rm_rf(component_dir) if File.exists?(component_dir) and File.directory?(component_dir)
+  FileUtils.rm_rf(component_dir) if File.exist?(component_dir) and File.directory?(component_dir)
   FileUtils.mkdir_p(component_dir)
   FileUtils.mkdir_p("#{component_dir}/files/")
 

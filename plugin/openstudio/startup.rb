@@ -37,7 +37,7 @@ openstudio_dir = Sketchup.read_default("OpenStudio", "OpenStudioDir")
 
 while true
 
-  if openstudio_dir.nil? || !File.exists?(openstudio_dir)
+  if openstudio_dir.nil? || !File.exist?(openstudio_dir)
 
     prompts = ["Path to OpenStudio Root Directory"]
     is_windows = (RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/)
@@ -76,7 +76,7 @@ while true
     key_file = File.join(openstudio_dir, "Ruby/openstudio.rb")
   end
 
-  if File.exists?(key_file)
+  if File.exist?(key_file)
     Sketchup.write_default("OpenStudio", "OpenStudioDir", openstudio_dir)
     break
   else
