@@ -4,12 +4,14 @@ AllCops:
   DisabledByDefault: true
   DisplayStyleGuide: true
   Exclude:
+    - 'developer/ApplyCopyright.rb'
     - 'developer/GitHubIssueStats.rb'
     - 'plugin/openstudio/startup.rb' #\lib\rubocop\sketchup\no_comment_disable.rb
   SketchUp:
     SourcePath: plugin # Path to extension sources in project directory.
     EncryptedExtension: false # Enable if you plan to encrypt your extension.
-    TargetSketchUpVersion: 2019
+    TargetSketchUpVersion: 2024.0
+  TargetRubyVersion: 3.2
 
 SketchupDeprecations:
   Enabled: true

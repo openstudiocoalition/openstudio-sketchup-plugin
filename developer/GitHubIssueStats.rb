@@ -11,7 +11,7 @@ repo_owner = 'openstudiocoalition'
 repo = 'openstudio-sketchup-plugin'
 
 github = Github.new
-if File.exists?(Dir.home + '/github_config.yml')
+if File.exist?(Dir.home + '/github_config.yml')
   github_options = YAML.load_file(Dir.home + '/github_config.yml')
   token = github_options['oauth_token']
   github = Github.new oauth_token: token

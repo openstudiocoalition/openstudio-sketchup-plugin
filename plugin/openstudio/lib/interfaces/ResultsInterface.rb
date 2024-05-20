@@ -68,7 +68,7 @@ module OpenStudio
       openstudio_model = @model_interface.openstudio_model
       old_sql_file = openstudio_model.sqlFile
 
-      if File.exists?(output_file_path)
+      if File.exist?(output_file_path)
         begin
           new_sql_file = OpenStudio::SqlFile.new(OpenStudio::Path.new(output_file_path))
           openstudio_model.setSqlFile(new_sql_file)

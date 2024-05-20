@@ -87,14 +87,14 @@ module OpenStudio
         return(false)
       end
 
-      if (not File.exists?(Plugin.energyplus_path))
+      if (not File.exist?(Plugin.energyplus_path))
         UI.messagebox("Cannot locate the EnergyPlus engine.  Correct the EXE path and try again.")
         Plugin.dialog_manager.show(PreferencesInterface)
         return(false)
       end
 
       idd_path = Plugin.energyplus_dir + "/Energy+.idd"
-      if (not File.exists?(idd_path))
+      if (not File.exist?(idd_path))
         UI.messagebox("Cannot locate the input data dictionary (IDD) in the EnergyPlus directory.  Correct the EXE path and try again.")
         Plugin.dialog_manager.show(PreferencesInterface)
         return(false)
@@ -106,7 +106,7 @@ module OpenStudio
       else
         expandobjects_path = Plugin.energyplus_dir + '/expandobjects'
       end
-      if (not File.exists?(expandobjects_path))
+      if (not File.exist?(expandobjects_path))
         UI.messagebox("Cannot locate ExpandObjects in the EnergyPlus directory.  Correct the EXE path and try again.")
         Plugin.dialog_manager.show(PreferencesInterface)
         return(false)
@@ -115,13 +115,13 @@ module OpenStudio
       readvars_path = ""
       if (Plugin.platform == Platform_Windows)
         readvars_path = Plugin.energyplus_dir + '/PostProcess/ReadVarsESO.exe'
-        if (not File.exists?(readvars_path))
+        if (not File.exist?(readvars_path))
           readvars_path = Plugin.energyplus_dir + '/readvars.exe'
         end
       else
         readvars_path = Plugin.energyplus_dir + '/readvars'
       end
-      if (not File.exists?(readvars_path))
+      if (not File.exist?(readvars_path))
         UI.messagebox("Cannot locate ReadVarsESO in the EnergyPlus directory.  Correct the EXE path and try again.")
         Plugin.dialog_manager.show(PreferencesInterface)
         return(false)

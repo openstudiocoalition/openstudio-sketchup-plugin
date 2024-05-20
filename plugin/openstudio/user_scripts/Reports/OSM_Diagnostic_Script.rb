@@ -495,7 +495,7 @@ class DiagnosticScript < OpenStudio::Ruleset::ModelUserScript
 
     if savediagnostic
       newfilename = open_path.gsub(".osm","_diagnostic.osm")
-      if File.exists? newfilename
+      if File.exist? newfilename
         # I would like to add a prompt to ask the user if they want to overwrite their file
       end
       puts ""
