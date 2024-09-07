@@ -17,17 +17,35 @@ while true
 
     prompts = ["Path to OpenStudio Root Directory"]
     is_windows = (RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/)
+    base_dir = nil
     if is_windows
       if sketchup_version >= 19
-        defaults = Dir.glob('C:/openstudioapplication-*').sort.reverse
+        base_dir = 'C:/openstudioapplication-*'
       else
-        defaults = Dir.glob('C:/openstudio-2.*').sort.reverse
+        base_dir = 'C:/openstudio-2.*'
       end
     else
       if sketchup_version >= 19
-        defaults = Dir.glob('/Applications/OpenStudioApplication-*').sort.reverse
+        base_dir = '/Applications/OpenStudioApplication-*'
       else
-        defaults = ['/Applications/OpenStudio-2*']
+        base_dir = '/Applications/OpenStudio-2*'
+      end
+    end
+
+    defaults = Dir.glob(base_dir).sort.reverse
+    if sketchup_version >= 19
+      defaults.reject! do |file|
+        if md = /openstudioapplication-(\d+)\.(\d+)/i.match(file)
+          if sketchup_version >= 24
+            # SketchUp 2024 requires OpenStudio Application 1.8.0 or higher
+            md[1].to_i == 1 and md[2].to_i < 8
+          else
+            # SketchUp 2019-2023 requires OpenStudio Application 1.7.0 or lower
+            md[1].to_i > 1 or md[2].to_i > 7
+          end
+        else
+          true
+        end
       end
     end
 
