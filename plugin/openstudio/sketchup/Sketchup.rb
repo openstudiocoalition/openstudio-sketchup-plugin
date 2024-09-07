@@ -1,30 +1,6 @@
 ########################################################################################################################
-#  OpenStudio(R), Copyright (c) 2008-2023, OpenStudio Coalition and other contributors. All rights reserved.
-#
-#  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
-#  following conditions are met:
-#
-#  (1) Redistributions of source code must retain the above copyright notice, this list of conditions and the following
-#  disclaimer.
-#
-#  (2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
-#  disclaimer in the documentation and/or other materials provided with the distribution.
-#
-#  (3) Neither the name of the copyright holder nor the names of any contributors may be used to endorse or promote products
-#  derived from this software without specific prior written permission from the respective party.
-#
-#  (4) Other than as required in clauses (1) and (2), distributions in any form of modifications or other derivative works
-#  may not use the "OpenStudio" trademark, "OS", "os", or any other confusingly similar designation without specific prior
-#  written permission from Alliance for Sustainable Energy, LLC.
-#
-#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER(S) AND ANY CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-#  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER(S), ANY CONTRIBUTORS, THE UNITED STATES GOVERNMENT, OR THE UNITED
-#  STATES DEPARTMENT OF ENERGY, NOR ANY OF THEIR EMPLOYEES, BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-#  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-#  USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-#  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#  OpenStudio(R), Copyright (c) OpenStudio Coalition and other contributors.
+#  See also https://openstudiocoalition.org/about/software_license/
 ########################################################################################################################
 
 require("openstudio/sketchup/Geom")
@@ -114,7 +90,7 @@ module OpenStudio
     end
     return(color)
   end
-  
+
   def self.get_openstudio_path(skp_model)
     return(skp_model.get_attribute('OpenStudio', 'OpenStudioPath'))
   end
@@ -124,7 +100,7 @@ module OpenStudio
 
     skp_model.set_attribute('OpenStudio', 'OpenStudioPath', path)
   end
-  
+
   def self.get_model_interface(skp_model)
     object = nil
     if (id_string = skp_model.get_attribute('OpenStudio', 'ModelInterface'))
@@ -148,19 +124,19 @@ module OpenStudio
 
     skp_model.set_attribute('OpenStudio', 'ModelInterface', object.object_id.to_s)
   end
-  
+
   def self.get_openstudio_entities(skp_model)
     result = []
     skp_model.entities.each {|e| result << e if self.get_model_object_handle(e) }
     return result
   end
-  
+
   def self.get_openstudio_materials(skp_model)
     result = []
     skp_model.materials.each {|m| result << m if self.get_model_object_handle(m) }
     return result
   end
-  
+
   def self.delete_openstudio_entities(skp_model)
     # DLM: for some reason there is no delete_attribute for SketchUp::Model
     # delete_attribute('OpenStudio') # deletes entire attribute dictionary
@@ -168,7 +144,7 @@ module OpenStudio
     skp_model.set_attribute('OpenStudio', 'ModelInterface', nil)
     skp_model.entities.erase_entities(self.get_openstudio_entities(skp_model))
   end
-  
+
   # returns a string
   def self.get_model_object_handle(entity)
     return(entity.get_attribute('OpenStudio', 'Handle'))
@@ -207,7 +183,7 @@ module OpenStudio
 
     entity.set_attribute('OpenStudio', 'DrawingInterface', object.object_id.to_s)
   end
-  
+
   def self.get_polygon_loop(loop)
     points = []
     loop.vertices.each do |vertex|
@@ -218,7 +194,7 @@ module OpenStudio
     end
     return(OpenStudio::PolygonLoop.new(points))
   end
-  
+
   def self.get_outer_polygon(face)
     return(OpenStudio::Polygon.new(OpenStudio.get_polygon_loop(face.outer_loop)))
   end
@@ -240,7 +216,7 @@ module OpenStudio
   def self.intersect_faces(face, other_face)
     return(OpenStudio.intersect_polygon_polygon(self.get_full_polygon(face), self.get_full_polygon(other_face)))  # array of polygons
   end
-  
+
   def self.get_time(shadow_info)
     # API bug:  ShadowTime is returning the hour incorrectly in UTC/GMT time, but the time zone is (correctly) the local one.
     #           Also year is ALWAYS 2002.
@@ -266,7 +242,7 @@ module OpenStudio
   def self.get_sunset(shadow_info)
     return(self.convert_to_utc(shadow_info['SunSet']))
   end
-  
+
   def self.get_north_angle(shadow_info)
     return(shadow_info['NorthAngle'])
   end
