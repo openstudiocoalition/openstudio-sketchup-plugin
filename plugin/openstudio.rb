@@ -8,7 +8,7 @@ require 'rbconfig'
 
 module OpenStudio
   SKETCHUPPLUGIN_NAME = "OpenStudio"
-  SKETCHUPPLUGIN_VERSION = "1.8.0"
+  SKETCHUPPLUGIN_VERSION = "1.9.0"
   SKETCHUPPLUGIN_LAUNCH_GETTING_STARTED_ON_START = false
 end
 

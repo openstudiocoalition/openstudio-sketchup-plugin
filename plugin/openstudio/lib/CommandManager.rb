@@ -641,7 +641,7 @@ module OpenStudio
         end
       end
 
-      if (path = UI.save_panel("Export SDD Input XML Model", Plugin.model_manager.model_interface.openstudio_dir, Plugin.model_manager.model_interface.openstudio_name.gsub(/\.osm$/, ".xml")))
+      if (path = OpenStudio.save_panel("Export SDD Input XML Model", Plugin.model_manager.model_interface.openstudio_dir, Plugin.model_manager.model_interface.openstudio_name.gsub(/\.osm$/, ".xml")))
 
         extension = OpenStudio::toString(OpenStudio::Path.new(path).extension)
         stem = OpenStudio::toString(OpenStudio::Path.new(path).stem)
