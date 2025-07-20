@@ -32,6 +32,8 @@ module OpenStudio
       @hash['NON_CONVEX_SURFACES'] = false
       @hash['HIGH_POLY_SURFACES'] = false
       @hash['VERTEX_LIMIT'] = "4"
+      @hash['INVERT_SEARCH'] = false
+      @hash['INVERT_ACROSS_CLASSES'] = false
       @hash['SCENE_NAME'] = ""
 
       @last_report = ""
@@ -88,6 +90,8 @@ module OpenStudio
         enable_element("EXCLUDE_HORIZONTAL_SURFACES")
         enable_element("NON_CONVEX_SURFACES")
         enable_element("HIGH_POLY_SURFACES")
+        enable_element("INVERT_SEARCH")
+        enable_element("INVERT_ACROSS_CLASSES")
 
         @hash['TYPE'] = ""
         disable_element("TYPE")
@@ -120,6 +124,8 @@ module OpenStudio
         enable_element("EXCLUDE_HORIZONTAL_SURFACES")
         enable_element("NON_CONVEX_SURFACES")
         enable_element("HIGH_POLY_SURFACES")
+        enable_element("INVERT_SEARCH")
+        enable_element("INVERT_ACROSS_CLASSES")
 
         #@hash['SHADING_CONTROL_NAME'] = ""
         #disable_element("SHADING_CONTROL_NAME")
@@ -150,6 +156,8 @@ module OpenStudio
         enable_element("EXCLUDE_HORIZONTAL_SURFACES")
         enable_element("NON_CONVEX_SURFACES")
         enable_element("HIGH_POLY_SURFACES")
+        enable_element("INVERT_SEARCH")
+        enable_element("INVERT_ACROSS_CLASSES")
 
         @hash['OUTSIDE_BOUNDARY_CONDITION'] = ""
         disable_element("OUTSIDE_BOUNDARY_CONDITION")
@@ -186,6 +194,8 @@ module OpenStudio
         enable_element("NON_CONVEX_SURFACES")
         enable_element("HIGH_POLY_SURFACES")
         enable_element("CONSTRUCTION")
+        enable_element("INVERT_SEARCH")
+        enable_element("INVERT_ACROSS_CLASSES")
 
         @hash['TYPE'] = ""
         disable_element("TYPE")
@@ -218,6 +228,8 @@ module OpenStudio
         enable_element("NON_CONVEX_SURFACES")
         enable_element("HIGH_POLY_SURFACES")
         enable_element("CONSTRUCTION")
+        enable_element("INVERT_SEARCH")
+        enable_element("INVERT_ACROSS_CLASSES")
 
         @hash['TYPE'] = ""
         disable_element("TYPE")
@@ -382,6 +394,14 @@ module OpenStudio
       return true
     end
 
+    def invert_search()
+      return @hash['INVERT_SEARCH']
+    end
+
+    def invert_across_classes()
+      return @hash['INVERT_ACROSS_CLASSES']
+    end
+
     def surface_name_test(model_object)
       name = @hash["NAME"].upcase
       if not model_object.name.get.upcase.include?(name)
@@ -477,49 +497,60 @@ module OpenStudio
 
         # populate list of planar surfaces to search
         planar_surfaces = nil
-        if (@hash['CLASS'] == "")
+        if invert_search() && invert_across_classes()
           planar_surfaces = model_interface.all_surfaces.to_a
-        elsif (@hash['CLASS'] == "OS:Surface")
-          planar_surfaces = model_interface.surfaces.to_a
-        elsif (@hash['CLASS'] == "OS:SubSurface")
-          planar_surfaces = model_interface.sub_surfaces.to_a
-        elsif (@hash['CLASS'] == "OS:ShadingSurface")
-          planar_surfaces = model_interface.shading_surfaces.to_a
-        elsif (@hash['CLASS'] == "OS:InteriorPartitionSurface")
-          planar_surfaces = model_interface.interior_partition_surfaces.to_a
+        else
+          if (@hash['CLASS'] == "")
+            planar_surfaces = model_interface.all_surfaces.to_a
+          elsif (@hash['CLASS'] == "OS:Surface")
+            planar_surfaces = model_interface.surfaces.to_a
+          elsif (@hash['CLASS'] == "OS:SubSurface")
+            planar_surfaces = model_interface.sub_surfaces.to_a
+          elsif (@hash['CLASS'] == "OS:ShadingSurface")
+            planar_surfaces = model_interface.shading_surfaces.to_a
+          elsif (@hash['CLASS'] == "OS:InteriorPartitionSurface")
+            planar_surfaces = model_interface.interior_partition_surfaces.to_a
+          end
         end
-
-        # start the progress bar
-        num_surfaces = planar_surfaces.length
 
         # reject surfaces not in selection
         planar_surfaces.reject! { |planar_surface| not planar_surface.in_selection?(selection) }
 
         # do angular search
+        all_planar_surfaces = planar_surfaces.clone
         apply_surface_orientation_filter(planar_surfaces)
 
+        selected_planar_surfaces = []
+        not_selected_planar_surfaces = all_planar_surfaces.difference(planar_surfaces)
+
+        # start the progress bar
+        num_surfaces = planar_surfaces.length
+
         # loop over surfaces
-        planar_surfaces.each_index do |index|
+        planar_surfaces.each_with_index do |planar_surface, index|
 
           progress_dialog.setValue((100*index)/num_surfaces)
 
-          planar_surface = planar_surfaces[index]
           model_object = planar_surface.model_object
 
           # common tests
           if not horizontal_test(model_object)
+            not_selected_planar_surfaces << planar_surface
             next
           end
 
           if not non_convex_test(planar_surface)
+            not_selected_planar_surfaces << planar_surface
             next
           end
 
           if not high_poly_surfaces_test(model_object)
+            not_selected_planar_surfaces << planar_surface
             next
           end
 
           if not surface_name_test(model_object)
+            not_selected_planar_surfaces << planar_surface
             next
           end
 
@@ -531,19 +562,9 @@ module OpenStudio
                model_object.getString(8,true).to_s.upcase.include?(wind) #and
                #shading_control.empty? and frame_and_divider.empty?
 
-               # unhide face
-               planar_surface.entity.visible = true
-               selected_entities << planar_surface.entity
-
-               # unhide edges
-               planar_surface.entity.edges.each {|edge| edge.visible = true }
-
-               # unhide space
-               planar_surface.parent.entity.visible = true
-
-               # add to report
-               @last_report << "#{model_object.iddObject.name.to_s}, #{model_object.name.to_s}\n"
-
+               selected_planar_surfaces << planar_surface
+            else
+               not_selected_planar_surfaces << planar_surface
             end
           elsif ((planar_surface.is_a? SubSurface) and (@hash['CLASS'] == "" or @hash['CLASS'] == "OS:SubSurface"))
             if model_object.getString(2,true).to_s.upcase.include?(type) and
@@ -552,45 +573,18 @@ module OpenStudio
                #model_object.getString(7,true).to_s.upcase.include?(shading_control)
                #model_object.getString(8,true).to_s.upcase.include?(frame_and_divider)
 
-               # unhide face
-               planar_surface.entity.visible = true
-               selected_entities << planar_surface.entity
-
-               # unhide edges
-               planar_surface.entity.edges.each {|edge| edge.visible = true }
-
-               # unhide base surface
-               #planar_surface.parent.entity.visible = true
-
-               # unhide base surface edges
-               planar_surface.parent.entity.edges.each {|edge| edge.visible = true }
-
-               # unhide space
-               planar_surface.parent.parent.entity.visible = true
-
-               # add to report
-               @last_report << "#{model_object.iddObject.name.to_s}, #{model_object.name.to_s}\n"
+               selected_planar_surfaces << planar_surface
+            else
+               not_selected_planar_surfaces << planar_surface
             end
           elsif ((planar_surface.is_a? ShadingSurface) and (@hash['CLASS'] == "" or @hash['CLASS'] == "OS:ShadingSurface"))
             if type.empty? and construction.empty? and
                outside_boundary_condition.empty? and sun.empty? and wind.empty? #and
                #shading_control.empty? and frame_and_divider.empty?
 
-                # unhide face
-               planar_surface.entity.visible = true
-               selected_entities << planar_surface.entity
-
-               # unhide edges
-               planar_surface.entity.edges.each {|edge| edge.visible = true }
-
-               # unhide shading surface group
-               planar_surface.parent.entity.visible = true
-
-               # unhide space
-               planar_surface.parent.parent.entity.visible = true if planar_surface.parent.parent.is_a?(Space)
-
-               # add to report
-               @last_report << "#{model_object.iddObject.name.to_s}, #{model_object.name.to_s}\n"
+               selected_planar_surfaces << planar_surface
+            else
+               not_selected_planar_surfaces << planar_surface
             end
           elsif ((planar_surface.is_a? InteriorPartitionSurface) and (@hash['CLASS'] == "" or @hash['CLASS'] == "OS:InteriorPartitionSurface"))
             if type.empty? and
@@ -598,22 +592,101 @@ module OpenStudio
                outside_boundary_condition.empty? and sun.empty? and wind.empty? #and
                #shading_control.empty? and frame_and_divider.empty?
 
-                # unhide face
-               planar_surface.entity.visible = true
-               selected_entities << planar_surface.entity
-
-               # unhide edges
-               planar_surface.entity.edges.each {|edge| edge.visible = true }
-
-               # unhide interior partition surface group
-               planar_surface.parent.entity.visible = true
-
-               # unhide space
-               planar_surface.parent.parent.entity.visible = true
-
-               # add to report
-               @last_report << "#{model_object.iddObject.name.to_s}, #{model_object.name.to_s}\n"
+               selected_planar_surfaces << planar_surface
+            else
+               not_selected_planar_surfaces << planar_surface
             end
+          else
+            not_selected_planar_surfaces << planar_surface
+          end
+        end
+
+        if invert_search()
+          planar_surfaces = not_selected_planar_surfaces
+        else
+          planar_surfaces = selected_planar_surfaces
+        end
+
+        # start the progress bar
+        num_surfaces = planar_surfaces.length
+
+        # unhide the sketchup entities
+        planar_surfaces.each_with_index do |planar_surface, index|
+
+          progress_dialog.setValue((100*index)/num_surfaces)
+
+          model_object = planar_surface.model_object
+
+          if (planar_surface.is_a? Surface)
+
+             # unhide face
+             planar_surface.entity.visible = true
+             selected_entities << planar_surface.entity
+
+             # unhide edges
+             planar_surface.entity.edges.each {|edge| edge.visible = true }
+
+             # unhide space
+             planar_surface.parent.entity.visible = true
+
+             # add to report
+             @last_report << "#{model_object.iddObject.name.to_s}, #{model_object.name.to_s}\n"
+
+          elsif (planar_surface.is_a? SubSurface)
+
+             # unhide face
+             planar_surface.entity.visible = true
+             selected_entities << planar_surface.entity
+
+             # unhide edges
+             planar_surface.entity.edges.each {|edge| edge.visible = true }
+
+             # unhide base surface
+             #planar_surface.parent.entity.visible = true
+
+             # unhide base surface edges
+             planar_surface.parent.entity.edges.each {|edge| edge.visible = true }
+
+             # unhide space
+             planar_surface.parent.parent.entity.visible = true
+
+             # add to report
+             @last_report << "#{model_object.iddObject.name.to_s}, #{model_object.name.to_s}\n"
+
+          elsif (planar_surface.is_a? ShadingSurface)
+             # unhide face
+             planar_surface.entity.visible = true
+             selected_entities << planar_surface.entity
+
+             # unhide edges
+             planar_surface.entity.edges.each {|edge| edge.visible = true }
+
+             # unhide shading surface group
+             planar_surface.parent.entity.visible = true
+
+             # unhide space
+             planar_surface.parent.parent.entity.visible = true if planar_surface.parent.parent.is_a?(Space)
+
+             # add to report
+             @last_report << "#{model_object.iddObject.name.to_s}, #{model_object.name.to_s}\n"
+
+          elsif (planar_surface.is_a? InteriorPartitionSurface)
+
+             # unhide face
+             planar_surface.entity.visible = true
+             selected_entities << planar_surface.entity
+
+             # unhide edges
+             planar_surface.entity.edges.each {|edge| edge.visible = true }
+
+             # unhide interior partition surface group
+             planar_surface.parent.entity.visible = true
+
+             # unhide space
+             planar_surface.parent.parent.entity.visible = true
+
+             # add to report
+             @last_report << "#{model_object.iddObject.name.to_s}, #{model_object.name.to_s}\n"
           end
         end
 
