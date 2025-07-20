@@ -20,19 +20,19 @@ while true
     base_dir = nil
     if is_windows
       if sketchup_version >= 19
-        base_dir = 'C:/openstudioapplication-*'
+        base_dir = 'C:/openstudioapplication-'
       else
-        base_dir = 'C:/openstudio-2.*'
+        base_dir = 'C:/openstudio-2.'
       end
     else
       if sketchup_version >= 19
-        base_dir = '/Applications/OpenStudioApplication-*'
+        base_dir = '/Applications/OpenStudioApplication-'
       else
-        base_dir = '/Applications/OpenStudio-2*'
+        base_dir = '/Applications/OpenStudio-2'
       end
     end
 
-    defaults = Dir.glob(base_dir).sort.reverse
+    defaults = Dir.glob(base_dir + '*').sort_by{ |file_name| Gem::Version.new(file_name.delete_prefix(base_dir))}.reverse
     if sketchup_version >= 19
       defaults.reject! do |file|
         if md = /openstudioapplication-(\d+)\.(\d+)/i.match(file)
