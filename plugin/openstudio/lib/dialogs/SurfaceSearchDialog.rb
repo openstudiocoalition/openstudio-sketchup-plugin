@@ -24,6 +24,7 @@ module OpenStudio
       @hash['WIND'] = ""
       #@hash['SHADING_CONTROL_NAME'] = ""
       #@hash['FRAME_AND_DIVIDER_NAME'] = ""
+      @hash['BUILDING_STORY'] = ""
       @hash['AZIMUTH_FROM'] = "0"
       @hash['AZIMUTH_TO'] = "360"
       @hash['TILT_FROM'] = "0"
@@ -58,6 +59,11 @@ module OpenStudio
       super
       set_select_options("CLASS", ["", "OS:Surface", "OS:SubSurface", "OS:ShadingSurface",  "OS:InteriorPartitionSurface"])
       on_change_class
+
+      object_names = Plugin.model_manager.model_interface.openstudio_model.getBuildingStorys.collect { |object| object.name.get }
+      object_names = [""].concat(object_names.sort)
+      set_select_options("BUILDING_STORY", object_names)
+
       disable_element("VERTEX_LIMIT")
     end
 
@@ -411,6 +417,23 @@ module OpenStudio
       return true
     end
 
+    def building_story_test(model_object)
+      building_story_name = @hash["BUILDING_STORY"].upcase
+      if building_story_name.empty?
+        return true
+      end
+      space = model_object.space
+      if space.empty?
+        return false
+      end
+      building_story = space.get.buildingStory
+      if building_story.empty?
+        return false
+      end
+
+      return building_story.get.name.get.upcase == building_story_name
+    end
+
     def on_search_model
       model_interface = Plugin.model_manager.model_interface
       skp_model = model_interface.skp_model
@@ -550,6 +573,11 @@ module OpenStudio
           end
 
           if not surface_name_test(model_object)
+            not_selected_planar_surfaces << planar_surface
+            next
+          end
+
+          if not building_story_test(model_object)
             not_selected_planar_surfaces << planar_surface
             next
           end
