@@ -11,7 +11,7 @@ module OpenStudio
   class NewGroupTool < Tool
 
     def initialize
-      @cursor = UI.create_cursor(Plugin.dir + "/lib/resources/icons/OriginToolCursor-14x20.tiff", 3, 3)
+      @cursor = UI.create_cursor(Plugin.dir + "/lib/resources/icons/OriginToolCursor.svg", 7, 7)
     end
 
 
