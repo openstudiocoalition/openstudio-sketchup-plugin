@@ -16,7 +16,7 @@ module OpenStudio
     #   with Ctrl key down, it displays construction objects!  --- used to work
 
     def initialize
-      @cursor = UI.create_cursor(Plugin.dir + "/lib/resources/icons/InfoToolCursor-16x17.tiff", 1, 1)
+      @cursor = UI.create_cursor(Plugin.dir + "/lib/resources/icons/InfoToolCursor.svg", 1, 1)
       @flags = 0
     end
 
