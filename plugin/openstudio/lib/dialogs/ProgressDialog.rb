@@ -6,18 +6,67 @@
 
 module OpenStudio
 
-  if defined?(OpenStudio::Modeleditor::OSProgressBar)
-    OpenStudioProgressBarClass = OpenStudio::Modeleditor::OSProgressBar
-  else
-    OpenStudioProgressBarClass = OpenStudio::ProgressBar
-  end
-
-  ProgressDialog = Class.new(OpenStudio::OpenStudioProgressBarClass) do
+  class ProgressDialog < OpenStudio::ProgressBar
 
     def initialize(message)
-      super(false)
-      setWindowTitle(message)
+      super()
+      @title = message
+      @min = 0
+      @max = 100
+      @value = 0
       @last_num_chars = -1
+    end
+
+    def minimum
+      @min
+    end
+
+    def setMinimum(min)
+      @min = min
+      updatePercentage
+    end
+
+    def maximum
+      @max
+    end
+
+    def setMaximum(max)
+      @max = max
+      updatePercentage
+    end
+
+    def value
+      @value
+    end
+
+    def windowTitle
+      @title
+    end
+
+    def setWindowTitle(title)
+      @title = title
+    end
+
+    def text
+      "#{@value}%"
+    end
+
+    def isVisible
+      false
+    end
+
+    def setVisible(visible)
+    end
+
+    def setRange(min, max)
+      @min = min
+      @max = max
+      updatePercentage
+    end
+
+    def setValue(val)
+      @value = val
+      updatePercentage
     end
 
     def onPercentageUpdated(percentage)
@@ -25,24 +74,18 @@ module OpenStudio
 
       if percentage < 0 or percentage > 100
         # Plugin.do_bug
-        return false
+        return
       end
 
-      fraction = percentage / 100.0
-      max_chars = 100
-      num_chars = (fraction*max_chars).to_i
-
+      num_chars = ((percentage / 100.0) * 100).to_i
       if @last_num_chars != num_chars
         @last_num_chars = num_chars
-        Sketchup.status_text = windowTitle + "  " + "|"*num_chars
+        Sketchup.status_text = @title + "  " + "|" * num_chars
       end
-
-      return true
     end
 
     def destroy
       Sketchup.status_text = ""
-      return true
     end
 
   end
