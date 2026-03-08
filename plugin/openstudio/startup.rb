@@ -32,7 +32,16 @@ while true
       end
     end
 
-    defaults = Dir.glob(base_dir + '*').sort_by{ |file_name| Gem::Version.new(file_name.delete_prefix(base_dir))}.reverse
+    defaults = Dir.glob(base_dir + '*').sort_by { |file_name|
+      version_part = file_name.delete_prefix(base_dir)
+      result = Gem::Version.new("0.0.0-#{version_part}")
+      begin
+        result = Gem::Version.new(file_name.delete_prefix(base_dir))
+      rescue
+      end
+      result
+    }.reverse
+
     if sketchup_version >= 19
       defaults.reject! do |file|
         if md = /openstudioapplication-(\d+)\.(\d+)/i.match(file)
