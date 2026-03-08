@@ -36,7 +36,7 @@ while true
       version_part = file_name.delete_prefix(base_dir)
       result = Gem::Version.new("0.0.0-#{version_part}")
       begin
-        result = Gem::Version.new(file_name.delete_prefix(base_dir))
+        result = Gem::Version.new(version_part)
       rescue
       end
       result
