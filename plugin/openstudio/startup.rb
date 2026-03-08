@@ -33,10 +33,9 @@ while true
     end
 
     defaults = Dir.glob(base_dir + '*').sort_by { |file_name|
-      version_part = file_name.delete_prefix(base_dir)
-      result = Gem::Version.new("0.0.0-#{version_part}")
+      result = Gem::Version.new("0")
       begin
-        result = Gem::Version.new(version_part)
+        result = Gem::Version.new(file_name.delete_prefix(base_dir))
       rescue
       end
       result
