@@ -27,6 +27,9 @@ module OpenStudio
     # Ruby API's valueDescription returns colon-style ("OS:SubSurface"). The helper
     # normalize_type_str converts to underscore before lookup.
     # -------------------------------------------------------------------------
+
+    # TODO: refactor AccessPolicyStore as a class instead of a module
+
     module AccessPolicyStore
       @policies = {}  # { "OS_Building" => { 0 => :hidden, 1 => :locked, ... } }
 
@@ -81,14 +84,19 @@ module OpenStudio
     # -------------------------------------------------------------------------
     # InspectorDialog main class
     # -------------------------------------------------------------------------
+
+    # TODO: refactor InspectorDialog as a class instead of a module
+
+    # TODO: group types by IDD groups (collapsible), use code from InspectorDialog.cpp for reference:
+    #   for (const std::string& group : m_iddFile.groups())
+
+    # TODO: show object count next to each type in the list like "Surfaces (10)" when there are 10 surfaces
+
     module InspectorDialog
 
       # ------------------------------------------------------------------
       # Configuration – ported from InspectorDialog::init(SketchUpPlugin)
       # ------------------------------------------------------------------
-      # TODO: group types by IDD groups (collapsible), use code from InspectorDialog.cpp for reference
-      # for (const std::string& group : m_iddFile.groups())
-      # TODO: show object count next to each type in the list like "Surfaces (10)" when there are 10 surfaces
       TYPES_TO_DISPLAY = %w[
         OS_BuildingStory
         OS_DefaultConstructionSet
@@ -209,6 +217,7 @@ module OpenStudio
           nil
         end
 
+        # TODO: remove this callback, the backend sends the unit system in the initial data
         @dialog.add_action_callback('set_unit_system') do |_ctx, system|
           @unit_system = system == 'si' ? :si : :ip
           refresh_fields if @current_handle
@@ -261,6 +270,46 @@ module OpenStudio
         @dialog.show
       end
 
+      def self.set_unit_system(system)
+        @unit_system = system == 'si' ? :si : :ip
+        refresh_fields if @current_handle
+      end
+
+      # TODO: implement the following method which is called by DialogManager to hide the dialog
+      def self.hide
+        # TODO: implement
+      end
+
+      # TODO: implement the following method which is called by DialogManager to test if the dialog is visible
+      def self.is_visible
+        # TODO: implement
+      end
+
+      # TODO: implement the following method which is called by DialogManager to enable the dialog
+      def self.enable
+        # TODO: implement, return true if the dialog was previously disabled, false otherwise
+      end
+
+      # TODO: implement the following method which is called by DialogManager to disable the dialog
+      def self.disable
+        # TODO: implement, return true if the dialog was previously enabled, false otherwise
+      end
+
+      # TODO: implement the following method which is called by DialogManager to check if the dialog is enabled
+      def self.is_enabled
+        # TODO: implement, return true if the dialog is enabled, false otherwise
+      end
+
+      # TODO: implement the following method which is called by DialogManager to save the state of the dialog
+      def self.save_state
+        # TODO: implement
+      end
+
+      # TODO: implement the following method which is called by DialogManager to restore the state of the dialog
+      def self.restore_state
+        # TODO: implement
+      end
+
       # ------------------------------------------------------------------
       # Policy loading
       # ------------------------------------------------------------------
@@ -269,6 +318,34 @@ module OpenStudio
         policy_file = File.join(File.dirname(__FILE__), 'existing_cpp_to_port', 'SketchUpPluginPolicy.xml')
         AccessPolicyStore.clear
         AccessPolicyStore.load_file(policy_file)
+      end
+
+      # ------------------------------------------------------------------
+      # Interaction with SketchUp
+      # ------------------------------------------------------------------
+      # TODO: when selecting objects in the inspector, call this method so that the objects are selected in the SketchUp model
+      def self.select_drawing_interfaces(handles)
+        model_interface =  Plugin.model_manager.model_interface
+        if model_interface
+          had_observers = model_interface.selection_interface.remove_observers
+          model_interface.selection_interface.select_drawing_interfaces(handles)
+          model_interface.selection_interface.add_observers if had_observers
+        end
+      end
+
+      # TODO: implement the following method which is called by DialogManager when the model is updated
+      def self.update
+        # TODO: implement, refresh the data in the dialog
+      end
+
+      # TODO: implement the following method which is called by DialogManager when the SketchUp selection changes
+      def self.set_idd_object_type(idd_object_type)
+        # TODO: implement
+      end
+
+      # TODO: implement the following method which is called by DialogManager when the SketchUp selection changes
+      def self.set_selected_object_handles(handles)
+        # TODO: implement, note handles may be empty in case of no selection
       end
 
       # ------------------------------------------------------------------

@@ -4,10 +4,10 @@
 <head>
   <meta charset="UTF-8">
   <title>OpenStudio Inspector</title>
-  <link href="../sketchup_example_to_follow/vendor/modus/modus.min.css" rel="stylesheet">
-  <script src="../sketchup_example_to_follow/vendor/modus/jquery.js"></script>
-  <script src="../sketchup_example_to_follow/vendor/modus/bootstrap.bundle.min.js"></script>
-  <script src="../sketchup_example_to_follow/vendor/vue.js"></script>
+  <link href="../vendor/modus/modus.min.css" rel="stylesheet">
+  <script src="../vendor/modus/jquery.js"></script>
+  <script src="../vendor/modus/bootstrap.bundle.min.js"></script>
+  <script src="../vendor/vue.js"></script>
   <style>
     :root {
       --panel-header-h: 36px;
@@ -198,7 +198,7 @@
       padding: 0 6px;
       gap: 4px;
       border-top: 1px solid #3a3f44;
-      background: #252a2e;
+      color: #010101;
     }
 
     #obj-actions button {
@@ -206,13 +206,14 @@
       padding: 2px 7px;
       border-radius: 3px;
       border: 1px solid #555;
-      background: #2d3338;
-      color: #c0c8d0;
+      background: #0b6fbc;
+      color: #fff;
       cursor: pointer;
     }
 
     #obj-actions button:hover:not(:disabled) {
-      background: #3a4a5a;
+      background: #2e404f;
+      color: #fff;
     }
 
     #obj-actions button:disabled {
@@ -337,6 +338,7 @@
     <div id="toolbar">
       <span style="font-size:12px; font-weight:600; letter-spacing:.04em;">OpenStudio Inspector</span>
       <div style="flex:1"></div>
+      <!-- TODO: make this toggle read only from the model -->
       <div class="unit-toggle">
         <label>Units:</label>
         <button :class="{active: unitSystem==='ip'}" @click="setUnitSystem('ip')">IP</button>
