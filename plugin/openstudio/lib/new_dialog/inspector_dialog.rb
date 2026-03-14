@@ -566,7 +566,7 @@ module OpenStudio
           idd_type   = OpenStudio::IddObjectType.new(type_str)
           idf_object = OpenStudio::IdfObject.new(idd_type)
           new_obj = model.addObject(idf_object)
-          unless new_obj.empty
+          unless new_obj.empty?
             new_handle = new_obj.get.handle.to_s
             @current_handle = new_handle
             send_objects_for_type(type_str)
@@ -584,9 +584,9 @@ module OpenStudio
         begin
           handle = OpenStudio::toUUID(handle_str)
           obj = model.getObject(handle)
-          return if obj.empty
-          mo = obj.get.optionalCast(OpenStudio::Model::ModelObject)
-          return if mo.empty
+          return if obj.empty?
+          mo = obj.get.to_ModelObject
+          return if mo.empty?
           cloned     = mo.get.clone(model)
           new_handle = cloned.handle.to_s
           @current_handle = new_handle
@@ -604,7 +604,7 @@ module OpenStudio
         begin
           handle = OpenStudio::toUUID(handle_str)
           obj = model.getObject(handle)
-          obj.get.remove unless obj.empty
+          obj.get.remove unless obj.empty?
           @current_handle = nil
           send_objects_for_type(@current_type)
           safe_execute("setFields(null)")
