@@ -11,9 +11,10 @@
 require 'sketchup.rb'
 require 'json'
 require 'rexml/document'
+require 'set'
 
-
-# Note: OpenStudio Ruby Optional types use `empty`/`get`, NOT `is_initialized`/`get`.
+# Note: OpenStudio Ruby Optional types use `empty?`/`get`, NOT `is_initialized`/`get`.
+# the exception is `empty`/`get` for `OpenStudio::OptionalQuantity` types
 
 module OpenStudio
   module Inspector
@@ -85,10 +86,45 @@ module OpenStudio
       end
     end
 
+    class InspectorObjectWatcher < OpenStudio::WorkspaceObjectWatcher
+      def initialize(idf_object, change_proc, remove_proc)
+        super(idf_object)
+        @change_proc = change_proc
+        @remove_proc = remove_proc
+      end
+
+      def onRemoveFromWorkspace(handle)
+        super(handle)
+        @remove_proc.call(handle)
+      end
+
+      def onChangeIdfObject
+        super()
+        @change_proc.call()
+      end
+    end
+
+    class InspectorModelWatcher < OpenStudio::WorkspaceWatcher
+      def initialize(model, add_proc, remove_proc)
+        super(model)
+        @add_proc = add_proc
+        @remove_proc = remove_proc
+      end
+
+      def onObjectAdd(object)
+        super(object)
+        @add_proc.call(object)
+      end
+
+      def onObjectRemove(object)
+        super(object)
+        @remove_proc.call(object)
+      end
+    end
+
     # -------------------------------------------------------------------------
     # InspectorDialog main class
     # -------------------------------------------------------------------------
-
     class InspectorDialog
 
       # ------------------------------------------------------------------
@@ -187,11 +223,14 @@ module OpenStudio
       # ------------------------------------------------------------------
 
       def initialize
-        @dialog        = nil
-        @unit_system   = :ip  # :si or :ip
-        @current_type  = nil
+        @dialog         = nil
+        @unit_system    = :ip  # :si or :ip
+        @current_type   = nil
         @current_handle = nil
-        @enabled       = true
+        @enabled        = true
+        @model          = nil
+        @object_watcher = nil
+        @model_watcher  = nil
       end
 
       # ------------------------------------------------------------------
@@ -199,6 +238,9 @@ module OpenStudio
       # ------------------------------------------------------------------
 
       def create_dialog
+        @model = get_model
+        @model_watcher = InspectorModelWatcher.new(@model, method(:object_added), method(:object_removed)) if @model
+
         html_file = File.join(File.dirname(__FILE__), 'html', 'inspector_dialog.html')
         options = {
           dialog_title:    'OpenStudio Inspector',
@@ -231,9 +273,9 @@ module OpenStudio
         result.add_action_callback('set_object') do |_ctx, handle_str|
           puts "set_object callback"
           @current_handle = handle_str
-          send_fields_for_object(handle_str)
+          send_fields_for_object(@current_handle)
           # Sync SketchUp model selection to match the inspector selection
-          select_drawing_interfaces([handle_str]) if handle_str && !handle_str.empty?
+          select_drawing_interfaces([@current_handle]) if @current_handle && !@current_handle.empty?
           nil
         end
 
@@ -249,29 +291,33 @@ module OpenStudio
         end
 
         result.add_action_callback('add_object') do |_ctx, type_str|
+          puts "add_object callback"
           add_object(type_str)
           nil
         end
 
         result.add_action_callback('copy_object') do |_ctx, handle_str|
+          puts "copy_object callback"
           copy_object(handle_str)
           nil
         end
 
         result.add_action_callback('delete_object') do |_ctx, handle_str|
+          puts "delete_object callback"
           delete_object(handle_str)
           nil
         end
 
         result.add_action_callback('purge_objects') do |_ctx, type_str|
+          puts "purge_objects callback"
           purge_objects(type_str)
           nil
         end
 
         result.set_on_closed  do
-          puts "set_on_closed  callback"
+          puts "set_on_closed callback"
           @dialog = nil
-          true
+          nil
         end
 
         result
@@ -410,11 +456,9 @@ module OpenStudio
       # ------------------------------------------------------------------
 
       def send_initial_data
-        model = get_model
-
         # Build the IDD-grouped type list with live object counts.
         # IddFactory always returns a valid IddFile for the OpenStudio IDD.
-        grouped_types = build_grouped_types(model)
+        grouped_types = build_grouped_types
 
         safe_execute("setTypes(#{JSON.generate(grouped_types)})")
 
@@ -430,7 +474,9 @@ module OpenStudio
       # Build the type list grouped by IDD group, with object counts.
       # Returns an array of group objects, each with a :children array of type entries.
       # Port of C++ loadListWidgetData.
-      def build_grouped_types(model)
+      def build_grouped_types
+        return [] unless @model
+
         idd_file = OpenStudio::IddFactory::instance.getIddFile(
           OpenStudio::IddFileType.new('OpenStudio')
         )
@@ -448,7 +494,7 @@ module OpenStudio
             type_key = idd_obj.type.valueDescription.tr(':', '_')
             next unless display_set.include?(type_key)
 
-            count = model ? model.numObjectsOfType(idd_obj.type) : 0
+            count = @model.numObjectsOfType(idd_obj.type)
 
             label = type_key.gsub(/^OS_/, '').gsub('_', ' ')
             children << {
@@ -477,7 +523,6 @@ module OpenStudio
 
       def send_objects_for_type(type_str)
         return unless @dialog
-        model  = get_model
         objects = get_objects_for_type(type_str)
         button_state = {
           enable_add:    !DISABLE_ADD.include?(type_str),
@@ -486,9 +531,9 @@ module OpenStudio
           enable_purge:  ENABLE_PURGE.include?(type_str)
         }
         # Include updated count so the type list badge stays current
-        count = model ? begin
+        count = @model ? begin
           idd_type = OpenStudio::IddObjectType.new(type_str)
-          model.numObjectsOfType(idd_type)
+          @model.numObjectsOfType(idd_type)
         rescue
           objects.size
         end : objects.size
@@ -510,9 +555,46 @@ module OpenStudio
         end
       end
 
+      # Pushes an updated count for a single type key to the JS type list badge.
+      # Much cheaper than a full send_initial_data rebuild.
+      def send_type_count_update(type_key)
+        return unless @dialog && @model
+        begin
+          idd_type = OpenStudio::IddObjectType.new(type_key)
+          count = @model.numObjectsOfType(idd_type)
+          safe_execute("updateTypeCount(#{JSON.generate(type_key)}, #{count})")
+        rescue => e
+          puts "Inspector: send_type_count_update error: #{e.message}"
+        end
+      end
+
+      def object_added(object)
+        return unless @dialog
+        puts "object_added"
+        type_key = object.iddObject.type.valueDescription.tr(':', '_')
+        send_type_count_update(type_key)
+        send_objects_for_type(@current_type) if @current_type == type_key
+      end
+
+      def object_removed(object)
+        return unless @dialog
+        puts "object_removed"
+        type_key = object.iddObject.type.valueDescription.tr(':', '_')
+        send_type_count_update(type_key)
+        send_objects_for_type(@current_type) if @current_type == type_key
+      end
+
       def refresh_fields
         return unless @current_handle
+        puts "refresh_fields"
         send_fields_for_object(@current_handle)
+      end
+
+      def current_object_removed(handle)
+        return unless @current_handle && handle.to_s == @current_handle
+        puts "current_object_removed"
+        safe_execute("setFields(null)")
+        @current_handle = nil
       end
 
       # ------------------------------------------------------------------
@@ -540,11 +622,10 @@ module OpenStudio
       end
 
       def get_objects_for_type(type_str)
-        model = get_model
-        return [] unless model
+        return [] unless @model
         begin
           idd_type = OpenStudio::IddObjectType.new(type_str)
-          ws_objects = model.getObjectsByType(idd_type)
+          ws_objects = @model.getObjectsByType(idd_type)
           ws_objects.map do |obj|
             {
               handle:  obj.handle.to_s,
@@ -559,12 +640,13 @@ module OpenStudio
       end
 
       def get_fields_for_object(handle_str)
-        model = get_model
-        return nil unless model
+        return nil unless @model
         begin
           handle = OpenStudio::toUUID(handle_str)
-          obj = model.getObject(handle)
+          obj = @model.getObject(handle)
           return nil if obj.empty?
+          @object_watcher.disable if @object_watcher
+          @object_watcher = InspectorObjectWatcher.new(obj.get, method(:refresh_fields), method(:current_object_removed))
           ws_obj = obj.get
           type_str = ws_obj.iddObject.type.valueDescription
           idd_obj  = ws_obj.iddObject
@@ -713,11 +795,10 @@ module OpenStudio
       # ------------------------------------------------------------------
 
       def update_field(handle_str, index, value)
-        model = get_model
-        return unless model
+        return unless @model
         begin
           handle = OpenStudio::toUUID(handle_str)
-          obj    = model.getObject(handle)
+          obj    = @model.getObject(handle)
           return if obj.empty?
           ws_obj = obj.get
 
@@ -752,12 +833,11 @@ module OpenStudio
       end
 
       def add_object(type_str)
-        model = get_model
-        return unless model
+        return unless @model
         begin
           idd_type   = OpenStudio::IddObjectType.new(type_str)
           idf_object = OpenStudio::IdfObject.new(idd_type)
-          new_obj = model.addObject(idf_object)
+          new_obj = @model.addObject(idf_object)
           unless new_obj.empty?
             new_handle = new_obj.get.handle.to_s
             @current_handle = new_handle
@@ -771,15 +851,14 @@ module OpenStudio
       end
 
       def copy_object(handle_str)
-        model = get_model
-        return unless model
+        return unless @model
         begin
           handle = OpenStudio::toUUID(handle_str)
-          obj = model.getObject(handle)
+          obj = @model.getObject(handle)
           return if obj.empty?
           mo = obj.get.to_ModelObject
           return if mo.empty?
-          cloned     = mo.get.clone(model)
+          cloned     = mo.get.clone(@model)
           new_handle = cloned.handle.to_s
           @current_handle = new_handle
           send_objects_for_type(@current_type)
@@ -791,11 +870,10 @@ module OpenStudio
       end
 
       def delete_object(handle_str)
-        model = get_model
-        return unless model
+        return unless @model
         begin
           handle = OpenStudio::toUUID(handle_str)
-          obj = model.getObject(handle)
+          obj = @model.getObject(handle)
           obj.get.remove unless obj.empty?
           @current_handle = nil
           send_objects_for_type(@current_type)
@@ -806,11 +884,10 @@ module OpenStudio
       end
 
       def purge_objects(type_str)
-        model = get_model
-        return unless model
+        return unless @model
         begin
           idd_type = OpenStudio::IddObjectType.new(type_str)
-          model.purgeUnusedResourceObjects(idd_type)
+          @model.purgeUnusedResourceObjects(idd_type)
           send_objects_for_type(type_str)
         rescue => e
           puts "Inspector: purge_objects error: #{e.message}"

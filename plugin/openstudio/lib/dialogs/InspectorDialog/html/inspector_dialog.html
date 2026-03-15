@@ -83,13 +83,13 @@
     }
 
     #panel-type {
-      flex: 0 0 190px;
-      min-width: 120px;
+      flex: 0 0 300px;
+      min-width: 300px;
     }
 
     #panel-obj {
-      flex: 0 0 230px;
-      min-width: 150px;
+      flex: 0 0 300px;
+      min-width: 300px;
     }
 
     #panel-edit {
@@ -640,6 +640,21 @@
       app.groups = data;
     }
 
+    // Update the count badge for a single type without rebuilding the whole list.
+    // Called by Ruby when an object is added or removed from the model.
+    function updateTypeCount(typeKey, count) {
+      for (var gi = 0; gi < app.groups.length; gi++) {
+        var children = app.groups[gi].children;
+        for (var ci = 0; ci < children.length; ci++) {
+          if (children[ci].key === typeKey) {
+            // Vue.set is required so Vue tracks the mutation on the inner object
+            Vue.set(children, ci, Object.assign({}, children[ci], { count: count }));
+            return;
+          }
+        }
+      }
+    }
+
     function setUnitSystem(sys) {
       app.unitSystem = sys;
     }
@@ -649,6 +664,17 @@
       app.buttons = payload.buttons || app.buttons;
       app.selectedHandle = null;
       app.editData = null;
+      // Keep selectedType in sync so toolbar buttons (Add, Purge, etc.) are
+      // enabled correctly when Ruby pushes objects without a user click.
+      if (payload.type) {
+        app.selectedType = payload.type;
+        // Authoritative count: always override whatever updateTypeCount set during
+        // pre-removal callbacks (which fire before the object leaves the workspace,
+        // making those intermediate counts off by one).
+        if (typeof payload.count === 'number') {
+          updateTypeCount(payload.type, payload.count);
+        }
+      }
     }
 
     function setFields(data) {
@@ -662,6 +688,12 @@
 
     function selectObject(handle) {
       app.selectedHandle = handle;
+    }
+
+    // Called by Ruby to update the selected type in the UI without triggering
+    // a sketchup.set_type callback back to Ruby (Ruby already knows the type).
+    function selectType(key) {
+      app.selectedType = key;
     }
   </script>
 </body>

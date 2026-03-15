@@ -6,7 +6,11 @@
 
 module OpenStudio
 
-  if defined?(OpenStudio::Modeleditor::OSProgressBar)
+  if defined?(OpenStudio::OSSimpleProgressBar)
+    OpenStudioProgressBarClass = OpenStudio::OSSimpleProgressBar
+  elsif defined?(OpenStudio::Modeleditor::OSSimpleProgressBar)
+    OpenStudioProgressBarClass = OpenStudio::Modeleditor::OSSimpleProgressBar
+  elsif defined?(OpenStudio::Modeleditor::OSProgressBar)
     OpenStudioProgressBarClass = OpenStudio::Modeleditor::OSProgressBar
   else
     OpenStudioProgressBarClass = OpenStudio::ProgressBar

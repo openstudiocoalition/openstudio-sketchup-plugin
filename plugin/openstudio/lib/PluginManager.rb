@@ -22,12 +22,12 @@ end
 require("openstudio")
 require("openstudio/lib/AnimationManager")
 require("openstudio/lib/CommandManager")
-require("openstudio/lib/DialogManager")
 require("openstudio/lib/MenuManager")
 require("openstudio/lib/ModelEditor")
 require("openstudio/lib/ModelManager")
 #require("openstudio/lib/SimulationManager")
 require("openstudio/lib/ConflictManager")
+require("openstudio/lib/DialogManager")
 require("openstudio/lib/WorkspaceObject")
 require("openstudio/lib/PluginUserScriptRunner")
 require("openstudio/sketchup/UI")
@@ -48,12 +48,6 @@ rescue LoadError, NameError
 end
 
 module OpenStudio
-
-  if defined?(OpenStudio::Modeleditor::PathWatcher)
-     ApplicationClass = OpenStudio::Modeleditor::Application
-  else
-     ApplicationClass = OpenStudio::Application
-  end
 
   if OpenStudio::SKETCHUPPLUGIN_CURRENT_METHOD_NAME
     # function to return current method name
@@ -213,10 +207,6 @@ module OpenStudio
           @model_manager.delete_model_interface(model_interface)
         end
       end
-
-      # process events in OpenStudio Model
-      # this may add events to the Plugin event_queue
-      OpenStudio::ApplicationClass.instance.processEvents
 
       @model_manager.model_interfaces.each do |model_interface|
         model_interface.model_watcher.processAddedObjects
@@ -522,16 +512,6 @@ module OpenStudio
   else
     Sketchup.add_observer(AppObserver.new)
   end
-
-  # initialize QApplication
-  OpenStudio::ApplicationClass::instance.application(true)
-  OpenStudio::ApplicationClass::instance.application.setOrganizationName("OpenStudio Coalition")
-  OpenStudio::ApplicationClass::instance.application.setOrganizationDomain("openstudiocoalition.org")
-  OpenStudio::ApplicationClass::instance.application.setApplicationName("OpenStudioSketchUpPlugIn")
-
-  # get SketchUp Qt Widget if possible
-  SketchUpWidget = OpenStudio::ApplicationClass::instance.sketchUpWidget
-  SketchUpWidget.hide if SketchUpWidget
 
   # Create a module constant to reference the plugin object anywhere within the module.
   Plugin = PluginManager.new
