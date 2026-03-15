@@ -353,6 +353,9 @@
       <div class="panel" id="panel-type">
         <div class="panel-header">Select Type</div>
         <div class="panel-body">
+          <!-- TODO: the groups should be parents of the types within the group, the groups should have a different style than child types  -->
+          <!-- TODO: the groups are not selectable, instead of selecting them they expand or contract when clicked  -->
+          <!-- TODO: the t.count should be appended to the title for child types like "t.key (t.count)"  -->
           <ul id="type-list">
             <li v-for="t in types" :key="t.key" :class="{active: selectedType===t.key}" @click="selectType(t.key)"
               :title="t.key">

@@ -28,10 +28,14 @@ module OpenStudio
     # normalize_type_str converts to underscore before lookup.
     # -------------------------------------------------------------------------
 
-    # TODO: refactor AccessPolicyStore as a class instead of a module
-
-    module AccessPolicyStore
+    class AccessPolicyStore
       @policies = {}  # { "OS_Building" => { 0 => :hidden, 1 => :locked, ... } }
+
+      def self.load_policy
+        policy_file = File.join(File.dirname(__FILE__), 'SketchUpPluginPolicy.xml')
+        self.clear
+        self.load_file(policy_file)
+      end
 
       def self.load_file(xml_path)
         return false unless File.exist?(xml_path)
@@ -85,18 +89,13 @@ module OpenStudio
     # InspectorDialog main class
     # -------------------------------------------------------------------------
 
-    # TODO: refactor InspectorDialog as a class instead of a module
-
-    # TODO: group types by IDD groups (collapsible), use code from InspectorDialog.cpp for reference:
-    #   for (const std::string& group : m_iddFile.groups())
-
-    # TODO: show object count next to each type in the list like "Surfaces (10)" when there are 10 surfaces
-
-    module InspectorDialog
+    class InspectorDialog
 
       # ------------------------------------------------------------------
       # Configuration – ported from InspectorDialog::init(SketchUpPlugin)
       # ------------------------------------------------------------------
+
+      # TODO: sort TYPES_TO_DISPLAY alphabetically
       TYPES_TO_DISPLAY = %w[
         OS_BuildingStory
         OS_DefaultConstructionSet
@@ -120,8 +119,9 @@ module OpenStudio
         OS_IlluminanceMap
         OS_Glare_Sensor
         OS_ThermalZone
-      ].freeze unless defined?(TYPES_TO_DISPLAY)
+      ].freeze unless const_defined?(:TYPES_TO_DISPLAY)
 
+      # TODO: sort DISABLE_ADD alphabetically
       DISABLE_ADD = %w[
         OS_ShadingControl
         OS_InteriorPartitionSurface
@@ -130,18 +130,23 @@ module OpenStudio
         OS_ShadingSurfaceGroup
         OS_Space
         OS_Surface
+        OS_Building
+        OS_Facility
         OS_SubSurface
         OS_Daylighting_Control
         OS_IlluminanceMap
         OS_Glare_Sensor
         OS_ThermalZone
-      ].freeze unless defined?(DISABLE_ADD)
+      ].freeze unless const_defined?(:DISABLE_ADD)
 
+      # TODO: sort DISABLE_COPY alphabetically
       DISABLE_COPY = %w[
         OS_InteriorPartitionSurface
         OS_InteriorPartitionSurfaceGroup
         OS_ShadingSurface
         OS_ShadingSurfaceGroup
+        OS_Building
+        OS_Facility
         OS_Space
         OS_Surface
         OS_SubSurface
@@ -149,11 +154,14 @@ module OpenStudio
         OS_IlluminanceMap
         OS_Glare_Sensor
         OS_ThermalZone
-      ].freeze unless defined?(DISABLE_COPY)
+      ].freeze unless const_defined?(:DISABLE_COPY)
 
+      # TODO: sort DISABLE_REMOVE alphabetically
       DISABLE_REMOVE = %w[
         OS_InteriorPartitionSurface
         OS_InteriorPartitionSurfaceGroup
+        OS_Building
+        OS_Facility
         OS_ShadingSurface
         OS_ShadingSurfaceGroup
         OS_Space
@@ -162,9 +170,11 @@ module OpenStudio
         OS_Daylighting_Control
         OS_IlluminanceMap
         OS_Glare_Sensor
-      ].freeze unless defined?(DISABLE_REMOVE)
+      ].freeze unless const_defined?(:DISABLE_REMOVE)
 
       # Resource objects that support purge
+
+      # TODO: sort ENABLE_PURGE alphabetically
       ENABLE_PURGE = %w[
         OS_DefaultConstructionSet
         OS_DefaultScheduleSet
@@ -173,21 +183,26 @@ module OpenStudio
         OS_Rendering_Color
         OS_SpaceType
         OS_WindowProperty_FrameAndDivider
-      ].freeze unless defined?(ENABLE_PURGE)
+      ].freeze unless const_defined?(:ENABLE_PURGE)
+
+      # Preferences key used for save_state / restore_state
+      PREFS_KEY = 'OpenStudio.InspectorDialog'.freeze unless const_defined?(:PREFS_KEY)
 
       # ------------------------------------------------------------------
       # State
       # ------------------------------------------------------------------
-      @dialog = nil
-      @unit_system = :ip  # :si or :ip
-      @current_type = nil
+      @dialog        = nil
+      @unit_system   = :ip  # :si or :ip
+      @current_type  = nil
       @current_handle = nil
+      @enabled       = true
+      @accessPolicyStore = nil
 
       # ------------------------------------------------------------------
       # Dialog lifecycle
       # ------------------------------------------------------------------
 
-      def self.create_dialog
+      def create_dialog
         html_file = File.join(File.dirname(__FILE__), 'html', 'inspector_dialog.html')
         options = {
           dialog_title:    'OpenStudio Inspector',
@@ -199,45 +214,35 @@ module OpenStudio
           min_width:       700,
           min_height:      500
         }
-        dlg = UI::HtmlDialog.new(options)
-        dlg.set_file(html_file)
-        dlg.center
-        dlg
-      end
+        result = UI::HtmlDialog.new(options)
+        result.set_file(html_file)
+        result.center
 
-      def self.show_dialog
-        @dialog ||= create_dialog
-
-        # Remove existing callbacks to avoid duplicates on reload
-        # (UI::HtmlDialog doesn't provide a remove-callback API; simply re-create if needed)
-
-        @dialog.add_action_callback('ready') do |_ctx|
-          load_policy
+        result.add_action_callback('ready') do |_ctx|
+          puts "ready callback"
           send_initial_data
           nil
         end
 
-        # TODO: remove this callback, the backend sends the unit system in the initial data
-        @dialog.add_action_callback('set_unit_system') do |_ctx, system|
-          @unit_system = system == 'si' ? :si : :ip
-          refresh_fields if @current_handle
-          nil
-        end
-
-        @dialog.add_action_callback('set_type') do |_ctx, type_str|
+        result.add_action_callback('set_type') do |_ctx, type_str|
+          puts "set_type callback"
           @current_type = type_str
           @current_handle = nil
           send_objects_for_type(type_str)
           nil
         end
 
-        @dialog.add_action_callback('set_object') do |_ctx, handle_str|
+        result.add_action_callback('set_object') do |_ctx, handle_str|
+          puts "set_object callback"
           @current_handle = handle_str
           send_fields_for_object(handle_str)
+          # Sync SketchUp model selection to match the inspector selection
+          select_drawing_interfaces([handle_str]) if handle_str && !handle_str.empty?
           nil
         end
 
-        @dialog.add_action_callback('update_field') do |_ctx, data|
+        result.add_action_callback('update_field') do |_ctx, data|
+          puts "update_field callback"
           begin
             payload = JSON.parse(data)
             update_field(payload['handle'], payload['index'], payload['value'])
@@ -247,130 +252,239 @@ module OpenStudio
           nil
         end
 
-        @dialog.add_action_callback('add_object') do |_ctx, type_str|
+        result.add_action_callback('add_object') do |_ctx, type_str|
           add_object(type_str)
           nil
         end
 
-        @dialog.add_action_callback('copy_object') do |_ctx, handle_str|
+        result.add_action_callback('copy_object') do |_ctx, handle_str|
           copy_object(handle_str)
           nil
         end
 
-        @dialog.add_action_callback('delete_object') do |_ctx, handle_str|
+        result.add_action_callback('delete_object') do |_ctx, handle_str|
           delete_object(handle_str)
           nil
         end
 
-        @dialog.add_action_callback('purge_objects') do |_ctx, type_str|
+        result.add_action_callback('purge_objects') do |_ctx, type_str|
           purge_objects(type_str)
           nil
         end
 
-        @dialog.show
+        result.set_on_closed  do
+          puts "set_on_closed  callback"
+          @dialog = nil
+          true
+        end
+
+        result
       end
 
-      def self.set_unit_system(system)
-        @unit_system = system == 'si' ? :si : :ip
+      def set_unit_system(system)
+        @unit_system = system == 'SI' ? :si : :ip
         refresh_fields if @current_handle
       end
 
-      # TODO: implement the following method which is called by DialogManager to hide the dialog
-      def self.hide
-        # TODO: implement
+      def show_dialog
+        @dialog ||= create_dialog
+        @dialog.show
       end
 
-      # TODO: implement the following method which is called by DialogManager to test if the dialog is visible
-      def self.is_visible
-        # TODO: implement
+      # Called by DialogManager to hide the dialog
+      def hide
+        @dialog&.close
+        @dialog = nil
       end
 
-      # TODO: implement the following method which is called by DialogManager to enable the dialog
-      def self.enable
-        # TODO: implement, return true if the dialog was previously disabled, false otherwise
+      # Called by DialogManager to test if the dialog is visible
+      def is_visible
+        @dialog ? @dialog.visible? : false
       end
 
-      # TODO: implement the following method which is called by DialogManager to disable the dialog
-      def self.disable
-        # TODO: implement, return true if the dialog was previously enabled, false otherwise
+      # Called by DialogManager to enable the dialog.
+      # Returns true if the dialog was previously disabled.
+      def enable
+        was_disabled = !@enabled
+        @enabled = true
+        was_disabled
       end
 
-      # TODO: implement the following method which is called by DialogManager to check if the dialog is enabled
-      def self.is_enabled
-        # TODO: implement, return true if the dialog is enabled, false otherwise
+      # Called by DialogManager to disable the dialog.
+      # Returns true if the dialog was previously enabled.
+      def disable
+        was_enabled = @enabled
+        @enabled = false
+        was_enabled
       end
 
-      # TODO: implement the following method which is called by DialogManager to save the state of the dialog
-      def self.save_state
-        # TODO: implement
+      # Called by DialogManager to check if the dialog is enabled.
+      def is_enabled
+        @enabled
       end
 
-      # TODO: implement the following method which is called by DialogManager to restore the state of the dialog
-      def self.restore_state
-        # TODO: implement
+      # Called by DialogManager to save the state of the dialog.
+      def save_state
+        Sketchup.write_default(PREFS_KEY, 'UnitSystem', @unit_system.to_s)
+        Sketchup.write_default(PREFS_KEY, 'CurrentType', @current_type.to_s)
+      rescue => e
+        puts "Inspector: save_state error: #{e.message}"
       end
 
-      # ------------------------------------------------------------------
-      # Policy loading
-      # ------------------------------------------------------------------
+      # Called by DialogManager to restore the state of the dialog.
+      def restore_state
+        unit_str = Sketchup.read_default(PREFS_KEY, 'UnitSystem', 'ip')
+        @unit_system = unit_str == 'si' ? :si : :ip
 
-      def self.load_policy
-        policy_file = File.join(File.dirname(__FILE__), 'existing_cpp_to_port', 'SketchUpPluginPolicy.xml')
-        AccessPolicyStore.clear
-        AccessPolicyStore.load_file(policy_file)
+        saved_type = Sketchup.read_default(PREFS_KEY, 'CurrentType', '')
+        if saved_type && !saved_type.empty? && TYPES_TO_DISPLAY.include?(saved_type)
+          @current_type = saved_type
+        end
+      rescue => e
+        puts "Inspector: restore_state error: #{e.message}"
       end
 
       # ------------------------------------------------------------------
       # Interaction with SketchUp
       # ------------------------------------------------------------------
-      # TODO: when selecting objects in the inspector, call this method so that the objects are selected in the SketchUp model
-      def self.select_drawing_interfaces(handles)
-        model_interface =  Plugin.model_manager.model_interface
+
+      # When selecting objects in the inspector, call this method so that
+      # the objects are also selected in the SketchUp model.
+      def select_drawing_interfaces(handles)
+        model_interface = Plugin.model_manager.model_interface
         if model_interface
           had_observers = model_interface.selection_interface.remove_observers
           model_interface.selection_interface.select_drawing_interfaces(handles)
           model_interface.selection_interface.add_observers if had_observers
         end
+      rescue => e
+        puts "Inspector: select_drawing_interfaces error: #{e.message}"
       end
 
-      # TODO: implement the following method which is called by DialogManager when the model is updated
-      def self.update
-        # TODO: implement, refresh the data in the dialog
+      # Called by DialogManager when the OpenStudio model is updated.
+      def update
+        return unless @dialog && is_visible
+        send_objects_for_type(@current_type) if @current_type
+        refresh_fields
       end
 
-      # TODO: implement the following method which is called by DialogManager when the SketchUp selection changes
-      def self.set_idd_object_type(idd_object_type)
-        # TODO: implement
+      # Called by DialogManager when the SketchUp selection changes.
+      # Navigates the type panel to the IDD object type of the selected object.
+      def set_idd_object_type(idd_object_type)
+        return unless @dialog && is_visible
+        # IddObjectType#valueDescription returns colon-style ("OS:SubSurface");
+        # our TYPES_TO_DISPLAY uses underscore-style ("OS_SubSurface").
+        type_str = idd_object_type.valueDescription.tr(':', '_')
+        return unless TYPES_TO_DISPLAY.include?(type_str)
+        return if type_str == @current_type
+
+        @current_type   = type_str
+        @current_handle = nil
+        send_objects_for_type(type_str)
+        safe_execute("selectType(#{JSON.generate(type_str)})")
+      rescue => e
+        puts "Inspector: set_idd_object_type error: #{e.message}"
       end
 
-      # TODO: implement the following method which is called by DialogManager when the SketchUp selection changes
-      def self.set_selected_object_handles(handles)
-        # TODO: implement, note handles may be empty in case of no selection
+      # Called by DialogManager when the SketchUp selection changes.
+      # Selects the corresponding object row in the object panel.
+      # handles may be an empty collection when there is no selection.
+      def set_selected_object_handles(handles)
+        return unless @dialog && is_visible
+
+        handle_arr = handles.to_a
+        if handle_arr.empty?
+          @current_handle = nil
+          safe_execute("setFields(null)")
+          safe_execute("selectObject(null)")
+          return
+        end
+
+        # Single-selection only (matching C++ behaviour)
+        handle_str      = handle_arr.first.to_s
+        @current_handle = handle_str
+        safe_execute("selectObject(#{JSON.generate(handle_str)})")
+        send_fields_for_object(handle_str)
+      rescue => e
+        puts "Inspector: set_selected_object_handles error: #{e.message}"
       end
 
       # ------------------------------------------------------------------
       # Data senders (Ruby → JavaScript via execute_script)
       # ------------------------------------------------------------------
 
-      def self.send_initial_data
-        # Send types list
-        types_data = TYPES_TO_DISPLAY.map do |t|
-          label = t.gsub(/^OS_/, '').gsub('_', ' ')
-          { key: t, label: label }
-        end
-        safe_execute("setTypes(#{JSON.generate(types_data)})")
+      def send_initial_data
+        model = get_model
+
+        # Build the IDD-grouped type list with live object counts.
+        # IddFactory always returns a valid IddFile for the OpenStudio IDD.
+        grouped_types = build_grouped_types(model)
+
+        safe_execute("setTypes(#{JSON.generate(grouped_types)})")
 
         # Send unit system
         safe_execute("setUnitSystem('#{@unit_system}')")
 
-        # Pre-select first type
-        first_type = TYPES_TO_DISPLAY.first
+        # Pre-select first type (or restored type)
+        first_type = @current_type || TYPES_TO_DISPLAY.first
         @current_type = first_type
         send_objects_for_type(first_type)
       end
 
-      def self.send_objects_for_type(type_str)
+      # Build the type list grouped by IDD group, with object counts.
+      # Returns an array of entries; group headers have is_group: true.
+      # Porto of C++ loadListWidgetData.
+      def build_grouped_types(model)
+        idd_file = OpenStudio::IddFactory::instance.getIddFile(
+          OpenStudio::IddFileType.new('OpenStudio')
+        )
+
+        # Build a set of underscore-style keys for fast lookup
+        display_set = TYPES_TO_DISPLAY.to_set
+
+        result = []
+
+        idd_file.groups.each do |group_name|
+          # Collect displayable objects in this group
+          group_entries = []
+          idd_file.getObjectsInGroup(group_name).each do |idd_obj|
+            # IDD type is colon-style; convert to underscore for TYPES_TO_DISPLAY lookup
+            type_key = idd_obj.type.valueDescription.tr(':', '_')
+            next unless display_set.include?(type_key)
+
+            count = model ? model.numObjectsOfType(idd_obj.type) : 0
+
+            label = type_key.gsub(/^OS_/, '').gsub('_', ' ')
+            group_entries << {
+              key:      type_key,
+              label:    label,
+              count:    count,
+              is_group: false
+            }
+          end
+
+          next if group_entries.empty?
+
+          # TODO: the group_entries should be a child array of the group
+          # this way the group can be collapsed and expanded
+
+          # Emit group header then entries
+          result << { label: group_name, is_group: true }
+          result.concat(group_entries)
+        end
+
+        result
+      rescue => e
+        puts "Inspector: build_grouped_types error: #{e.message}"
+        # Fallback: flat list without counts
+        TYPES_TO_DISPLAY.map do |t|
+          { key: t, label: t.gsub(/^OS_/, '').gsub('_', ' '), count: 0, is_group: false }
+        end
+      end
+
+      def send_objects_for_type(type_str)
         return unless @dialog
+        model  = get_model
         objects = get_objects_for_type(type_str)
         button_state = {
           enable_add:    !DISABLE_ADD.include?(type_str),
@@ -378,14 +492,22 @@ module OpenStudio
           enable_remove: !DISABLE_REMOVE.include?(type_str),
           enable_purge:  ENABLE_PURGE.include?(type_str)
         }
-        payload = { objects: objects, buttons: button_state, type: type_str }
+        # Include updated count so the type list badge stays current
+        count = model ? begin
+          idd_type = OpenStudio::IddObjectType.new(type_str)
+          model.numObjectsOfType(idd_type)
+        rescue
+          objects.size
+        end : objects.size
+
+        payload = { objects: objects, buttons: button_state, type: type_str, count: count }
         safe_execute("setObjects(#{JSON.generate(payload)})")
         # Clear the fields panel
         safe_execute("setFields(null)")
         @current_handle = nil
       end
 
-      def self.send_fields_for_object(handle_str)
+      def send_fields_for_object(handle_str)
         return unless @dialog
         fields = get_fields_for_object(handle_str)
         if fields
@@ -395,7 +517,7 @@ module OpenStudio
         end
       end
 
-      def self.refresh_fields
+      def refresh_fields
         return unless @current_handle
         send_fields_for_object(@current_handle)
       end
@@ -404,7 +526,7 @@ module OpenStudio
       # Model queries
       # ------------------------------------------------------------------
 
-      def self.get_model
+      def get_model
         # Access the OpenStudio model via the standard SketchUp plugin pattern.
         # The singleton Plugin object (OpenStudio::Plugin, a PluginManager) holds a
         # ModelManager, which tracks ModelInterface objects for each open SketchUp model.
@@ -424,7 +546,7 @@ module OpenStudio
         nil
       end
 
-      def self.get_objects_for_type(type_str)
+      def get_objects_for_type(type_str)
         model = get_model
         return [] unless model
         begin
@@ -443,7 +565,7 @@ module OpenStudio
         end
       end
 
-      def self.get_fields_for_object(handle_str)
+      def get_fields_for_object(handle_str)
         model = get_model
         return nil unless model
         begin
@@ -489,7 +611,7 @@ module OpenStudio
         end
       end
 
-      def self.build_field_data(ws_obj, idd_field, index, cur_val, access, type_str)
+      def build_field_data(ws_obj, idd_field, index, cur_val, access, type_str)
         prop      = idd_field.properties
         field_type = prop.type.valueName  # IntegerType, RealType, AlphaType, ChoiceType, ObjectListType, etc.
 
@@ -539,7 +661,7 @@ module OpenStudio
         data
       end
 
-      def self.build_real_field_data(ws_obj, idd_field, index, cur_val, prop)
+      def build_real_field_data(ws_obj, idd_field, index, cur_val, prop)
         result = { units: '', min: nil, max: nil, default: nil, value: cur_val }
 
         return result if idd_field.unitsBasedOnOtherField
@@ -597,7 +719,7 @@ module OpenStudio
       # CRUD operations
       # ------------------------------------------------------------------
 
-      def self.update_field(handle_str, index, value)
+      def update_field(handle_str, index, value)
         model = get_model
         return unless model
         begin
@@ -636,7 +758,7 @@ module OpenStudio
         end
       end
 
-      def self.add_object(type_str)
+      def add_object(type_str)
         model = get_model
         return unless model
         begin
@@ -655,7 +777,7 @@ module OpenStudio
         end
       end
 
-      def self.copy_object(handle_str)
+      def copy_object(handle_str)
         model = get_model
         return unless model
         begin
@@ -675,7 +797,7 @@ module OpenStudio
         end
       end
 
-      def self.delete_object(handle_str)
+      def delete_object(handle_str)
         model = get_model
         return unless model
         begin
@@ -690,7 +812,7 @@ module OpenStudio
         end
       end
 
-      def self.purge_objects(type_str)
+      def purge_objects(type_str)
         model = get_model
         return unless model
         begin
@@ -706,7 +828,7 @@ module OpenStudio
       # Utility
       # ------------------------------------------------------------------
 
-      def self.safe_execute(script)
+      def safe_execute(script)
         return unless @dialog
         @dialog.execute_script(script)
       rescue => e
