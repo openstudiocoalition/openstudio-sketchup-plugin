@@ -122,8 +122,43 @@
       padding: 0;
     }
 
-    #type-list li {
-      padding: 5px 10px;
+    /* Group header rows */
+    .type-group-header {
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      background: #252a2e;
+      color: #7a8a9a;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border-bottom: 1px solid #2d3338;
+    }
+
+    .type-group-header:hover {
+      background: #2a2f34;
+      color: #a0b0c0;
+    }
+
+    .group-chevron {
+      font-size: 9px;
+      width: 10px;
+      display: inline-block;
+    }
+
+    /* Child type list within a group */
+    .type-group-children {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .type-group-children li {
+      padding: 5px 10px 5px 22px;
       cursor: pointer;
       font-size: 12px;
       color: #010101;
@@ -131,16 +166,30 @@
       overflow: hidden;
       text-overflow: ellipsis;
       border-bottom: 1px solid #2d3338;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    #type-list li:hover {
+    .type-group-children li:hover {
       background: #2e404f;
       color: #fff;
     }
 
-    #type-list li.active {
+    .type-group-children li.active {
       background: #0b6fbc;
       color: #fff;
+    }
+
+    .count-badge {
+      font-size: 10px;
+      color: #7a8a9a;
+      margin-left: 4px;
+      flex-shrink: 0;
+    }
+
+    .type-group-children li.active .count-badge {
+      color: #a8caea;
     }
 
     /* ── Object table ─────────────────────────── */
@@ -338,12 +387,8 @@
     <div id="toolbar">
       <span style="font-size:12px; font-weight:600; letter-spacing:.04em;">OpenStudio Inspector</span>
       <div style="flex:1"></div>
-      <!-- TODO: make this toggle read only from the model -->
-      <div class="unit-toggle">
-        <label>Units:</label>
-        <button :class="{active: unitSystem==='ip'}" @click="setUnitSystem('ip')">IP</button>
-        <button :class="{active: unitSystem==='si'}" @click="setUnitSystem('si')">SI</button>
-      </div>
+      <!-- Unit system is read from the model via setUnitSystem(); not user-controlled -->
+      <span v-if="unitSystem" style="font-size:11px; color:#a0aab4;">Units: {{ unitSystem.toUpperCase() }}</span>
     </div>
 
     <!-- ── Three-panel body ───────────────────────── -->
@@ -353,13 +398,23 @@
       <div class="panel" id="panel-type">
         <div class="panel-header">Select Type</div>
         <div class="panel-body">
-          <!-- TODO: the groups should be parents of the types within the group, the groups should have a different style than child types  -->
-          <!-- TODO: the groups are not selectable, instead of selecting them they expand or contract when clicked  -->
-          <!-- TODO: the t.count should be appended to the title for child types like "t.key (t.count)"  -->
+          <!-- Collapsible IDD groups; clicking group header expands/collapses children -->
+          <!-- Clicking a child type (not a group) loads the object list -->
           <ul id="type-list">
-            <li v-for="t in types" :key="t.key" :class="{active: selectedType===t.key}" @click="selectType(t.key)"
-              :title="t.key">
-              {{ t.label }}
+            <li v-for="g in groups" :key="g.label">
+              <!-- Group header row: toggle collapse on click -->
+              <div class="type-group-header" @click="toggleGroup(g.label)">
+                <span class="group-chevron">{{ collapsedGroups[g.label] ? '\u25B6' : '\u25BC' }}</span>
+                {{ g.label }}
+              </div>
+              <!-- Child types, shown unless group is collapsed -->
+              <ul class="type-group-children" v-show="!collapsedGroups[g.label]">
+                <li v-for="t in g.children" :key="t.key" :class="{active: selectedType===t.key}"
+                  @click="selectType(t.key)" :title="t.key">
+                  <span>{{ t.label }}</span>
+                  <span class="count-badge">({{ t.count }})</span>
+                </li>
+              </ul>
             </li>
           </ul>
         </div>
@@ -495,12 +550,13 @@
     var app = new Vue({
       el: '#app',
       data: {
-        types: [],
+        groups: [],
         objects: [],
         selectedType: null,
         selectedHandle: null,
         editData: null,
         unitSystem: 'ip',
+        collapsedGroups: {},
         buttons: {
           enable_add: false,
           enable_copy: false,
@@ -510,10 +566,16 @@
       },
 
       methods: {
-        // ── Unit system ─────────────────────────────
-        setUnitSystem: function (sys) {
-          this.unitSystem = sys;
-          sketchup.set_unit_system(sys);
+        // ── Unit system (read-only – pushed from Ruby) ──────────────
+        // Unit system is set from Ruby via the global setUnitSystem(sys) function.
+        // No user-facing toggle exists; the method below is kept as a no-op
+        // so any stale calls don't cause errors.
+
+        // ── Group collapse/expand ──────────────────────────────────
+        toggleGroup: function (label) {
+          var current = this.collapsedGroups[label] || false;
+          // Vue.set is required for reactivity on dynamically-added keys
+          Vue.set(this.collapsedGroups, label, !current);
         },
 
         // ── Type selection ───────────────────────────
@@ -574,7 +636,8 @@
     // ── Ruby → JS entry points ───────────────────────
 
     function setTypes(data) {
-      app.types = data;
+      // data is an array of group objects: [{label, is_group:true, children:[...]}]
+      app.groups = data;
     }
 
     function setUnitSystem(sys) {

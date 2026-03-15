@@ -95,91 +95,85 @@ module OpenStudio
       # Configuration – ported from InspectorDialog::init(SketchUpPlugin)
       # ------------------------------------------------------------------
 
-      # TODO: sort TYPES_TO_DISPLAY alphabetically
       TYPES_TO_DISPLAY = %w[
+        OS_Building
         OS_BuildingStory
+        OS_Daylighting_Control
         OS_DefaultConstructionSet
         OS_DefaultScheduleSet
-        OS_DefaultSurfaceConstructions
         OS_DefaultSubSurfaceConstructions
-        OS_Rendering_Color
-        OS_SpaceType
-        OS_ShadingControl
-        OS_WindowProperty_FrameAndDivider
-        OS_Building
+        OS_DefaultSurfaceConstructions
         OS_Facility
-        OS_InteriorPartitionSurfaceGroup
-        OS_InteriorPartitionSurface
-        OS_ShadingSurfaceGroup
-        OS_ShadingSurface
-        OS_Space
-        OS_Surface
-        OS_SubSurface
-        OS_Daylighting_Control
-        OS_IlluminanceMap
         OS_Glare_Sensor
+        OS_IlluminanceMap
+        OS_InteriorPartitionSurface
+        OS_InteriorPartitionSurfaceGroup
+        OS_Rendering_Color
+        OS_ShadingControl
+        OS_ShadingSurface
+        OS_ShadingSurfaceGroup
+        OS_Space
+        OS_SpaceType
+        OS_SubSurface
+        OS_Surface
         OS_ThermalZone
+        OS_WindowProperty_FrameAndDivider
       ].freeze unless const_defined?(:TYPES_TO_DISPLAY)
 
-      # TODO: sort DISABLE_ADD alphabetically
       DISABLE_ADD = %w[
-        OS_ShadingControl
+        OS_Building
+        OS_Daylighting_Control
+        OS_Facility
+        OS_Glare_Sensor
+        OS_IlluminanceMap
         OS_InteriorPartitionSurface
         OS_InteriorPartitionSurfaceGroup
+        OS_ShadingControl
         OS_ShadingSurface
         OS_ShadingSurfaceGroup
         OS_Space
-        OS_Surface
-        OS_Building
-        OS_Facility
         OS_SubSurface
-        OS_Daylighting_Control
-        OS_IlluminanceMap
-        OS_Glare_Sensor
+        OS_Surface
         OS_ThermalZone
       ].freeze unless const_defined?(:DISABLE_ADD)
 
-      # TODO: sort DISABLE_COPY alphabetically
       DISABLE_COPY = %w[
+        OS_Building
+        OS_Daylighting_Control
+        OS_Facility
+        OS_Glare_Sensor
+        OS_IlluminanceMap
         OS_InteriorPartitionSurface
         OS_InteriorPartitionSurfaceGroup
         OS_ShadingSurface
         OS_ShadingSurfaceGroup
-        OS_Building
-        OS_Facility
         OS_Space
-        OS_Surface
         OS_SubSurface
-        OS_Daylighting_Control
-        OS_IlluminanceMap
-        OS_Glare_Sensor
+        OS_Surface
         OS_ThermalZone
       ].freeze unless const_defined?(:DISABLE_COPY)
 
-      # TODO: sort DISABLE_REMOVE alphabetically
       DISABLE_REMOVE = %w[
+        OS_Building
+        OS_Daylighting_Control
+        OS_Facility
+        OS_Glare_Sensor
+        OS_IlluminanceMap
         OS_InteriorPartitionSurface
         OS_InteriorPartitionSurfaceGroup
-        OS_Building
-        OS_Facility
         OS_ShadingSurface
         OS_ShadingSurfaceGroup
         OS_Space
-        OS_Surface
         OS_SubSurface
-        OS_Daylighting_Control
-        OS_IlluminanceMap
-        OS_Glare_Sensor
+        OS_Surface
       ].freeze unless const_defined?(:DISABLE_REMOVE)
 
       # Resource objects that support purge
-
-      # TODO: sort ENABLE_PURGE alphabetically
       ENABLE_PURGE = %w[
         OS_DefaultConstructionSet
         OS_DefaultScheduleSet
-        OS_DefaultSurfaceConstructions
         OS_DefaultSubSurfaceConstructions
+        OS_DefaultSurfaceConstructions
         OS_Rendering_Color
         OS_SpaceType
         OS_WindowProperty_FrameAndDivider
@@ -189,14 +183,16 @@ module OpenStudio
       PREFS_KEY = 'OpenStudio.InspectorDialog'.freeze unless const_defined?(:PREFS_KEY)
 
       # ------------------------------------------------------------------
-      # State
+      # Instance initialization
       # ------------------------------------------------------------------
-      @dialog        = nil
-      @unit_system   = :ip  # :si or :ip
-      @current_type  = nil
-      @current_handle = nil
-      @enabled       = true
-      @accessPolicyStore = nil
+
+      def initialize
+        @dialog        = nil
+        @unit_system   = :ip  # :si or :ip
+        @current_type  = nil
+        @current_handle = nil
+        @enabled       = true
+      end
 
       # ------------------------------------------------------------------
       # Dialog lifecycle
@@ -432,8 +428,8 @@ module OpenStudio
       end
 
       # Build the type list grouped by IDD group, with object counts.
-      # Returns an array of entries; group headers have is_group: true.
-      # Porto of C++ loadListWidgetData.
+      # Returns an array of group objects, each with a :children array of type entries.
+      # Port of C++ loadListWidgetData.
       def build_grouped_types(model)
         idd_file = OpenStudio::IddFactory::instance.getIddFile(
           OpenStudio::IddFileType.new('OpenStudio')
@@ -445,8 +441,8 @@ module OpenStudio
         result = []
 
         idd_file.groups.each do |group_name|
-          # Collect displayable objects in this group
-          group_entries = []
+          # Collect displayable objects in this group as children
+          children = []
           idd_file.getObjectsInGroup(group_name).each do |idd_obj|
             # IDD type is colon-style; convert to underscore for TYPES_TO_DISPLAY lookup
             type_key = idd_obj.type.valueDescription.tr(':', '_')
@@ -455,7 +451,7 @@ module OpenStudio
             count = model ? model.numObjectsOfType(idd_obj.type) : 0
 
             label = type_key.gsub(/^OS_/, '').gsub('_', ' ')
-            group_entries << {
+            children << {
               key:      type_key,
               label:    label,
               count:    count,
@@ -463,23 +459,20 @@ module OpenStudio
             }
           end
 
-          next if group_entries.empty?
+          next if children.empty?
 
-          # TODO: the group_entries should be a child array of the group
-          # this way the group can be collapsed and expanded
-
-          # Emit group header then entries
-          result << { label: group_name, is_group: true }
-          result.concat(group_entries)
+          # Group header with nested children – allows collapsible UI
+          result << { label: group_name, is_group: true, children: children }
         end
 
         result
       rescue => e
         puts "Inspector: build_grouped_types error: #{e.message}"
-        # Fallback: flat list without counts
-        TYPES_TO_DISPLAY.map do |t|
+        # Fallback: single group containing all types without counts
+        children = TYPES_TO_DISPLAY.map do |t|
           { key: t, label: t.gsub(/^OS_/, '').gsub('_', ' '), count: 0, is_group: false }
         end
+        [{ label: 'All Types', is_group: true, children: children }]
       end
 
       def send_objects_for_type(type_str)

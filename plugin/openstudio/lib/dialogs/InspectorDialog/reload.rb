@@ -5,7 +5,7 @@
 # files without restarting SketchUp.
 #
 # Usage (in SketchUp Ruby Console):
-#   load 'C:/repos/openstudio-sketchup-plugin/plugin/openstudio/lib/new_dialog/reload.rb'
+#   load 'C:/repos/openstudio-sketchup-plugin/plugin/openstudio/lib/dialogs/InspectorDialog/reload.rb'
 #
 # The script will:
 #   1. Close the existing dialog if open.
@@ -14,16 +14,15 @@
 
 puts "--- Reloading OpenStudio Inspector Dialog ---"
 
-# Root directory of the new_dialog implementation
+# Root directory of the inspector dialog implementation
 NEW_DIALOG_DIR = File.expand_path(File.dirname(__FILE__)) unless defined?(NEW_DIALOG_DIR)
 
-# Close the dialog if it is currently open so the new code takes effect cleanly
+# Close the dialog if it is currently open so the new code takes effect cleanly.
+# InspectorDialog is now an instance class managed by DialogManager.
 begin
-  if defined?(OpenStudio::Inspector::InspectorDialog) &&
-     OpenStudio::Inspector::InspectorDialog.instance_variable_get(:@dialog)
-    dlg = OpenStudio::Inspector::InspectorDialog.instance_variable_get(:@dialog)
-    dlg.close rescue nil
-    OpenStudio::Inspector::InspectorDialog.instance_variable_set(:@dialog, nil)
+  inspector = Plugin.dialog_manager&.inspector_dialog
+  if inspector&.is_visible
+    inspector.hide
     puts "  Closed existing dialog."
   end
 rescue => e
@@ -33,7 +32,7 @@ end
 # List of files to reload in dependency order
 FILES_TO_RELOAD = [
   File.join(NEW_DIALOG_DIR, 'inspector_dialog.rb'),
-].freeze
+].freeze unless defined?(FILES_TO_RELOAD)
 
 FILES_TO_RELOAD.each do |f|
   if File.exist?(f)
@@ -44,10 +43,16 @@ FILES_TO_RELOAD.each do |f|
   end
 end
 
-# Re-open the dialog
+# Re-open the dialog via the DialogManager instance
 begin
-  OpenStudio::Inspector::InspectorDialog.show_dialog
-  puts "  Dialog opened."
+  inspector = Plugin.dialog_manager&.inspector_dialog
+  if inspector
+    inspector.restore_state
+    inspector.show_dialog
+    puts "  Dialog opened."
+  else
+    puts "  WARNING: No inspector_dialog on dialog_manager. Is the plugin fully loaded?"
+  end
 rescue => e
   puts "  ERROR opening dialog: #{e.message}"
   puts e.backtrace.first(5).join("\n")

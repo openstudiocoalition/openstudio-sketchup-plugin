@@ -77,7 +77,7 @@ module OpenStudio
 
             spaceLoadInstance = addedObject.to_SpaceLoadInstance
 
-            OpenStudio::Modeleditor::ensureSpaceLoadDefinition(spaceLoadInstance.get)
+            OpenStudio::ensureSpaceLoadDefinition(spaceLoadInstance.get)
 
           end
 
