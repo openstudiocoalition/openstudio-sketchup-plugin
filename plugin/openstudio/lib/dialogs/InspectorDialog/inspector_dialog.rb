@@ -14,7 +14,36 @@ require 'rexml/document'
 require 'set'
 
 # Note: OpenStudio Ruby Optional types use `empty?`/`get`, NOT `is_initialized`/`get`.
-# the exception is `empty`/`get` for `OpenStudio::OptionalQuantity` types
+# the exception is `empty`/`get` for `OpenStudio::OptionalQuantity`, patch that here
+if not OpenStudio::OSOptionalQuantity.public_method_defined?(:empty?)
+  OpenStudio::OSOptionalQuantity.alias_method :empty?, :empty
+end
+
+# TODO: after automatically selecting the first object of a type, the copy and delete buttons
+# should be enabled if configured to be enabled.
+
+# TODO: after editing a field, SketchUp is crashing.  Figure out why. Are we getting stuck in
+# a loop of some kind?  
+
+# TODO: if an object has additionalProperties, then show them in the inspector, 
+# see InspectorGadget::layoutItems for an example of how to do this.  Add a new list
+# to control which object types allow adding or removing additional properties.
+
+# TODO: objects with Surface Area fields should show units in the inspector.
+# The units should be ft^2 for IP and m^2 for SI.  Figure out why this is not 
+# happening automatically. Do not make a kludgy fix for it.  The same issue is happening for
+# objects with Volume, Ceiling Height, and Floor Area fields. Objects and fields
+# with units that are not showing up in the inspector include:
+#   - Object Type, Field Name, SI Units, IP Units
+#   - OS:InteriorPartitionSurface, Surface Area, m2, ft2
+#   - OS:Space, Volume, m3, ft3
+#   - OS:Space, Ceiling Height, m, ft
+#   - OS:Space, Floor Area, m2, ft2
+#   - OS:ThermalZone, Volume, m3, ft3
+#   - OS:ThermalZone, Ceiling Height, m, ft
+#   - OS:ThermalZone, Floor Area, m2, ft2
+
+# TODO: purge should be disabled when there are no objects of the selected type
 
 module OpenStudio
   module Inspector
@@ -164,7 +193,6 @@ module OpenStudio
         OS_IlluminanceMap
         OS_InteriorPartitionSurface
         OS_InteriorPartitionSurfaceGroup
-        OS_ShadingControl
         OS_ShadingSurface
         OS_ShadingSurfaceGroup
         OS_Space
@@ -211,9 +239,28 @@ module OpenStudio
         OS_DefaultSubSurfaceConstructions
         OS_DefaultSurfaceConstructions
         OS_Rendering_Color
+        OS_ShadingControl
         OS_SpaceType
         OS_WindowProperty_FrameAndDivider
       ].freeze unless const_defined?(:ENABLE_PURGE)
+
+      # Object types that display additionalProperties in the inspector
+      DISPLAY_ADDITIONAL_PROPERTIES = %w[
+        OS_Building
+        OS_SpaceType
+      ].freeze unless const_defined?(:DISPLAY_ADDITIONAL_PROPERTIES)
+
+      # Object types that allow adding a new additionalProperty
+      ADD_ADDITIONAL_PROPERTIES = %w[
+        OS_Building
+        OS_SpaceType
+      ].freeze unless const_defined?(:ADD_ADDITIONAL_PROPERTIES)
+
+      # Object types that allow removing an additionalProperty
+      REMOVE_ADDITIONAL_PROPERTIES = %w[
+        OS_Building
+        OS_SpaceType
+      ].freeze unless const_defined?(:REMOVE_ADDITIONAL_PROPERTIES)
 
       # Preferences key used for save_state / restore_state
       PREFS_KEY = 'OpenStudio.InspectorDialog'.freeze unless const_defined?(:PREFS_KEY)
@@ -223,14 +270,15 @@ module OpenStudio
       # ------------------------------------------------------------------
 
       def initialize
-        @dialog         = nil
-        @unit_system    = :ip  # :si or :ip
-        @current_type   = nil
-        @current_handle = nil
-        @enabled        = true
-        @model          = nil
-        @object_watcher = nil
-        @model_watcher  = nil
+        @dialog              = nil
+        @unit_system         = :ip  # :si or :ip
+        @current_type        = nil
+        @current_handle      = nil
+        @current_object_name = nil
+        @enabled             = true
+        @model               = nil
+        @object_watcher      = nil
+        @model_watcher       = nil
       end
 
       # ------------------------------------------------------------------
@@ -328,7 +376,7 @@ module OpenStudio
         refresh_fields if @current_handle
       end
 
-      def show_dialog
+      def show
         @dialog ||= create_dialog
         @dialog.show
       end
@@ -408,6 +456,20 @@ module OpenStudio
         return unless @dialog && is_visible
         send_objects_for_type(@current_type) if @current_type
         refresh_fields
+      end
+
+      # Called when a new OpenStudio model is attached (model load, import, new).
+      # Re-wires the model watcher and refreshes all dialog panels.
+      def on_model_attached
+        @model = get_model
+        @model_watcher&.disable
+        @model_watcher = @model ? InspectorModelWatcher.new(@model, method(:object_added), method(:object_removed)) : nil
+        @object_watcher&.disable
+        @object_watcher = nil
+        @current_handle = nil
+        @current_object_name = nil
+        return unless @dialog
+        send_initial_data
       end
 
       # Called by DialogManager when the SketchUp selection changes.
@@ -524,12 +586,53 @@ module OpenStudio
       def send_objects_for_type(type_str)
         return unless @dialog
         objects = get_objects_for_type(type_str)
+
+        # Determine unique/required from IDD (mirrors C++ InspectorDialog lines 223-243)
+        is_unique   = false
+        is_required = false
+        begin
+          idd_obj     = OpenStudio::IddFactory::instance.getObject(OpenStudio::IddObjectType.new(type_str))
+          unless idd_obj.empty?
+            props       = idd_obj.get.properties
+            is_unique   = props.unique
+            is_required = props.required
+          end
+        rescue => e
+          puts "Inspector: IDD lookup error for #{type_str}: #{e.message}"
+        end
+
+        # Button enable/disable logic (mirrors C++)
+        enable_add    = !DISABLE_ADD.include?(type_str)
+        enable_copy   = !DISABLE_COPY.include?(type_str)
+        enable_remove = !DISABLE_REMOVE.include?(type_str)
+        enable_purge  = ENABLE_PURGE.include?(type_str)
+
+        if is_unique
+          enable_copy  = false
+          enable_purge = false
+          if objects.empty?
+            enable_remove = false
+          else
+            enable_add = false
+            enable_remove = false if is_required
+          end
+        else
+          # non-unique: copy/remove require a selection
+          # TODO: this is not correct.  This needs to happen after the first object is selected
+          # "@current_handle = objects.first[:handle]"
+          if @current_handle.nil?
+            enable_copy   = false
+            enable_remove = false
+          end
+        end
+
         button_state = {
-          enable_add:    !DISABLE_ADD.include?(type_str),
-          enable_copy:   !DISABLE_COPY.include?(type_str),
-          enable_remove: !DISABLE_REMOVE.include?(type_str),
-          enable_purge:  ENABLE_PURGE.include?(type_str)
+          enable_add:    enable_add,
+          enable_copy:   enable_copy,
+          enable_remove: enable_remove,
+          enable_purge:  enable_purge
         }
+
         # Include updated count so the type list badge stays current
         count = @model ? begin
           idd_type = OpenStudio::IddObjectType.new(type_str)
@@ -538,11 +641,19 @@ module OpenStudio
           objects.size
         end : objects.size
 
-        payload = { objects: objects, buttons: button_state, type: type_str, count: count }
+        payload = { objects: objects, buttons: button_state, type: type_str, count: count, unique: is_unique }
         safe_execute("setObjects(#{JSON.generate(payload)})")
-        # Clear the fields panel
-        safe_execute("setFields(null)")
-        @current_handle = nil
+
+        # Auto-select the first object when switching types with no current selection
+        if objects.size > 0 && @current_handle.nil?
+          @current_handle = objects.first[:handle]
+          safe_execute("selectObject(#{JSON.generate(@current_handle)})")
+          send_fields_for_object(@current_handle)
+        else
+          # Clear the fields panel when no auto-selection is possible
+          @current_handle = nil
+          safe_execute("setFields(null)")
+        end
       end
 
       def send_fields_for_object(handle_str)
@@ -587,7 +698,13 @@ module OpenStudio
       def refresh_fields
         return unless @current_handle
         puts "refresh_fields"
+        old_name = @current_object_name
         send_fields_for_object(@current_handle)
+        # If the name field changed, update the name shown in the object list
+        # (only re-send the name, not the full object list)
+        if @current_object_name != old_name
+          safe_execute("updateObjectName(#{JSON.generate(@current_handle)}, #{JSON.generate(@current_object_name)})")
+        end
       end
 
       def current_object_removed(handle)
@@ -632,11 +749,18 @@ module OpenStudio
               name:    obj.nameString,
               comment: obj.comment.gsub(/^!\s*/, '').strip
             }
-          end.sort_by { |o| o[:name].downcase }
+          end.sort_by { |o| natural_sort_key(o[:name]) }
         rescue => e
           puts "Inspector: get_objects_for_type(#{type_str}) error: #{e.message}"
           []
         end
+      end
+
+      # Natural-sort key: alphabetical, using numeric suffix only to break ties.
+      # "Surface 2" < "Surface 10" < "Surface A"
+      def natural_sort_key(name)
+        m = name.downcase.match(/\A(.*?)(\d+)\z/)
+        m ? [m[1], m[2].to_i] : [name.downcase, 0]
       end
 
       def get_fields_for_object(handle_str)
@@ -674,12 +798,76 @@ module OpenStudio
             fields << field_data
           end
 
-          {
-            handle:   handle_str,
-            type:     type_str,
-            name:     ws_obj.nameString,
-            fields:   fields
+          current_name = ws_obj.nameString
+          # Item 4: for unnamed objects (e.g. unique types), fall back to the IDD type description
+          display_name = current_name.empty? ? ws_obj.iddObject.type.valueDescription : current_name
+          @current_object_name = display_name
+
+          result = {
+            handle: handle_str,
+            type:   type_str,
+            name:   display_name,
+            fields: fields
           }
+
+          # TODO: for Rendering:Color objects, the color swatch should be shown in the inspector.
+          # The color swatch should be updated when the color is changed. Break the code below out
+          # into a separate method for updating the color swatch.
+
+          # Item 9: Rendering:Color swatch — append R/G/B swatch field
+          if type_str == 'OS:Rendering:Color'
+            r_idx = ws_obj.numFields > 2 ? 2 : nil
+            g_idx = ws_obj.numFields > 3 ? 3 : nil
+            b_idx = ws_obj.numFields > 4 ? 4 : nil
+            if r_idx && g_idx && b_idx
+              r_val = ws_obj.getDouble(r_idx, true).get.clamp(0, 255)
+              g_val = ws_obj.getDouble(g_idx, true).get.clamp(0, 255)
+              b_val = ws_obj.getDouble(b_idx, true).get.clamp(0, 255)
+              hex = '#%02x%02x%02x' % [r_val, g_val, b_val]
+              result[:fields] << {
+                type:    'ColorSwatch',
+                name:    'Color Preview',
+                hex:     hex,
+                index_r: r_idx,
+                index_g: g_idx,
+                index_b: b_idx,
+                value:   hex,
+                access:  'free'
+              }
+            end
+          end
+
+          # Item 5: additionalProperties — display as a subsection if applicable
+          if DISPLAY_ADDITIONAL_PROPERTIES.include?(type_str)
+            mo_opt = ws_obj.to_ModelObject
+            if !mo_opt.empty? && mo_opt.get.hasAdditionalProperties
+              add_props = mo_opt.get.additionalProperties
+              result[:fields] << { type: 'SectionHeader', name: 'Additional Properties', value: '', access: 'locked' }
+              add_props.featureNames.each do |feat_name|
+                feat_type  = add_props.getFeatureDataType(feat_name).get rescue 'String'
+                feat_value = case feat_type
+                             when 'Double'  then add_props.getFeatureAsDouble(feat_name).get.to_s   rescue ''
+                             when 'Integer' then add_props.getFeatureAsInteger(feat_name).get.to_s  rescue ''
+                             when 'Boolean' then add_props.getFeatureAsBoolean(feat_name).get.to_s  rescue ''
+                             else                add_props.getFeatureAsString(feat_name).get.to_s   rescue ''
+                             end
+                can_remove = REMOVE_ADDITIONAL_PROPERTIES.include?(type_str)
+                result[:fields] << {
+                  type:       'AdditionalProperty',
+                  name:       feat_name,
+                  feat_type:  feat_type,
+                  value:      feat_value,
+                  access:     'free',
+                  can_remove: can_remove
+                }
+              end
+              if ADD_ADDITIONAL_PROPERTIES.include?(type_str)
+                result[:fields] << { type: 'AddAdditionalProperty', name: '', value: '', access: 'free' }
+              end
+            end
+          end
+
+          result
         rescue => e
           puts "Inspector: get_fields_for_object error: #{e.message}"
           nil
@@ -743,8 +931,7 @@ module OpenStudio
 
         begin
           q = ws_obj.getQuantity(index, true, @unit_system == :ip)  # true=IP, false=SI
-
-          unless q.empty
+          unless q.empty?
             q = q.get
             result[:value] = q.value.to_s
             result[:units] = q.units.to_s
@@ -752,8 +939,8 @@ module OpenStudio
 
           # Fetch same field in SI for converting bounds/default
           q_si = ws_obj.getQuantity(index, true, false)
-          si_units = q_si.empty ? '' : q_si.get.units.to_s
-
+          si_units = q_si.empty? ? '' : q_si.get.units.to_s
+          
           if prop.minBoundType != OpenStudio::IddFieldProperties::Unbounded && !prop.minBoundValue.empty?
             min_si = prop.minBoundValue.get
             if @unit_system == :ip && !result[:units].empty? && !si_units.empty?

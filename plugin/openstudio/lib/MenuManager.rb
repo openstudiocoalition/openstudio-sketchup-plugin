@@ -294,7 +294,7 @@ module OpenStudio
 
       @inspector_dialog_cmd = UI::Command.new("Inspector") {
         Plugin.dialog_manager.inspector_dialog.restore_state
-        Plugin.dialog_manager.inspector_dialog.show_dialog
+        Plugin.dialog_manager.inspector_dialog.show
       }
       @inspector_dialog_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_inspector" + Plugin.image_ext
       @inspector_dialog_cmd.large_icon = Plugin.dir + "/lib/resources/icons/OSC_inspector" + Plugin.image_ext

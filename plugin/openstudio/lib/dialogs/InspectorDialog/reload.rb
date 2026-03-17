@@ -48,7 +48,7 @@ begin
   inspector = Plugin.dialog_manager&.inspector_dialog
   if inspector
     inspector.restore_state
-    inspector.show_dialog
+    inspector.show
     puts "  Dialog opened."
   else
     puts "  WARNING: No inspector_dialog on dialog_manager. Is the plugin fully loaded?"

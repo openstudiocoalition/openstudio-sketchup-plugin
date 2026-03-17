@@ -371,11 +371,55 @@
       margin-left: 4px;
     }
 
-    .placeholder-msg {
-      padding: 20px 14px;
-      color: #607080;
+    /* Color swatch field */
+    .color-swatch-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 0;
+    }
+
+    .color-swatch-row input[type="color"] {
+      width: 48px;
+      height: 28px;
+      border: 1px solid #3a4a5a;
+      border-radius: 3px;
+      cursor: pointer;
+      padding: 1px;
+      background: transparent;
+    }
+
+    .color-swatch-row .hex-label {
+      font-size: 11px;
+      color: #6a8a9a;
+      letter-spacing: .03em;
+    }
+
+    /* Section header inside the field list */
+    .field-section-header {
+      padding: 6px 10px 3px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      color: #7090a8;
+      border-top: 1px solid #2d3338;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    /* Additional property row remove button */
+    .addl-prop-remove {
+      background: transparent;
+      border: none;
+      color: #e05555;
+      cursor: pointer;
       font-size: 12px;
-      font-style: italic;
+      padding: 0 4px;
+      flex-shrink: 0;
+    }
+
+    .addl-prop-remove:hover {
+      color: #ff7070;
     }
   </style>
 </head>
@@ -420,8 +464,8 @@
         </div>
       </div>
 
-      <!-- Panel 2: Select Object -->
-      <div class="panel" id="panel-obj">
+      <!-- Panel 2: Select Object – hidden for unique-type objects -->
+      <div class="panel" id="panel-obj" v-show="!isUnique">
         <div class="panel-header">Select Object</div>
         <div class="panel-body">
           <table id="obj-table" v-if="objects.length > 0">
@@ -460,81 +504,121 @@
           </div>
           <div class="panel-body">
             <div id="field-list" v-if="editData && editData.fields">
-              <div class="field-row" v-for="(field, fi) in editData.fields" :key="fi">
-                <!-- Field label + units -->
-                <div class="field-label">
-                  {{ field.name }}
-                  <span class="unit-badge" v-if="field.units">[ {{ field.units }} ]</span>
-                </div>
-
-                <!-- LOCKED: read-only text -->
-                <div class="field-value" v-if="field.access === 'locked'">
-                  <span class="locked-value">{{ field.value || '—' }}</span>
-                </div>
-
-                <!-- FREE: Choice / ObjectList → select -->
-                <div class="field-value" v-else-if="field.type === 'ChoiceType' || field.type === 'ObjectListType'">
-                  <select :value="field.value" @change="fieldChanged(field, $event.target.value)">
-                    <option v-for="ch in field.choices" :key="ch" :value="ch">{{ ch || '(none)' }}</option>
-                  </select>
-                </div>
-
-                <!-- FREE: Real with autosizable -->
-                <div class="field-value" v-else-if="field.type === 'RealType' && field.autosizable">
-                  <div class="radio-group">
-                    <label>
-                      <input type="radio" :name="'autosize-'+fi" :checked="isAutoValue(field.value, 'autosize')"
-                        @change="fieldChanged(field, 'autosize')">
-                      Autosized
-                    </label>
-                    <label>
-                      <input type="radio" :name="'autosize-'+fi" :checked="!isAutoValue(field.value, 'autosize')"
-                        @change="switchToHardsize(field, fi)">
-                      Hard Sized
-                    </label>
+              <template v-for="(field, fi) in editData.fields">
+                <!-- ColorSwatch (Rendering:Color objects only) -->
+                <template v-if="field.type === 'ColorSwatch'">
+                  <div class="field-section-header" style="padding-top:8px;">{{ field.name }}</div>
+                  <div class="field-row color-swatch-row">
+                    <input type="color" :value="field.hex" disabled>
+                    <span class="hex-label">{{ field.hex }}</span>
                   </div>
-                  <input type="number" :id="'field-'+fi" :value="isAutoValue(field.value,'autosize') ? '' : field.value"
-                    :disabled="isAutoValue(field.value,'autosize')" :min="field.min" :max="field.max" :step="'any'"
-                    @change="fieldChanged(field, $event.target.value)">
-                </div>
+                </template>
 
-                <!-- FREE: Real with autocalculatable -->
-                <div class="field-value" v-else-if="field.type === 'RealType' && field.autocalculatable">
-                  <div class="radio-group">
-                    <label>
-                      <input type="radio" :name="'autocalc-'+fi" :checked="isAutoValue(field.value, 'autocalculate')"
-                        @change="fieldChanged(field, 'autocalculate')">
-                      Autocalculate
-                    </label>
-                    <label>
-                      <input type="radio" :name="'autocalc-'+fi" :checked="!isAutoValue(field.value, 'autocalculate')"
-                        @change="switchToHardsize(field, fi)">
-                      Hard Sized
-                    </label>
+                <!-- SectionHeader -->
+                <template v-else-if="field.type === 'SectionHeader'">
+                  <div class="field-section-header">{{ field.name }}</div>
+                </template>
+
+                <!-- AdditionalProperty -->
+                <template v-else-if="field.type === 'AdditionalProperty'">
+                  <div class="field-row">
+                    <div class="field-label">
+                      {{ field.name }}
+                      <span class="unit-badge" v-if="field.feat_type">[{{ field.feat_type }}]</span>
+                    </div>
+                    <div class="field-value">
+                      <input type="text" :value="field.value">
+                      <button v-if="field.can_remove" class="addl-prop-remove" title="Remove property">✕</button>
+                    </div>
                   </div>
-                  <input type="number" :id="'field-'+fi"
-                    :value="isAutoValue(field.value,'autocalculate') ? '' : field.value"
-                    :disabled="isAutoValue(field.value,'autocalculate')" :min="field.min" :max="field.max" :step="'any'"
-                    @change="fieldChanged(field, $event.target.value)">
-                </div>
+                </template>
 
-                <!-- FREE: Integer -->
-                <div class="field-value" v-else-if="field.type === 'IntegerType'">
-                  <input type="number" :value="field.value" :min="field.min" :max="field.max" step="1"
-                    @change="fieldChanged(field, $event.target.value)">
-                </div>
+                <!-- AddAdditionalProperty button -->
+                <template v-else-if="field.type === 'AddAdditionalProperty'">
+                  <div class="field-row">
+                    <button style="font-size:11px; padding:2px 8px;">+ Add Property</button>
+                  </div>
+                </template>
 
-                <!-- FREE: Real (plain numeric) -->
-                <div class="field-value" v-else-if="field.type === 'RealType'">
-                  <input type="number" :value="field.value" :min="field.min" :max="field.max" step="any"
-                    @change="fieldChanged(field, $event.target.value)">
-                </div>
+                <!-- All standard IDD fields -->
+                <div class="field-row" v-else>
+                  <!-- Field label + units -->
+                  <div class="field-label">
+                    {{ field.name }}
+                    <span class="unit-badge" v-if="field.units">[ {{ field.units }} ]</span>
+                  </div>
 
-                <!-- FREE: Alpha / Unknown / default text -->
-                <div class="field-value" v-else>
-                  <input type="text" :value="field.value" @change="fieldChanged(field, $event.target.value)">
-                </div>
-              </div>
+                  <!-- LOCKED: read-only text -->
+                  <div class="field-value" v-if="field.access === 'locked'">
+                    <span class="locked-value">{{ field.value || '—' }}</span>
+                  </div>
+
+                  <!-- FREE: Choice / ObjectList → select -->
+                  <div class="field-value" v-else-if="field.type === 'ChoiceType' || field.type === 'ObjectListType'">
+                    <select :value="field.value" @change="fieldChanged(field, $event.target.value)">
+                      <option v-for="ch in field.choices" :key="ch" :value="ch">{{ ch || '(none)' }}</option>
+                    </select>
+                  </div>
+
+                  <!-- FREE: Real with autosizable -->
+                  <div class="field-value" v-else-if="field.type === 'RealType' && field.autosizable">
+                    <div class="radio-group">
+                      <label>
+                        <input type="radio" :name="'autosize-'+fi" :checked="isAutoValue(field.value, 'autosize')"
+                          @change="fieldChanged(field, 'autosize')">
+                        Autosized
+                      </label>
+                      <label>
+                        <input type="radio" :name="'autosize-'+fi" :checked="!isAutoValue(field.value, 'autosize')"
+                          @change="switchToHardsize(field, fi)">
+                        Hard Sized
+                      </label>
+                    </div>
+                    <input type="number" :id="'field-'+fi"
+                      :value="isAutoValue(field.value,'autosize') ? '' : field.value"
+                      :disabled="isAutoValue(field.value,'autosize')" :min="field.min" :max="field.max" :step="'any'"
+                      @change="fieldChanged(field, $event.target.value)">
+                  </div>
+
+                  <!-- FREE: Real with autocalculatable -->
+                  <div class="field-value" v-else-if="field.type === 'RealType' && field.autocalculatable">
+                    <div class="radio-group">
+                      <label>
+                        <input type="radio" :name="'autocalc-'+fi" :checked="isAutoValue(field.value, 'autocalculate')"
+                          @change="fieldChanged(field, 'autocalculate')">
+                        Autocalculate
+                      </label>
+                      <label>
+                        <input type="radio" :name="'autocalc-'+fi" :checked="!isAutoValue(field.value, 'autocalculate')"
+                          @change="switchToHardsize(field, fi)">
+                        Hard Sized
+                      </label>
+                    </div>
+                    <input type="number" :id="'field-'+fi"
+                      :value="isAutoValue(field.value,'autocalculate') ? '' : field.value"
+                      :disabled="isAutoValue(field.value,'autocalculate')" :min="field.min" :max="field.max"
+                      :step="'any'" @change="fieldChanged(field, $event.target.value)">
+                  </div>
+
+                  <!-- FREE: Integer -->
+                  <div class="field-value" v-else-if="field.type === 'IntegerType'">
+                    <input type="number" :value="field.value" :min="field.min" :max="field.max" step="1"
+                      @change="fieldChanged(field, $event.target.value)">
+                  </div>
+
+                  <!-- FREE: Real (plain numeric) -->
+                  <div class="field-value" v-else-if="field.type === 'RealType'">
+                    <input type="number" :value="field.value" :min="field.min" :max="field.max" step="any"
+                      @change="fieldChanged(field, $event.target.value)">
+                  </div>
+
+                  <!-- FREE: Alpha / Unknown / default text -->
+                  <div class="field-value" v-else>
+                    <input type="text" :value="field.value" @change="fieldChanged(field, $event.target.value)">
+                  </div>
+
+                </div><!-- end standard field-row -->
+              </template><!-- end v-for -->
             </div>
             <div class="placeholder-msg" v-else>
               Select an object to inspect its fields.
@@ -556,6 +640,7 @@
         selectedHandle: null,
         editData: null,
         unitSystem: 'ip',
+        isUnique: false,
         collapsedGroups: {},
         buttons: {
           enable_add: false,
@@ -662,6 +747,7 @@
     function setObjects(payload) {
       app.objects = payload.objects || [];
       app.buttons = payload.buttons || app.buttons;
+      app.isUnique = !!payload.unique;
       app.selectedHandle = null;
       app.editData = null;
       // Keep selectedType in sync so toolbar buttons (Add, Purge, etc.) are
@@ -694,6 +780,17 @@
     // a sketchup.set_type callback back to Ruby (Ruby already knows the type).
     function selectType(key) {
       app.selectedType = key;
+    }
+
+    // Called by Ruby when the currently selected object's name changes.
+    // Updates only the name field in the object list without a full rebuild.
+    function updateObjectName(handle, newName) {
+      for (var i = 0; i < app.objects.length; i++) {
+        if (app.objects[i].handle === handle) {
+          Vue.set(app.objects, i, Object.assign({}, app.objects[i], { name: newName }));
+          return;
+        }
+      }
     }
   </script>
 </body>
