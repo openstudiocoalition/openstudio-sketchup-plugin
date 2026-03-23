@@ -273,13 +273,13 @@ module OpenStudio
         result.center
 
         result.add_action_callback('ready') do |_ctx|
-          puts "ready callback"
+          #puts "ready callback"
           send_initial_data
           nil
         end
 
         result.add_action_callback('set_type') do |_ctx, type_str|
-          puts "set_type callback"
+          #puts "set_type callback"
           @current_type = type_str
           reset_current_object
           send_objects_for_type(type_str)
@@ -287,7 +287,7 @@ module OpenStudio
         end
 
         result.add_action_callback('set_object') do |_ctx, handle_str|
-          puts "set_object callback"
+          #puts "set_object callback"
           obj = @model.getObject(OpenStudio::toUUID(handle_str))
           unless obj.empty?
             set_current_object(obj.get)
@@ -299,7 +299,7 @@ module OpenStudio
         end
 
         result.add_action_callback('update_field') do |_ctx, data|
-          puts "update_field callback"
+          #puts "update_field callback"
           begin
             payload = JSON.parse(data)
             update_field(payload['handle'], payload['index'], payload['value'])
@@ -310,32 +310,34 @@ module OpenStudio
         end
 
         result.add_action_callback('add_object') do |_ctx, type_str|
-          puts "add_object callback"
+          #puts "add_object callback"
           add_object(type_str)
           nil
         end
 
         result.add_action_callback('copy_object') do |_ctx, handle_str|
-          puts "copy_object callback"
+          #puts "copy_object callback"
           copy_object(handle_str)
           nil
         end
 
         result.add_action_callback('delete_object') do |_ctx, handle_str|
-          puts "delete_object callback"
+          #puts "delete_object callback"
           delete_object(handle_str)
           nil
         end
 
         result.add_action_callback('purge_objects') do |_ctx, type_str|
-          puts "purge_objects callback"
+          #puts "purge_objects callback"
           purge_objects(type_str)
           nil
         end
 
         result.set_on_closed  do
-          puts "set_on_closed callback"
+          #puts "set_on_closed callback"
           @dialog = nil
+          reset_model
+          reset_current_object
           nil
         end
 
@@ -425,7 +427,7 @@ module OpenStudio
       # Called by DialogManager when the OpenStudio model is updated.
       def update
         return unless @dialog && is_visible
-        puts "update"
+        #puts "update"
         send_objects_for_type(@current_type) if @current_type
         # Note: do NOT call refresh_fields here. The InspectorObjectWatcher fires
         # independently when the current object changes, and send_objects_for_type
@@ -669,7 +671,7 @@ module OpenStudio
 
       def object_added(object)
         return unless @dialog
-        puts "object_added"
+        #puts "object_added"
         type_key = object.iddObject.type.valueDescription.tr(':', '_')
         send_type_count_update(type_key)
         send_objects_for_type(@current_type) if @current_type == type_key
@@ -677,7 +679,7 @@ module OpenStudio
 
       def object_removed(object)
         return unless @dialog
-        puts "object_removed"
+        #puts "object_removed"
         type_key = object.iddObject.type.valueDescription.tr(':', '_')
         send_type_count_update(type_key)
         send_objects_for_type(@current_type) if @current_type == type_key
@@ -693,7 +695,7 @@ module OpenStudio
         UI.stop_timer(@refresh_timer) if @refresh_timer
         @refresh_timer = UI.start_timer(0, false) do
           @refresh_timer = nil
-          puts "refresh_fields"
+          #puts "refresh_fields"
           send_fields_for_current_object
           if @update_name
             @update_name = false
@@ -705,7 +707,7 @@ module OpenStudio
       def current_object_removed(handle)
         # handle is an OpenStudio::UUID; compare directly
         return unless @current_handle && handle == @current_handle
-        puts "current_object_removed"
+        #puts "current_object_removed"
         reset_current_object
         safe_execute("setFields(null)")
       end
@@ -803,7 +805,7 @@ module OpenStudio
                 next if %w[HandleType NodeType URLType].include?(field_type_name)
 
                 access = @access_policy_store.get_access(type_key, field_name)
-                puts "type_key #{type_key} field #{field_name} access: #{access}"
+                #puts "type_key #{type_key} field #{field_name} access: #{access}"
                 next if access == :hidden
 
                 val_opt = ws_obj.getString(i, true)
@@ -1026,7 +1028,7 @@ module OpenStudio
           index_g: g_idx,
           index_b: b_idx,
           value:   hex,
-          access:  'free'
+          access:  'locked'
         }
       rescue => e
         puts "Inspector: build_color_swatch_field error: #{e.message}"
@@ -1051,7 +1053,7 @@ module OpenStudio
           # to a valid SI double, storing 0.0 and preventing return to the auto state.
           is_auto_str = %w[autosize autocalculate].any? { |s| value.to_s.strip.casecmp(s).zero? }
 
-          unless is_auto_str
+          unless is_auto_str || value.to_s.strip.empty? 
             idd_field_opt = ws_obj.iddObject.getField(index)
             unless idd_field_opt.empty?
               idd_field = idd_field_opt.get

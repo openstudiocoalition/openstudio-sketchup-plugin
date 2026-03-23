@@ -49,7 +49,7 @@ module OpenStudio
     end
 
     def text
-      "#{@value}%"
+      @title + "  " + "|" * @last_num_chars 
     end
 
     def isVisible
@@ -94,7 +94,7 @@ module OpenStudio
       num_chars = ((percentage / 100.0) * 100).to_i
       if @last_num_chars != num_chars
         @last_num_chars = num_chars
-        Sketchup.status_text = @title + "  " + "|" * num_chars
+        Sketchup.status_text = text
         #Sketchup.active_model.active_view.invalidate_view
       end
     end
