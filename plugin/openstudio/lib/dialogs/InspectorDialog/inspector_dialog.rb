@@ -12,6 +12,7 @@ require 'sketchup.rb'
 require 'json'
 require 'rexml/document'
 require 'set'
+require_relative 'access_policy_store'
 
 # Note: OpenStudio Ruby Optional types use `empty?`/`get`, NOT `is_initialized`/`get`.
 # the exception is `empty`/`get` for `OpenStudio::OptionalQuantity`, patch that here
@@ -19,137 +20,65 @@ if not OpenStudio::OSOptionalQuantity.public_method_defined?(:empty?)
   OpenStudio::OSOptionalQuantity.alias_method :empty?, :empty
 end
 
-# TODO: after automatically selecting the first object of a type, the copy and delete buttons
-# should be enabled if configured to be enabled.
-
-# TODO: after editing a field, SketchUp is crashing.  Figure out why. Are we getting stuck in
-# a loop of some kind?  
-
-# TODO: if an object has additionalProperties, then show them in the inspector, 
-# see InspectorGadget::layoutItems for an example of how to do this.  Add a new list
-# to control which object types allow adding or removing additional properties.
-
-# TODO: objects with Surface Area fields should show units in the inspector.
-# The units should be ft^2 for IP and m^2 for SI.  Figure out why this is not 
-# happening automatically. Do not make a kludgy fix for it.  The same issue is happening for
-# objects with Volume, Ceiling Height, and Floor Area fields. Objects and fields
-# with units that are not showing up in the inspector include:
-#   - Object Type, Field Name, SI Units, IP Units
-#   - OS:InteriorPartitionSurface, Surface Area, m2, ft2
-#   - OS:Space, Volume, m3, ft3
-#   - OS:Space, Ceiling Height, m, ft
-#   - OS:Space, Floor Area, m2, ft2
-#   - OS:ThermalZone, Volume, m3, ft3
-#   - OS:ThermalZone, Ceiling Height, m, ft
-#   - OS:ThermalZone, Floor Area, m2, ft2
-
-# TODO: purge should be disabled when there are no objects of the selected type
 
 module OpenStudio
+
+  # ---------------------------------------------------------------------------
+  # InspectorObjectWatcher
+  # Watches a single WorkspaceObject and calls back when it changes or is removed.
+  # Must live in the OpenStudio module (not a sub-module) so that SWIG can
+  # resolve the type against openstudio::WorkspaceObjectWatcher correctly.
+  # ---------------------------------------------------------------------------
+  class InspectorObjectWatcher < WorkspaceObjectWatcher
+    def initialize(idf_object, change_proc, remove_proc)
+      super(idf_object)
+      @change_proc = change_proc
+      @remove_proc = remove_proc
+    end
+
+    def onChangeIdfObject
+      super()
+      @change_proc.call()
+    end
+
+    def onRemoveFromWorkspace(handle)
+      super(handle)
+      @remove_proc.call(handle)
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # InspectorModelWatcher
+  # Watches the whole model (WorkspaceWatcher) for object additions/removals.
+  # Must live in the OpenStudio module so SWIG resolves it against
+  # openstudio::WorkspaceWatcher correctly.
+  # onChangeWorkspace is overridden to accept (and ignore) the watcher argument
+  # that C++ passes during workspace-mutating calls like setVertices, preventing
+  # the SWIG type-mismatch error that occurs if the C++ default dispatch fires.
+  # ---------------------------------------------------------------------------
+  class InspectorModelWatcher < WorkspaceWatcher
+    def initialize(model, add_proc, remove_proc)
+      super(model)
+      @add_proc    = add_proc
+      @remove_proc = remove_proc
+    end
+
+    def onChangeWorkspace
+      super()
+    end
+
+    def onObjectAdd(object)
+      super(object)
+      @add_proc.call(object)
+    end
+
+    def onObjectRemove(object)
+      super(object)
+      @remove_proc.call(object)
+    end
+  end
+
   module Inspector
-
-    # -------------------------------------------------------------------------
-    # AccessPolicyStore
-    # Parses SketchUpPluginPolicy.xml and answers field-access queries.
-    # Access levels: :free (editable), :locked (read-only), :hidden (not shown)
-    #
-    # The XML key format is underscore-style ("OS_SubSurface") but the OpenStudio
-    # Ruby API's valueDescription returns colon-style ("OS:SubSurface"). The helper
-    # normalize_type_str converts to underscore before lookup.
-    # -------------------------------------------------------------------------
-
-    class AccessPolicyStore
-      @policies = {}  # { "OS_Building" => { 0 => :hidden, 1 => :locked, ... } }
-
-      def self.load_policy
-        policy_file = File.join(File.dirname(__FILE__), 'SketchUpPluginPolicy.xml')
-        self.clear
-        self.load_file(policy_file)
-      end
-
-      def self.load_file(xml_path)
-        return false unless File.exist?(xml_path)
-        doc = REXML::Document.new(File.read(xml_path))
-        doc.elements.each('ROOT/POLICY') do |policy_el|
-          type_str = policy_el.attributes['IddObjectType']
-          next unless type_str
-          rules = {}
-          policy_el.elements.each('rule') do |rule_el|
-            field_name = rule_el.attributes['IddField']
-            access_str = rule_el.attributes['Access']&.downcase
-            rules[field_name] = case access_str
-                                 when 'locked' then :locked
-                                 when 'hidden' then :hidden
-                                 else :free
-                                 end
-          end
-          @policies[type_str] = rules
-        end
-        true
-      rescue => e
-        puts "AccessPolicyStore: Failed to parse XML: #{e.message}"
-        false
-      end
-
-      # Normalize an IDD object type string to the underscore format used in the XML.
-      # "OS:SubSurface" => "OS_SubSurface",  "OS_SubSurface" => "OS_SubSurface"
-      def self.normalize_type_str(type_str)
-        type_str.to_s.tr(':', '_')
-      end
-
-      # Returns the access level for a field by name within an IDD object type.
-      # type_str may be in either "OS:SubSurface" or "OS_SubSurface" format.
-      def self.get_access(type_str, field_name)
-        key   = normalize_type_str(type_str)
-        rules = @policies[key]
-        return :free unless rules
-        # Match case-insensitively
-        rules.each do |rule_field, level|
-          return level if rule_field.casecmp(field_name) == 0
-        end
-        :free
-      end
-
-      def self.clear
-        @policies = {}
-      end
-    end
-
-    class InspectorObjectWatcher < OpenStudio::WorkspaceObjectWatcher
-      def initialize(idf_object, change_proc, remove_proc)
-        super(idf_object)
-        @change_proc = change_proc
-        @remove_proc = remove_proc
-      end
-
-      def onRemoveFromWorkspace(handle)
-        super(handle)
-        @remove_proc.call(handle)
-      end
-
-      def onChangeIdfObject
-        super()
-        @change_proc.call()
-      end
-    end
-
-    class InspectorModelWatcher < OpenStudio::WorkspaceWatcher
-      def initialize(model, add_proc, remove_proc)
-        super(model)
-        @add_proc = add_proc
-        @remove_proc = remove_proc
-      end
-
-      def onObjectAdd(object)
-        super(object)
-        @add_proc.call(object)
-      end
-
-      def onObjectRemove(object)
-        super(object)
-        @remove_proc.call(object)
-      end
-    end
 
     # -------------------------------------------------------------------------
     # InspectorDialog main class
@@ -163,6 +92,7 @@ module OpenStudio
       TYPES_TO_DISPLAY = %w[
         OS_Building
         OS_BuildingStory
+        OS_BuildingUnit
         OS_Daylighting_Control
         OS_DefaultConstructionSet
         OS_DefaultScheduleSet
@@ -173,6 +103,7 @@ module OpenStudio
         OS_IlluminanceMap
         OS_InteriorPartitionSurface
         OS_InteriorPartitionSurfaceGroup
+        OS_Luminaire
         OS_Rendering_Color
         OS_ShadingControl
         OS_ShadingSurface
@@ -193,12 +124,12 @@ module OpenStudio
         OS_IlluminanceMap
         OS_InteriorPartitionSurface
         OS_InteriorPartitionSurfaceGroup
+        OS_Luminaire
         OS_ShadingSurface
         OS_ShadingSurfaceGroup
         OS_Space
         OS_SubSurface
         OS_Surface
-        OS_ThermalZone
       ].freeze unless const_defined?(:DISABLE_ADD)
 
       DISABLE_COPY = %w[
@@ -209,6 +140,7 @@ module OpenStudio
         OS_IlluminanceMap
         OS_InteriorPartitionSurface
         OS_InteriorPartitionSurfaceGroup
+        OS_Luminaire
         OS_ShadingSurface
         OS_ShadingSurfaceGroup
         OS_Space
@@ -225,6 +157,7 @@ module OpenStudio
         OS_IlluminanceMap
         OS_InteriorPartitionSurface
         OS_InteriorPartitionSurfaceGroup
+        OS_Luminaire
         OS_ShadingSurface
         OS_ShadingSurfaceGroup
         OS_Space
@@ -274,20 +207,55 @@ module OpenStudio
         @unit_system         = :ip  # :si or :ip
         @current_type        = nil
         @current_handle      = nil
+        @current_object      = nil
         @current_object_name = nil
         @enabled             = true
         @model               = nil
         @object_watcher      = nil
         @model_watcher       = nil
+        @update_name         = false
+        @refresh_timer       = nil
+
+        @access_policy_store = AccessPolicyStore.new
+        @access_policy_store.load_policy
       end
 
       # ------------------------------------------------------------------
       # Dialog lifecycle
       # ------------------------------------------------------------------
+      def reset_model
+        @model = get_model
+        @model_watcher&.disable
+        @model_watcher = nil
+        @model_watcher = InspectorModelWatcher.new(@model, self.method(:object_added), self.method(:object_removed)) if @model
+      end
+
+      def reset_current_object
+        @object_watcher&.disable
+        @object_watcher = nil
+        @current_handle = nil
+        @current_object = nil
+        @current_object_name = nil
+        @update_name = false
+        UI.stop_timer(@refresh_timer) if @refresh_timer
+        @refresh_timer = nil
+      end
+
+      def set_current_object(obj)
+        @object_watcher&.disable
+        @object_watcher = nil
+        @object_watcher = InspectorObjectWatcher.new(obj, self.method(:refresh_fields), self.method(:current_object_removed))
+        @current_handle = obj.handle
+        @current_object = obj
+        @current_object_name = obj.nameString
+        @update_name = false
+        UI.stop_timer(@refresh_timer) if @refresh_timer
+        @refresh_timer = nil        
+      end
 
       def create_dialog
-        @model = get_model
-        @model_watcher = InspectorModelWatcher.new(@model, method(:object_added), method(:object_removed)) if @model
+        reset_model
+        reset_current_object
 
         html_file = File.join(File.dirname(__FILE__), 'html', 'inspector_dialog.html')
         options = {
@@ -313,17 +281,20 @@ module OpenStudio
         result.add_action_callback('set_type') do |_ctx, type_str|
           puts "set_type callback"
           @current_type = type_str
-          @current_handle = nil
+          reset_current_object
           send_objects_for_type(type_str)
           nil
         end
 
         result.add_action_callback('set_object') do |_ctx, handle_str|
           puts "set_object callback"
-          @current_handle = handle_str
-          send_fields_for_object(@current_handle)
-          # Sync SketchUp model selection to match the inspector selection
-          select_drawing_interfaces([@current_handle]) if @current_handle && !@current_handle.empty?
+          obj = @model.getObject(OpenStudio::toUUID(handle_str))
+          unless obj.empty?
+            set_current_object(obj.get)
+            send_fields_for_current_object
+            # Sync SketchUp model selection to match the inspector selection
+            select_drawing_interfaces([@current_handle]) unless @current_handle.isNull
+          end
           nil
         end
 
@@ -373,7 +344,7 @@ module OpenStudio
 
       def set_unit_system(system)
         @unit_system = system == 'SI' ? :si : :ip
-        refresh_fields if @current_handle
+        refresh_fields if @current_handle && !@current_handle.isNull
       end
 
       def show
@@ -454,20 +425,20 @@ module OpenStudio
       # Called by DialogManager when the OpenStudio model is updated.
       def update
         return unless @dialog && is_visible
+        puts "update"
         send_objects_for_type(@current_type) if @current_type
-        refresh_fields
+        # Note: do NOT call refresh_fields here. The InspectorObjectWatcher fires
+        # independently when the current object changes, and send_objects_for_type
+        # already calls send_fields_for_current_object via its auto-selection path.
+        # Calling refresh_fields here would cause a double (or triple) refresh on
+        # every field write.
       end
 
       # Called when a new OpenStudio model is attached (model load, import, new).
       # Re-wires the model watcher and refreshes all dialog panels.
       def on_model_attached
-        @model = get_model
-        @model_watcher&.disable
-        @model_watcher = @model ? InspectorModelWatcher.new(@model, method(:object_added), method(:object_removed)) : nil
-        @object_watcher&.disable
-        @object_watcher = nil
-        @current_handle = nil
-        @current_object_name = nil
+        reset_model
+        reset_current_object
         return unless @dialog
         send_initial_data
       end
@@ -482,10 +453,10 @@ module OpenStudio
         return unless TYPES_TO_DISPLAY.include?(type_str)
         return if type_str == @current_type
 
-        @current_type   = type_str
-        @current_handle = nil
-        send_objects_for_type(type_str)
-        safe_execute("selectType(#{JSON.generate(type_str)})")
+        @current_type = type_str
+        reset_current_object
+        send_objects_for_type(@current_type)
+        safe_execute("selectType(#{JSON.generate(@current_type)})")
       rescue => e
         puts "Inspector: set_idd_object_type error: #{e.message}"
       end
@@ -498,17 +469,22 @@ module OpenStudio
 
         handle_arr = handles.to_a
         if handle_arr.empty?
-          @current_handle = nil
+          reset_current_object
           safe_execute("setFields(null)")
           safe_execute("selectObject(null)")
           return
         end
 
         # Single-selection only (matching C++ behaviour)
-        handle_str      = handle_arr.first.to_s
-        @current_handle = handle_str
-        safe_execute("selectObject(#{JSON.generate(handle_str)})")
-        send_fields_for_object(handle_str)
+        # handles may contain OpenStudio::UUID objects or plain strings — normalise to UUID.
+        raw = handle_arr.first
+        uuid = raw.is_a?(OpenStudio::UUID) ? raw : OpenStudio::toUUID(raw)
+        obj = @model.getObject(uuid)
+        unless obj.empty?
+          set_current_object(obj.get)
+          safe_execute("selectObject(#{JSON.generate(@current_handle.to_s)})")
+          send_fields_for_current_object
+        end
       rescue => e
         puts "Inspector: set_selected_object_handles error: #{e.message}"
       end
@@ -525,7 +501,7 @@ module OpenStudio
         safe_execute("setTypes(#{JSON.generate(grouped_types)})")
 
         # Send unit system
-        safe_execute("setUnitSystem('#{@unit_system}')")
+        safe_execute("setUnitSystem(#{JSON.generate(@unit_system)})")
 
         # Pre-select first type (or restored type)
         first_type = @current_type || TYPES_TO_DISPLAY.first
@@ -617,14 +593,15 @@ module OpenStudio
             enable_remove = false if is_required
           end
         else
-          # non-unique: copy/remove require a selection
-          # TODO: this is not correct.  This needs to happen after the first object is selected
-          # "@current_handle = objects.first[:handle]"
+          # non-unique: copy/remove also require a current selection
           if @current_handle.nil?
             enable_copy   = false
             enable_remove = false
           end
         end
+
+        # Disable purge when there is nothing to purge
+        enable_purge = false if enable_purge && objects.empty?
 
         button_state = {
           enable_add:    enable_add,
@@ -644,21 +621,32 @@ module OpenStudio
         payload = { objects: objects, buttons: button_state, type: type_str, count: count, unique: is_unique }
         safe_execute("setObjects(#{JSON.generate(payload)})")
 
-        # Auto-select the first object when switching types with no current selection
-        if objects.size > 0 && @current_handle.nil?
-          @current_handle = objects.first[:handle]
-          safe_execute("selectObject(#{JSON.generate(@current_handle)})")
-          send_fields_for_object(@current_handle)
+        # Auto-select: preserve current selection if it exists in this type's list,
+        # otherwise fall back to the first object.
+        if objects.size > 0
+          current_still_valid = @current_handle && objects.any? { |o| o[:handle] == @current_handle.to_s }
+          unless current_still_valid
+            obj = @model.getObject(OpenStudio::toUUID(objects.first[:handle]))
+            unless obj.empty?
+              set_current_object(obj.get)
+              # Re-enable copy/remove now that we have a confirmed selection
+              button_state[:enable_copy]   = !DISABLE_COPY.include?(type_str)
+              button_state[:enable_remove] = !DISABLE_REMOVE.include?(type_str)
+              safe_execute("updateButtons(#{JSON.generate(button_state)})")
+              safe_execute("selectObject(#{JSON.generate(@current_handle.to_s)})")
+              send_fields_for_current_object
+            end
+          end
         else
           # Clear the fields panel when no auto-selection is possible
-          @current_handle = nil
+          reset_current_object
           safe_execute("setFields(null)")
         end
       end
 
-      def send_fields_for_object(handle_str)
+      def send_fields_for_current_object
         return unless @dialog
-        fields = get_fields_for_object(handle_str)
+        fields = get_fields_for_current_object
         if fields
           safe_execute("setFields(#{JSON.generate(fields)})")
         else
@@ -673,7 +661,7 @@ module OpenStudio
         begin
           idd_type = OpenStudio::IddObjectType.new(type_key)
           count = @model.numObjectsOfType(idd_type)
-          safe_execute("updateTypeCount(#{JSON.generate(type_key)}, #{count})")
+          safe_execute("updateTypeCount(#{JSON.generate(type_key)}, #{JSON.generate(count)})")
         rescue => e
           puts "Inspector: send_type_count_update error: #{e.message}"
         end
@@ -696,22 +684,30 @@ module OpenStudio
       end
 
       def refresh_fields
-        return unless @current_handle
-        puts "refresh_fields"
-        old_name = @current_object_name
-        send_fields_for_object(@current_handle)
-        # If the name field changed, update the name shown in the object list
-        # (only re-send the name, not the full object list)
-        if @current_object_name != old_name
-          safe_execute("updateObjectName(#{JSON.generate(@current_handle)}, #{JSON.generate(@current_object_name)})")
+        return unless @current_handle && !@current_handle.isNull
+        # Debounce: the OpenStudio SDK can fire onChangeIdfObject multiple times for
+        # a single write (e.g. once to clear the old reference, once to set the new
+        # one for ObjectListType fields). UI.start_timer(0) defers the actual refresh
+        # until the current call stack unwinds, coalescing rapid-fire callbacks into
+        # a single redraw.
+        UI.stop_timer(@refresh_timer) if @refresh_timer
+        @refresh_timer = UI.start_timer(0, false) do
+          @refresh_timer = nil
+          puts "refresh_fields"
+          send_fields_for_current_object
+          if @update_name
+            @update_name = false
+            safe_execute("updateObjectName(#{JSON.generate(@current_handle.to_s)}, #{JSON.generate(@current_object_name)})")
+          end
         end
       end
 
       def current_object_removed(handle)
-        return unless @current_handle && handle.to_s == @current_handle
+        # handle is an OpenStudio::UUID; compare directly
+        return unless @current_handle && handle == @current_handle
         puts "current_object_removed"
+        reset_current_object
         safe_execute("setFields(null)")
-        @current_handle = nil
       end
 
       # ------------------------------------------------------------------
@@ -763,82 +759,84 @@ module OpenStudio
         m ? [m[1], m[2].to_i] : [name.downcase, 0]
       end
 
-      def get_fields_for_object(handle_str)
-        return nil unless @model
+      def get_fields_for_current_object
+        return nil unless @model && @current_handle && @current_object
         begin
-          handle = OpenStudio::toUUID(handle_str)
-          obj = @model.getObject(handle)
-          return nil if obj.empty?
-          @object_watcher.disable if @object_watcher
-          @object_watcher = InspectorObjectWatcher.new(obj.get, method(:refresh_fields), method(:current_object_removed))
-          ws_obj = obj.get
+          ws_obj = @current_object
           type_str = ws_obj.iddObject.type.valueDescription
+          type_key = type_str.tr(':', '_')
           idd_obj  = ws_obj.iddObject
 
           fields = []
 
-          # Non-extensible fields
-          (0...ws_obj.numFields).each do |i|
-            idd_field_opt = idd_obj.getField(i)
-            next if idd_field_opt.empty?
-            idd_field  = idd_field_opt.get
+          non_ext_fields  = idd_obj.nonextensibleFields
+          ext_group_fields = idd_obj.extensibleGroup
+          n = non_ext_fields.size
+          g = ext_group_fields.size
+
+          # Fixed (non-extensible) fields — appear exactly once
+          non_ext_fields.each_with_index do |idd_field, i|
             field_name = idd_field.name
 
             # Always hide Handle, Node, and URL fields (internal references)
             field_type_name = idd_field.properties.type.valueName
             next if %w[HandleType NodeType URLType].include?(field_type_name)
 
-            access = AccessPolicyStore.get_access(type_str, field_name)
+            access = @access_policy_store.get_access(type_key, field_name)
             next if access == :hidden
 
             val_opt = ws_obj.getString(i, true)
             cur_val = val_opt.empty? ? '' : val_opt.get
 
-            field_data = build_field_data(ws_obj, idd_field, i, cur_val, access, type_str)
-            fields << field_data
+            fields << build_field_data(ws_obj, idd_field, i, cur_val, access, type_str)
+          end
+
+          # Extensible group fields — the template group repeats N times
+          if g > 0
+            num_groups = (ws_obj.numFields - n) / g
+            num_groups.times do |k|
+              ext_group_fields.each_with_index do |idd_field, j|
+                i = n + k * g + j
+                field_name = idd_field.name
+
+                field_type_name = idd_field.properties.type.valueName
+                next if %w[HandleType NodeType URLType].include?(field_type_name)
+
+                access = @access_policy_store.get_access(type_key, field_name)
+                puts "type_key #{type_key} field #{field_name} access: #{access}"
+                next if access == :hidden
+
+                val_opt = ws_obj.getString(i, true)
+                cur_val = val_opt.empty? ? '' : val_opt.get
+
+                fields << build_field_data(ws_obj, idd_field, i, cur_val, access, type_str)
+              end
+            end
           end
 
           current_name = ws_obj.nameString
-          # Item 4: for unnamed objects (e.g. unique types), fall back to the IDD type description
           display_name = current_name.empty? ? ws_obj.iddObject.type.valueDescription : current_name
-          @current_object_name = display_name
+          if display_name != @current_object_name
+            @current_object_name = display_name
+            @update_name = true
+          end
 
           result = {
-            handle: handle_str,
+            handle: @current_handle.to_s,
             type:   type_str,
             name:   display_name,
             fields: fields
           }
 
-          # TODO: for Rendering:Color objects, the color swatch should be shown in the inspector.
-          # The color swatch should be updated when the color is changed. Break the code below out
-          # into a separate method for updating the color swatch.
+          # Rendering:Color swatch — append R/G/B swatch field
+          color_swatch = build_color_swatch_field(ws_obj, type_str)
+          result[:fields] << color_swatch if color_swatch
 
-          # Item 9: Rendering:Color swatch — append R/G/B swatch field
-          if type_str == 'OS:Rendering:Color'
-            r_idx = ws_obj.numFields > 2 ? 2 : nil
-            g_idx = ws_obj.numFields > 3 ? 3 : nil
-            b_idx = ws_obj.numFields > 4 ? 4 : nil
-            if r_idx && g_idx && b_idx
-              r_val = ws_obj.getDouble(r_idx, true).get.clamp(0, 255)
-              g_val = ws_obj.getDouble(g_idx, true).get.clamp(0, 255)
-              b_val = ws_obj.getDouble(b_idx, true).get.clamp(0, 255)
-              hex = '#%02x%02x%02x' % [r_val, g_val, b_val]
-              result[:fields] << {
-                type:    'ColorSwatch',
-                name:    'Color Preview',
-                hex:     hex,
-                index_r: r_idx,
-                index_g: g_idx,
-                index_b: b_idx,
-                value:   hex,
-                access:  'free'
-              }
-            end
-          end
-
-          # Item 5: additionalProperties — display as a subsection if applicable
-          if DISPLAY_ADDITIONAL_PROPERTIES.include?(type_str)
+          # Item 5: additionalProperties — display as a subsection if applicable.
+          # type_str is colon-style (e.g. 'OS:Building'); convert to underscore-style
+          # for comparison against the underscore-style constant lists.
+          type_key = type_str.tr(':', '_')
+          if DISPLAY_ADDITIONAL_PROPERTIES.include?(type_key)
             mo_opt = ws_obj.to_ModelObject
             if !mo_opt.empty? && mo_opt.get.hasAdditionalProperties
               add_props = mo_opt.get.additionalProperties
@@ -851,7 +849,7 @@ module OpenStudio
                              when 'Boolean' then add_props.getFeatureAsBoolean(feat_name).get.to_s  rescue ''
                              else                add_props.getFeatureAsString(feat_name).get.to_s   rescue ''
                              end
-                can_remove = REMOVE_ADDITIONAL_PROPERTIES.include?(type_str)
+                can_remove = REMOVE_ADDITIONAL_PROPERTIES.include?(type_key)
                 result[:fields] << {
                   type:       'AdditionalProperty',
                   name:       feat_name,
@@ -861,7 +859,7 @@ module OpenStudio
                   can_remove: can_remove
                 }
               end
-              if ADD_ADDITIONAL_PROPERTIES.include?(type_str)
+              if ADD_ADDITIONAL_PROPERTIES.include?(type_key)
                 result[:fields] << { type: 'AddAdditionalProperty', name: '', value: '', access: 'free' }
               end
             end
@@ -869,7 +867,7 @@ module OpenStudio
 
           result
         rescue => e
-          puts "Inspector: get_fields_for_object error: #{e.message}"
+          puts "Inspector: get_fields_for_current_object error: #{e.message}"
           nil
         end
       end
@@ -899,6 +897,17 @@ module OpenStudio
           # Unit handling: convert between SI and IP
           data.merge!(build_real_field_data(ws_obj, idd_field, index, cur_val, prop))
 
+        when 'AlphaType'
+          # Some fields in the IDD are declared with an 'A' designator (AlphaType) but
+          # still carry a \units annotation (e.g. OS:InteriorPartitionSurface/Surface Area).
+          # Show the SI unit string beside the text input so the user knows the expected unit.
+          begin
+            raw_units = idd_field.units
+            data[:units] = raw_units.empty? ? '' : raw_units.get.to_s
+          rescue
+            # ignore — units label is optional
+          end
+
         when 'IntegerType'
           data[:min] = prop.minBoundValue.empty? ? nil : prop.minBoundValue.get
           data[:max] = prop.maxBoundValue.empty? ? nil : prop.maxBoundValue.get
@@ -921,6 +930,7 @@ module OpenStudio
           data[:type]    = 'ObjectListType'
         end
 
+        #puts "Inspector: build_field_data data: #{data}"
         data
       end
 
@@ -930,21 +940,37 @@ module OpenStudio
         return result if idd_field.unitsBasedOnOtherField
 
         begin
-          q = ws_obj.getQuantity(index, true, @unit_system == :ip)  # true=IP, false=SI
-          unless q.empty?
-            q = q.get
-            result[:value] = q.value.to_s
-            result[:units] = q.units.to_s
-          end
+          # Use idd_field.getUnits as the source of truth for SI and IP unit strings.
+          # These come from the IDD schema, so they are always available regardless of
+          # whether the field currently holds a numeric value or 'autocalculate'.
+          si_unit_opt = idd_field.getUnits(false)  # SI
+          ip_unit_opt = idd_field.getUnits(true)   # IP (auto-selected if not explicit)
+          si_units = si_unit_opt.empty? ? '' : si_unit_opt.get.to_s
+          ip_units = ip_unit_opt.empty? ? '' : ip_unit_opt.get.to_s
 
-          # Fetch same field in SI for converting bounds/default
-          q_si = ws_obj.getQuantity(index, true, false)
-          si_units = q_si.empty? ? '' : q_si.get.units.to_s
-          
+          # Set the display unit label
+          result[:units] = @unit_system == :ip ? ip_units : si_units
+
+          # Convert the current SI value to IP for display, if applicable.
+          # Only attempt this for actual numeric values; skip autosize/autocalculate.
+          val_si_opt = ws_obj.getDouble(index, true)  # true = use default value if unset
+          unless val_si_opt.empty?
+            val_si = val_si_opt.get
+            if @unit_system == :ip && !si_units.empty? && !ip_units.empty?
+              converted = OpenStudio.convert(val_si, si_units, ip_units)
+              result[:value] = converted.empty? ? val_si.to_s : converted.get.to_s
+            else
+              result[:value] = val_si.to_s
+            end
+          end
+          # If val_si_opt is empty the field value is a string ('autocalculate', etc.)
+          # and cur_val is already correct — leave result[:value] as-is.
+
+          # Convert numeric bounds (always stored in SI) to the display unit
           if prop.minBoundType != OpenStudio::IddFieldProperties::Unbounded && !prop.minBoundValue.empty?
             min_si = prop.minBoundValue.get
-            if @unit_system == :ip && !result[:units].empty? && !si_units.empty?
-              converted = OpenStudio.convert(min_si, si_units, result[:units])
+            if @unit_system == :ip && !si_units.empty? && !ip_units.empty?
+              converted = OpenStudio.convert(min_si, si_units, ip_units)
               result[:min] = converted.empty? ? min_si : converted.get
             else
               result[:min] = min_si
@@ -953,18 +979,21 @@ module OpenStudio
 
           if prop.maxBoundType != OpenStudio::IddFieldProperties::Unbounded && !prop.maxBoundValue.empty?
             max_si = prop.maxBoundValue.get
-            if @unit_system == :ip && !result[:units].empty? && !si_units.empty?
-              converted = OpenStudio.convert(max_si, si_units, result[:units])
+            if @unit_system == :ip && !si_units.empty? && !ip_units.empty?
+              converted = OpenStudio.convert(max_si, si_units, ip_units)
               result[:max] = converted.empty? ? max_si : converted.get
             else
               result[:max] = max_si
             end
           end
 
+          result[:default] = 0
           unless prop.numericDefault.empty?
             def_si = prop.numericDefault.get
-            if @unit_system == :ip && !result[:units].empty? && !si_units.empty?
-              converted = OpenStudio.convert(def_si, si_units, result[:units])
+            if def_si == -9999
+              result[:default] = 0.0
+            elsif @unit_system == :ip && !si_units.empty? && !ip_units.empty?
+              converted = OpenStudio.convert(def_si, si_units, ip_units)
               result[:default] = converted.empty? ? def_si : converted.get
             else
               result[:default] = def_si
@@ -973,8 +1002,35 @@ module OpenStudio
         rescue => e
           puts "Inspector: build_real_field_data error: #{e.message}"
         end
-
+        
         result
+      end
+
+      # Builds the ColorSwatch field entry for OS:Rendering:Color objects.
+      # Returns nil for all other object types.
+      def build_color_swatch_field(ws_obj, type_str)
+        return nil unless type_str == 'OS:Rendering:Color'
+        r_idx = ws_obj.numFields > 2 ? 2 : nil
+        g_idx = ws_obj.numFields > 3 ? 3 : nil
+        b_idx = ws_obj.numFields > 4 ? 4 : nil
+        return nil unless r_idx && g_idx && b_idx
+        r_val = ws_obj.getDouble(r_idx, true).get.clamp(0, 255)
+        g_val = ws_obj.getDouble(g_idx, true).get.clamp(0, 255)
+        b_val = ws_obj.getDouble(b_idx, true).get.clamp(0, 255)
+        hex = '#%02x%02x%02x' % [r_val, g_val, b_val]
+        {
+          type:    'ColorSwatch',
+          name:    'Color Preview',
+          hex:     hex,
+          index_r: r_idx,
+          index_g: g_idx,
+          index_b: b_idx,
+          value:   hex,
+          access:  'free'
+        }
+      rescue => e
+        puts "Inspector: build_color_swatch_field error: #{e.message}"
+        nil
       end
 
       # ------------------------------------------------------------------
@@ -989,30 +1045,48 @@ module OpenStudio
           return if obj.empty?
           ws_obj = obj.get
 
-          # If the value is in IP, convert back to SI before storing
-          idd_field_opt = ws_obj.iddObject.getField(index)
-          unless idd_field_opt.empty?
-            idd_field = idd_field_opt.get
-            prop = idd_field.properties
-            if prop.type.valueName == 'RealType' && @unit_system == :ip && !idd_field.unitsBasedOnOtherField
-              q_ip = ws_obj.getQuantity(index, true, true)
-              unless q_ip.empty?
-                ip_units = q_ip.get.units.to_s
-                q_si     = ws_obj.getQuantity(index, true, false)
-                unless q_si.empty?
-                  si_units  = q_si.get.units.to_s
-                  val_f     = value.to_f
-                  converted = OpenStudio.convert(val_f, ip_units, si_units)
-                  unless converted.empty?
-                    ws_obj.setDouble(index, converted.get)
-                    return
+          # If the value is in IP, convert back to SI before storing.
+          # Special strings ('autosize', 'autocalculate') must bypass this path:
+          # value.to_f on them returns 0.0, which OpenStudio.convert would happily convert
+          # to a valid SI double, storing 0.0 and preventing return to the auto state.
+          is_auto_str = %w[autosize autocalculate].any? { |s| value.to_s.strip.casecmp(s).zero? }
+
+          unless is_auto_str
+            idd_field_opt = ws_obj.iddObject.getField(index)
+            unless idd_field_opt.empty?
+              idd_field = idd_field_opt.get
+              if idd_field.name.downcase == 'name'
+                @current_object_name = value.to_s
+                ws_obj.setName(value.to_s)
+                @update_name = true
+                return
+              end
+              prop = idd_field.properties
+              if prop.type.valueName == 'RealType' && @unit_system == :ip && !idd_field.unitsBasedOnOtherField
+                # Use idd_field.getUnits as the source of truth — always available from
+                # the IDD schema regardless of the field's current value.
+                ip_unit_opt = idd_field.getUnits(true)
+                si_unit_opt = idd_field.getUnits(false)
+                unless ip_unit_opt.empty? || si_unit_opt.empty?
+                  ip_units = ip_unit_opt.get.to_s
+                  si_units = si_unit_opt.get.to_s
+                  unless ip_units.empty? || si_units.empty?
+                    val_f     = value.to_f
+                    converted = OpenStudio.convert(val_f, ip_units, si_units)
+                    unless converted.empty?
+                      ws_obj.setDouble(index, converted.get)
+                      return
+                    end
                   end
                 end
               end
             end
           end
 
-          # Autosize / autocalculate special strings
+          # Autosize / autocalculate special strings, and any RealType values for which
+          # unit conversion was not possible, fall through to a plain string write.
+          # Note: setting an empty string also returns an autocalculatable field to its
+          # autocalculate state (OpenStudio treats empty and autocalculate identically).
           ws_obj.setString(index, value.to_s)
         rescue => e
           puts "Inspector: update_field error: #{e.message}"
@@ -1026,11 +1100,10 @@ module OpenStudio
           idf_object = OpenStudio::IdfObject.new(idd_type)
           new_obj = @model.addObject(idf_object)
           unless new_obj.empty?
-            new_handle = new_obj.get.handle.to_s
-            @current_handle = new_handle
+            set_current_object(new_obj.get)
             send_objects_for_type(type_str)
-            safe_execute("selectObject('#{new_handle}')")
-            send_fields_for_object(new_handle)
+            safe_execute("selectObject(#{JSON.generate(@current_handle.to_s)})")
+            send_fields_for_current_object
           end
         rescue => e
           puts "Inspector: add_object error: #{e.message}"
@@ -1046,11 +1119,10 @@ module OpenStudio
           mo = obj.get.to_ModelObject
           return if mo.empty?
           cloned     = mo.get.clone(@model)
-          new_handle = cloned.handle.to_s
-          @current_handle = new_handle
+          set_current_object(cloned)
           send_objects_for_type(@current_type)
-          safe_execute("selectObject('#{new_handle}')")
-          send_fields_for_object(new_handle)
+          safe_execute("selectObject(#{JSON.generate(@current_handle.to_s)})")
+          send_fields_for_current_object
         rescue => e
           puts "Inspector: copy_object error: #{e.message}"
         end
@@ -1062,9 +1134,8 @@ module OpenStudio
           handle = OpenStudio::toUUID(handle_str)
           obj = @model.getObject(handle)
           obj.get.remove unless obj.empty?
-          @current_handle = nil
+          reset_current_object
           send_objects_for_type(@current_type)
-          safe_execute("setFields(null)")
         rescue => e
           puts "Inspector: delete_object error: #{e.message}"
         end
@@ -1075,7 +1146,8 @@ module OpenStudio
         begin
           idd_type = OpenStudio::IddObjectType.new(type_str)
           @model.purgeUnusedResourceObjects(idd_type)
-          send_objects_for_type(type_str)
+          reset_current_object
+          send_objects_for_type(@current_type)
         rescue => e
           puts "Inspector: purge_objects error: #{e.message}"
         end

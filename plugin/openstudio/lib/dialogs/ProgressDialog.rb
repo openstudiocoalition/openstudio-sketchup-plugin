@@ -95,6 +95,7 @@ module OpenStudio
       if @last_num_chars != num_chars
         @last_num_chars = num_chars
         Sketchup.status_text = @title + "  " + "|" * num_chars
+        #Sketchup.active_model.active_view.invalidate_view
       end
     end
 

@@ -16,16 +16,19 @@
     <rule IddField="Nominal Floor to Floor Height" Access="HIDDEN"/>
     <rule IddField="Nominal Floor to Ceiling Height" Access="HIDDEN"/>
 	</POLICY>
-	<POLICY IddObjectType="OS_ShadingControl">
-	  <rule IddField="Shading Type" Access="LOCKED"/>
-		<rule IddField="Construction with Shading Name" Access="LOCKED"/>
-		<rule IddField="Shading Device Material Name" Access="LOCKED"/>
-		<rule IddField="Setpoint" Access="HIDDEN"/>
-		<rule IddField="Shading Control Is Scheduled" Access="HIDDEN"/>
-		<rule IddField="Glare Control Is Active" Access="HIDDEN"/>
-		<rule IddField="Type of Slat Angle Control for Blinds" Access="HIDDEN"/>
-		<rule IddField="Slat Angle Schedule Name" Access="HIDDEN"/>
-		<rule IddField="Setpoint 2" Access="HIDDEN"/>
+	<POLICY IddObjectType="OS_BuildingUnit">
+		<rule IddField="Nominal Z Coordinate" Access="HIDDEN"/>
+    <rule IddField="Nominal Floor to Floor Height" Access="HIDDEN"/>
+    <rule IddField="Nominal Floor to Ceiling Height" Access="HIDDEN"/>
+	</POLICY>
+	<POLICY IddObjectType="OS_Daylighting_Control">
+		<rule IddField="Space Name" Access="LOCKED"/>
+	</POLICY>
+  <POLICY IddObjectType="OS_Glare_Sensor">
+		<rule IddField="Space Name" Access="LOCKED"/>
+	</POLICY>
+  <POLICY IddObjectType="OS_IlluminanceMap">
+		<rule IddField="Space Name" Access="LOCKED"/>
 	</POLICY>
 	<POLICY IddObjectType="OS_InteriorPartitionSurface">
 		<rule IddField="Interior Partition Surface Group Name" Access="LOCKED"/>
@@ -33,6 +36,12 @@
 		<rule IddField="Vertex X-coordinate" Access="HIDDEN"/>
 		<rule IddField="Vertex Y-coordinate" Access="HIDDEN"/>
 		<rule IddField="Vertex Z-coordinate" Access="HIDDEN"/>
+	</POLICY>
+	<POLICY IddObjectType="OS_Luminaire">
+		<rule IddField="Luminaire Definition Name" Access="LOCKED"/>
+		<rule IddField="Space or SpaceType Name" Access="LOCKED"/>
+	</POLICY>
+  <POLICY IddObjectType="OS_ShadingControl">
 	</POLICY>
 	<POLICY IddObjectType="OS_ShadingSurface">
 		<rule IddField="Shading Surface Group Name" Access="LOCKED"/>

@@ -421,6 +421,13 @@
     .addl-prop-remove:hover {
       color: #ff7070;
     }
+
+    /* Out-of-bounds numeric input — red border + subtle warning tint */
+    .input-out-of-bounds {
+      border-color: #cc3333 !important;
+      background-color: #3a1a1a !important;
+      color: #ff8888 !important;
+    }
   </style>
 </head>
 
@@ -576,6 +583,7 @@
                     </div>
                     <input type="number" :id="'field-'+fi"
                       :value="isAutoValue(field.value,'autosize') ? '' : field.value"
+                      :class="{'input-out-of-bounds': !isAutoValue(field.value,'autosize') && isOutOfBounds(field, field.value)}"
                       :disabled="isAutoValue(field.value,'autosize')" :min="field.min" :max="field.max" :step="'any'"
                       @change="fieldChanged(field, $event.target.value)">
                   </div>
@@ -596,19 +604,24 @@
                     </div>
                     <input type="number" :id="'field-'+fi"
                       :value="isAutoValue(field.value,'autocalculate') ? '' : field.value"
+                      :class="{'input-out-of-bounds': !isAutoValue(field.value,'autocalculate') && isOutOfBounds(field, field.value)}"
                       :disabled="isAutoValue(field.value,'autocalculate')" :min="field.min" :max="field.max"
                       :step="'any'" @change="fieldChanged(field, $event.target.value)">
                   </div>
 
                   <!-- FREE: Integer -->
                   <div class="field-value" v-else-if="field.type === 'IntegerType'">
-                    <input type="number" :value="field.value" :min="field.min" :max="field.max" step="1"
+                    <input type="number" :value="field.value"
+                      :class="{'input-out-of-bounds': isOutOfBounds(field, field.value)}"
+                      :min="field.min" :max="field.max" step="1"
                       @change="fieldChanged(field, $event.target.value)">
                   </div>
 
                   <!-- FREE: Real (plain numeric) -->
                   <div class="field-value" v-else-if="field.type === 'RealType'">
-                    <input type="number" :value="field.value" :min="field.min" :max="field.max" step="any"
+                    <input type="number" :value="field.value"
+                      :class="{'input-out-of-bounds': isOutOfBounds(field, field.value)}"
+                      :min="field.min" :max="field.max" step="any"
                       @change="fieldChanged(field, $event.target.value)">
                   </div>
 
@@ -693,6 +706,16 @@
           return val && val.toString().toLowerCase() === keyword.toLowerCase();
         },
 
+        // Returns true when val is a finite number outside [field.min, field.max].
+        // Bounds are only checked when the field actually provides them (not null/undefined).
+        isOutOfBounds: function (field, val) {
+          var n = parseFloat(val);
+          if (!isFinite(n)) return false;
+          if (field.min !== null && field.min !== undefined && n < field.min) return true;
+          if (field.max !== null && field.max !== undefined && n > field.max) return true;
+          return false;
+        },
+
         switchToHardsize: function (field, fi) {
           // Clear autosized/autocalc: set to empty so user can type a value
           field.value = field.default !== null ? String(field.default) : '';
@@ -774,12 +797,24 @@
 
     function selectObject(handle) {
       app.selectedHandle = handle;
+      if (handle) {
+        Vue.nextTick(function () {
+          var row = document.querySelector('#obj-table tr.active');
+          if (row) row.scrollIntoView({ block: 'nearest' });
+        });
+      }
     }
 
     // Called by Ruby to update the selected type in the UI without triggering
     // a sketchup.set_type callback back to Ruby (Ruby already knows the type).
     function selectType(key) {
       app.selectedType = key;
+    }
+
+    // Called by Ruby after auto-selecting the first object so Copy/Delete buttons
+    // become enabled without waiting for the user to click an object row.
+    function updateButtons(b) {
+      app.buttons = b;
     }
 
     // Called by Ruby when the currently selected object's name changes.

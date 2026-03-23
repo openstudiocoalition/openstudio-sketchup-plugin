@@ -16,8 +16,6 @@ module OpenStudio
 
       @dialog_interfaces = Set.new
 
-      Inspector::AccessPolicyStore.load_policy
-
       @inspector_dialog = Inspector::InspectorDialog.new
       @inspector_dialog.hide
 
