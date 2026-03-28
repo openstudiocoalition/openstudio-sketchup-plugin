@@ -8,14 +8,60 @@ module OpenStudio
 
   class ProgressDialog < OpenStudio::ProgressBar
 
+    HTML_FILE = File.join(File.dirname(__FILE__), 'html', 'ProgressDialog.html')
+
+    # ------------------------------------------------------------------
+    # Singleton dialog — created once at class load, re-used across all
+    # progress calls. Not shown until the first ProgressDialog.new.
+    # ------------------------------------------------------------------
+    @shared_dialog  = nil
+    @startup_skip   = 2  # ignore the first 2 dialogs (load model + attach model at startup)
+
+    class << self
+      attr_accessor :shared_dialog, :startup_skip
+
+      def ensure_dialog
+        if @shared_dialog.nil?
+          options = {
+            dialog_title:    'Progress',
+            preferences_key: 'com.openstudiocoalition.progress',
+            style:           UI::HtmlDialog::STYLE_DIALOG,
+            resizable:       false,
+            width:           400,
+            height:          100
+          }
+          @shared_dialog = UI::HtmlDialog.new(options)
+          @shared_dialog.set_file(HTML_FILE)
+        end
+        @shared_dialog
+      end
+    end
+
+    # Create the dialog at class load so CEF starts warming up immediately.
+    ensure_dialog
+
+    # ------------------------------------------------------------------
+    # Instance — each ProgressDialog.new shows the shared dialog.
+    # ------------------------------------------------------------------
+
     def initialize(message)
+      @skip = false
       super()
       @title = message
       @min = 0
       @max = 100
       @value = 0
       @percentage = 0
-      @last_num_chars = -1
+
+      dlg = self.class.shared_dialog
+      if self.class.startup_skip > 0
+        self.class.startup_skip -= 1
+        @skip = true
+      else
+        dlg.center
+        dlg.show
+        dlg.execute_script("setProgress('#{escape_js(@title)}', 0)") rescue nil
+      end
     end
 
     def minimum
@@ -23,8 +69,7 @@ module OpenStudio
     end
 
     def setMinimum(min)
-      @min = min
-      updatePercentage
+      setRange(min, @max)
     end
 
     def maximum
@@ -32,8 +77,7 @@ module OpenStudio
     end
 
     def setMaximum(max)
-      @max = max
-      updatePercentage
+      setRange(@min, max)
     end
 
     def value
@@ -46,10 +90,11 @@ module OpenStudio
 
     def setWindowTitle(title)
       @title = title
+      onPercentageUpdated(0)
     end
 
     def text
-      @title + "  " + "|" * @last_num_chars 
+      @title + " #{@percentage.round(1)}%"
     end
 
     def isVisible
@@ -59,9 +104,15 @@ module OpenStudio
     def setVisible(visible)
     end
 
+    def escape_js(str)
+      str.to_s.gsub('\\', '\\\\').gsub("'", "\\'")
+    end
+    private :escape_js
+
     def setRange(min, max)
       @min = min
       @max = max
+      @percentage = 0
       updatePercentage
     end
 
@@ -76,13 +127,14 @@ module OpenStudio
       if (range > 0.0)
         new_percentage = 100.0 * (@value - @min) / range
       end
-      if (new_percentage-@percentage) >= 1.0
+      if (new_percentage-@percentage) >= 5.0
         onPercentageUpdated(new_percentage)
       end
     end
 
     def onPercentageUpdated(percentage)
       super
+      return if @skip
 
       if percentage < 0 or percentage > 100
         # Plugin.do_bug
@@ -91,16 +143,16 @@ module OpenStudio
 
       @percentage = percentage
 
-      num_chars = ((percentage / 100.0) * 100).to_i
-      if @last_num_chars != num_chars
-        @last_num_chars = num_chars
-        Sketchup.status_text = text
-        #Sketchup.active_model.active_view.invalidate_view
+      dlg = self.class.shared_dialog
+      if dlg
+        dlg.execute_script("setProgress('#{escape_js(@title)}', #{@percentage.round(1)})") rescue nil
       end
     end
 
     def destroy
-      Sketchup.status_text = ""
+      return if @skip
+      dlg = self.class.shared_dialog
+      UI.start_timer(0, false) { dlg.hide rescue nil } if dlg
     end
 
   end
