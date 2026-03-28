@@ -56,7 +56,7 @@ module OpenStudio
     if !existing.empty?
       # Ask the user whether to reuse an existing definition or create a new one.
       # The C++ code showed a full selector dialog; here we offer a simple YES/NO.
-      friendly_type = type_key.sub(/^OS:/, '').gsub(/([A-Z])/, ' \1').strip
+      friendly_type = model_object.iddObject.name.sub(/^OS:/, '').gsub(/(?<=[a-z])(?=[A-Z])/, ' ')
       answer = UI.messagebox(
         "The model has #{existing.size} existing #{friendly_type} Definition(s).\n\n" \
         "Click YES to reuse the first existing definition.\n" \
