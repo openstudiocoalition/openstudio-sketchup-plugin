@@ -6,6 +6,18 @@
 require 'extensions.rb'   # defines the SketchupExtension class
 
 sketchup_version = Sketchup.version.split('.').first.to_i
+
+# True when the Ruby process itself is running as native ARM64 / AArch64.
+is_arm64 = !!(RbConfig::CONFIG['host_cpu'] =~ /arm64|aarch64/ ||
+              ENV['PROCESSOR_ARCHITEW6432'] =~ /ARM64/i ||
+              ENV['PROCESSOR_ARCHITECTURE'] =~ /ARM64/i)
+
+if is_arm64
+  # On ARM64 Macs, force OpenSSL to use the software implementation instead of the 
+  # hardware-accelerated one, which has known issues with CEF and causes random crashes.
+  ENV['OPENSSL_armcap'] = '0' if is_arm64
+end
+
 do_load = true
 
 # check current settings
