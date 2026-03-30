@@ -55,6 +55,7 @@ class CleanupOrigins < OpenStudio::Measure::ModelMeasure
     num_total = spaces.size + shading_groups.size + interior_partition_groups.size
     num_complete = 0
 
+    runner.updateProgressTitle("Cleaning Up Origins - Spaces")
     # do spaces first as these may contain other groups
     spaces.each do |space|
       num_complete += 1
@@ -73,6 +74,7 @@ class CleanupOrigins < OpenStudio::Measure::ModelMeasure
     end
 
     # now do shading surfaces
+    runner.updateProgressTitle("Cleaning Up Origins - Shading Surface Groups")
     shading_groups.each do |group|
       num_complete += 1
       next if not runner.inSelection(group)
@@ -82,6 +84,7 @@ class CleanupOrigins < OpenStudio::Measure::ModelMeasure
     end
 
     # now do interior partition surface groups
+    runner.updateProgressTitle("Cleaning Up Origins - Interior Partition Surface Groups")
     interior_partition_groups.each do |group|
       num_complete += 1
       next if not runner.inSelection(group)

@@ -8,6 +8,8 @@ module OpenStudio
 
   class ProgressDialog < OpenStudio::ProgressBar
 
+    attr_reader :title, :min, :max, :value, :percentage, :dialog
+
     HTML_FILE = File.join(File.dirname(__FILE__), 'html', 'ProgressDialog.html')
 
     # ------------------------------------------------------------------
@@ -20,18 +22,27 @@ module OpenStudio
     class << self
       attr_accessor :shared_dialog, :startup_skip
 
+      # Close the previous dialog if it exists, then create a new one.
       def create_dialog(dialog_title: 'OpenStudio Progress')
+        @shared_dialog&.close
+
         options = {
           dialog_title:,
-          preferences_key: 'com.openstudiocoalition.progress',
+          preferences_key: 'com.openstudiocoalition.progressdlg', # TODO: I need to find where to delete the stored value...
           style:           UI::HtmlDialog::STYLE_DIALOG,
           resizable:       false,
           width:           400,
-          height:          100
+          height:          150,
         }
         dialog = UI::HtmlDialog.new(options)
         dialog.set_file(HTML_FILE)
         dialog.center
+        dialog.add_action_callback('closeProgressDialog') do |_ctx|
+          # dialog.hide if dialog.respond_to?(:hide)
+          dialog.close
+        end
+
+        @shared_dialog = dialog
 
         dialog
       end
@@ -57,18 +68,15 @@ module OpenStudio
       @max = 100
       @value = 0
       @percentage = 0
+      @dialog = nil
 
-      dlg = self.class.shared_dialog
       if self.class.startup_skip > 0
         self.class.startup_skip -= 1
         @skip = true
       else
-        if dlg.visible?
-          dlg.bring_to_front
-        else
-          dlg.show
-        end
-        dlg.execute_script("setProgress('#{escape_js(@title)}', 0)") rescue nil
+        @dialog = self.class.create_dialog(dialog_title: message)
+        @dialog.show
+        @dialog.execute_script("setProgress('#{escape_js(@title)}', 0)") rescue nil
       end
     end
 
@@ -151,21 +159,16 @@ module OpenStudio
 
       @percentage = percentage
 
-      dlg = self.class.shared_dialog
-      if dlg
-        dlg.execute_script("setProgress('#{escape_js(@title)}', #{@percentage.round(1)})") rescue nil
+      if @dialog
+        @dialog.execute_script("setProgress('#{escape_js(@title)}', #{@percentage.round(1)})") rescue nil
       end
     end
 
     def destroy(success: true)
       return if @skip
-      dlg = self.class.shared_dialog
-      return unless dlg
-      dlg.execute_script("setFinalCondition(#{success})") rescue nil
-      # Hide: Added in Sketchup 2026.1
-      if dlg.respond_to?(:hide)
-        UI.start_timer(1.0, false) { dlg.hide }
-      end
+      return unless @dialog
+      dialog = @dialog
+      UI.start_timer(0.1, false) { dialog.execute_script("setFinalCondition(#{success})") rescue nil }
     end
 
   end

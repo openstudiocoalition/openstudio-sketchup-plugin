@@ -51,6 +51,34 @@
     text-align: right;
     font-size: 11px;
   }
+  #close-btn {
+    display: none;
+    position: relative;
+    overflow: hidden;
+    margin-top: 10px;
+    width: 100%;
+    padding: 4px 0;
+    font-size: 12px;
+    color: #333;
+    background: #e0e0e0;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+  }
+  #close-btn:hover {
+    background: #d0d0d0;
+  }
+  #countdown-bar {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
+  #close-label {
+    position: relative;
+  }
 </style>
 </head>
 <body>
@@ -58,20 +86,78 @@
     <div id="title"></div>
     <div class="bar-track"><div id="bar"></div></div>
     <div id="pct">0%</div>
+    <button id="close-btn">
+      <div id="countdown-bar"></div>
+      <span id="close-label">Cancel</span>
+    </button>
   </div>
   <script>
+    var _countdown = null;
+
     function setProgress(title, percentage) {
       document.getElementById('title').textContent = title;
       var pct = Math.min(100, Math.max(0, percentage));
       document.getElementById('bar').style.width = pct + '%';
       document.getElementById('bar').classList.remove('success', 'failed');
       document.getElementById('pct').textContent = Math.round(pct) + '%';
+      _stopCountdown();
+      document.getElementById('close-btn').style.display = 'none';
     }
+
     function setFinalCondition(success) {
       var bar = document.getElementById('bar');
       bar.style.width = '100%';
+      bar.classList.remove('success', 'failed');
       bar.classList.add(success ? 'success' : 'failed');
       document.getElementById('pct').textContent = '100%';
+      _startCountdown(5);
+    }
+
+    function _startCountdown(seconds) {
+      var cbar  = document.getElementById('countdown-bar');
+      var btn   = document.getElementById('close-btn');
+      var label = document.getElementById('close-label');
+
+      // Reset to full width with no transition, then animate to 0
+      cbar.style.transition = 'none';
+      cbar.style.width = '100%';
+      btn.style.display = 'block';
+      label.textContent = 'Closing in ' + seconds + 's — Click to Cancel';
+      btn.onclick = _cancelCountdown;
+
+      // Force reflow so the browser paints 100% before starting the transition
+      void cbar.offsetWidth;
+      cbar.style.transition = 'width ' + seconds + 's linear';
+      cbar.style.width = '0%';
+
+      _countdown = setInterval(function() {
+        seconds -= 1;
+        if (seconds <= 0) {
+          _stopCountdown();
+          sketchup.closeProgressDialog();
+        } else {
+          label.textContent = 'Closing in ' + seconds + 's — Click to Cancel';
+        }
+      }, 1000);
+    }
+
+    function _cancelCountdown() {
+      _stopCountdown();
+      // Freeze the countdown bar in place
+      var cbar = document.getElementById('countdown-bar');
+      cbar.style.transition = 'none';
+      cbar.style.width = cbar.getBoundingClientRect().width /
+                         cbar.parentElement.getBoundingClientRect().width * 100 + '%';
+      document.getElementById('close-label').textContent = 'Close';
+      var btn = document.getElementById('close-btn');
+      btn.onclick = function() { sketchup.closeProgressDialog(); };
+    }
+
+    function _stopCountdown() {
+      if (_countdown !== null) {
+        clearInterval(_countdown);
+        _countdown = null;
+      }
     }
   </script>
 </body>

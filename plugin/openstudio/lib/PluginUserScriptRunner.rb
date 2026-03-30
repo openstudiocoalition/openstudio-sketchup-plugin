@@ -459,8 +459,14 @@ module OpenStudio
     end
 
     # create a progress bar
-    def createProgressBar(text)
-      @progress_dialog = ProgressDialog.new(text)
+    def createProgressBar(title)
+      @progress_dialog = ProgressDialog.new(title)
+    end
+
+    def updateProgressTitle(title)
+      if @progress_dialog
+        @progress_dialog.setWindowTitle(title)
+      end
     end
 
     # update the progress bar, note value is from 0 to 100
