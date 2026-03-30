@@ -117,6 +117,8 @@ class GetBCLWeatherFile < OpenStudio::Measure::ModelMeasure
     OpenStudio::Plugin.command_manager.check_site("weather file", weather_name, weather_lat, weather_lon, weather_time, weather_elev)
 
     runner.registerFinalCondition("Successfully set weather file to #{epw_path}")
+
+    return true
   end
 
 end

@@ -242,6 +242,7 @@ class SetRectangularFloorPlan < OpenStudio::Measure::ModelMeasure
 
     runner.destroyProgressBar
 
+    return true
   end
 
 end

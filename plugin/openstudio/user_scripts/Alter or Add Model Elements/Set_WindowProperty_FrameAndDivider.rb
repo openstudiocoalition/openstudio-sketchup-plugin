@@ -80,6 +80,7 @@ class SetWindowPropertyFrameAndDivider < OpenStudio::Measure::ModelMeasure
 
     end
 
+    return true
   end
 
 end

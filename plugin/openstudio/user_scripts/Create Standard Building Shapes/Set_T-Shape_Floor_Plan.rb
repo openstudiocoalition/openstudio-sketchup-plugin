@@ -389,6 +389,7 @@ class SetTShapeFloorPlan < OpenStudio::Measure::ModelMeasure
 
     runner.destroyProgressBar
 
+    return true
   end
 
 end

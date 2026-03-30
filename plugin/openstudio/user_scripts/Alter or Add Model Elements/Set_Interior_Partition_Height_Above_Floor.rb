@@ -68,6 +68,7 @@ class SetInteriorPartitionHeightAboveFloor < OpenStudio::Measure::ModelMeasure
 
     end
 
+    return true
   end
 
 end

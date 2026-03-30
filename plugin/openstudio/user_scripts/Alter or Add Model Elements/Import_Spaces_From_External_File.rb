@@ -95,6 +95,7 @@ class ImportSpaces < OpenStudio::Measure::ModelMeasure
     runner.registerFinalCondition("Spaces from file named '" + osmPath_2 + "' have been imported")
     puts 'Spaces from file named "'+ osmPath_2 + '" have been imported'
 
+    return true
   end
 
 end

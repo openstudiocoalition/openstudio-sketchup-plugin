@@ -54,6 +54,7 @@ class RemoveLoadsDirectlyAssignedToSpaces < OpenStudio::Measure::ModelMeasure
 
     end
 
+    return true
   end
 
 end

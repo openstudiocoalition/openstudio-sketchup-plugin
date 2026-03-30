@@ -80,6 +80,7 @@ class RenameThermalZonesBasedOnSpaceNames < OpenStudio::Measure::ModelMeasure
 
     runner.destroyProgressBar
 
+    return true
   end
 
 end

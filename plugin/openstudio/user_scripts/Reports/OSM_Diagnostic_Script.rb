@@ -481,6 +481,8 @@ class DiagnosticScript < OpenStudio::Measure::ModelMeasure
     end
 
     runner.registerFinalCondition("Diagnostic Test Complete")
+
+    return true
   end
 
 end
