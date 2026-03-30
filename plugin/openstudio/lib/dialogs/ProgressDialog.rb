@@ -20,20 +20,25 @@ module OpenStudio
     class << self
       attr_accessor :shared_dialog, :startup_skip
 
+      def create_dialog(dialog_title: 'OpenStudio Progress')
+        options = {
+          dialog_title:,
+          preferences_key: 'com.openstudiocoalition.progress',
+          style:           UI::HtmlDialog::STYLE_DIALOG,
+          resizable:       false,
+          width:           400,
+          height:          100
+        }
+        dialog = UI::HtmlDialog.new(options)
+        dialog.set_file(HTML_FILE)
+        dialog.center
+
+        dialog
+      end
+
+
       def ensure_dialog
-        if @shared_dialog.nil?
-          options = {
-            dialog_title:    'Progress',
-            preferences_key: 'com.openstudiocoalition.progress',
-            style:           UI::HtmlDialog::STYLE_DIALOG,
-            resizable:       false,
-            width:           400,
-            height:          100
-          }
-          @shared_dialog = UI::HtmlDialog.new(options)
-          @shared_dialog.set_file(HTML_FILE)
-        end
-        @shared_dialog
+        @shared_dialog ||= create_dialog
       end
     end
 
@@ -58,8 +63,11 @@ module OpenStudio
         self.class.startup_skip -= 1
         @skip = true
       else
-        dlg.center
-        dlg.show
+        if dlg.visible?
+          dlg.bring_to_front
+        else
+          dlg.show
+        end
         dlg.execute_script("setProgress('#{escape_js(@title)}', 0)") rescue nil
       end
     end
