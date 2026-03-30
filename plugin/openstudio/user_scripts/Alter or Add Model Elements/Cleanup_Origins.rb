@@ -45,8 +45,19 @@ class CleanupOrigins < OpenStudio::Ruleset::ModelUserScript
   def run(model, runner, user_arguments)
     super(model, runner, user_arguments)
 
+
+    # get all spaces
+    spaces = model.getSpaces
+    shading_groups = model.getShadingSurfaceGroups
+    interior_partition_groups = model.getInteriorPartitionSurfaceGroups
+
+    runner.createProgressBar("Cleaning Up Origins")
+    num_total = spaces.size + shading_groups.size + interior_partition_groups.size
+    num_complete = 0
+
     # do spaces first as these may contain other groups
-    model.getSpaces.each do |space|
+    spaces.each do |space|
+      num_complete += 1
       next if not runner.inSelection(space)
       cleanup_group(space)
 
@@ -57,19 +68,31 @@ class CleanupOrigins < OpenStudio::Ruleset::ModelUserScript
       space.interiorPartitionSurfaceGroups.each do |group|
         cleanup_group(group)
       end
+
+      runner.updateProgress((100*num_complete)/num_total)
     end
 
     # now do shading surfaces
-    model.getShadingSurfaceGroups.each do |group|
+    shading_groups.each do |group|
+      num_complete += 1
       next if not runner.inSelection(group)
       cleanup_group(group)
+
+      runner.updateProgress((100*num_complete)/num_total)
     end
 
     # now do interior partition surface groups
-    model.getInteriorPartitionSurfaceGroups.each do |group|
+    interior_partition_groups.each do |group|
+      num_complete += 1
       next if not runner.inSelection(group)
       cleanup_group(group)
+
+      runner.updateProgress((100*num_complete)/num_total)
     end
+
+    runner.updateProgress(100)
+
+    runner.destroyProgressBar
   end
 
 end
