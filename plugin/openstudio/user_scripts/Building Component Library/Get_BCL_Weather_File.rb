@@ -6,7 +6,7 @@
 module OpenStudio
 
 # Each user script is implemented within a class that derives from OpenStudio::Ruleset::UserScript
-class GetBCLWeatherFile < OpenStudio::Ruleset::ModelUserScript
+class GetBCLWeatherFile < OpenStudio::Measure::ModelMeasure
 
   # override name to return the name of your script
   def name

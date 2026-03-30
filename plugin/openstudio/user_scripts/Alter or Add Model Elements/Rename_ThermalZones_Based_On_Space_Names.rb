@@ -6,7 +6,7 @@
 module OpenStudio
 
 # Each user script is implemented within a class that derives from OpenStudio::Ruleset::UserScript
-class RenameThermalZonesBasedOnSpaceNames < OpenStudio::Ruleset::ModelUserScript
+class RenameThermalZonesBasedOnSpaceNames < OpenStudio::Measure::ModelMeasure
 
   # override name to return the name of your script
   def name

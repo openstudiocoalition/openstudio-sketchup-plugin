@@ -5,7 +5,7 @@
 
 module OpenStudio
 
-class SetCourtyardFloorPlan < OpenStudio::Ruleset::ModelUserScript
+class SetCourtyardFloorPlan < OpenStudio::Measure::ModelMeasure
 
   # override name to return the name of your script
   def name

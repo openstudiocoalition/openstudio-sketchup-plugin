@@ -5,7 +5,7 @@
 
 module OpenStudio
 
-class SetUShapeFloorPlan < OpenStudio::Ruleset::ModelUserScript
+class SetUShapeFloorPlan < OpenStudio::Measure::ModelMeasure
 
   # override name to return the name of your script
   def name
