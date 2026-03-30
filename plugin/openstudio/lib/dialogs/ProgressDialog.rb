@@ -157,11 +157,11 @@ module OpenStudio
       end
     end
 
-    def destroy
+    def destroy(success: true)
       return if @skip
       dlg = self.class.shared_dialog
       return unless dlg
-      dlg.execute_script("setDone()") rescue nil
+      dlg.execute_script("setFinalCondition(#{success})") rescue nil
       # Hide: Added in Sketchup 2026.1
       if dlg.respond_to?(:hide)
         UI.start_timer(1.0, false) { dlg.hide }

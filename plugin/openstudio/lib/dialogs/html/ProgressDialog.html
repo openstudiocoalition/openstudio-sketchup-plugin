@@ -43,6 +43,9 @@
   #bar.success {
     background: #4bb543;
   }
+  #bar.failed {
+    background: #d9534f;
+  }
   #pct {
     margin-top: 4px;
     color: #555;
@@ -62,12 +65,13 @@
       document.getElementById('title').textContent = title;
       var pct = Math.min(100, Math.max(0, percentage));
       document.getElementById('bar').style.width = pct + '%';
-      document.getElementById('bar').classList.remove('success');
+      document.getElementById('bar').classList.remove('success', 'failed');
       document.getElementById('pct').textContent = Math.round(pct) + '%';
     }
-    function setDone() {
-      document.getElementById('bar').style.width = '100%';
-      document.getElementById('bar').classList.add('success');
+    function setFinalCondition(success) {
+      var bar = document.getElementById('bar');
+      bar.style.width = '100%';
+      bar.classList.add(success ? 'success' : 'failed');
       document.getElementById('pct').textContent = '100%';
     }
   </script>
