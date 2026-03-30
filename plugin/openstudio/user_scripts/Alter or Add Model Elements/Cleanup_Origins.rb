@@ -93,6 +93,8 @@ class CleanupOrigins < OpenStudio::Measure::ModelMeasure
     runner.updateProgress(100)
 
     runner.destroyProgressBar
+
+    true
   end
 
 end

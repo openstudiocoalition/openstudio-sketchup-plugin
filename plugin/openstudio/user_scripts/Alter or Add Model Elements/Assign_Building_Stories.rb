@@ -69,6 +69,7 @@ class AssignBuildingStories < OpenStudio::Measure::ModelMeasure
 
     # this should take the sorted list and make and assign stories
     sorted_spaces.each do |space|
+      num_complete += 1
       space_obj = space[0]
       space_minz = space[1]
       if space_obj.buildingStory.empty?
@@ -77,9 +78,8 @@ class AssignBuildingStories < OpenStudio::Measure::ModelMeasure
         runner.registerInfo("Setting story of Space " + space_obj.name.get + " to " + story.to_s + ".")
         space_obj.setBuildingStory(story)
 
-        num_complete += 1
-        runner.updateProgress((100*num_complete)/num_total)
       end
+      runner.updateProgress((100*num_complete)/num_total)
     end
 
     runner.destroyProgressBar
