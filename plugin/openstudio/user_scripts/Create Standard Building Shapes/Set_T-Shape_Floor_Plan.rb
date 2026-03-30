@@ -68,7 +68,7 @@ class SetTShapeFloorPlan < OpenStudio::Measure::ModelMeasure
     super(model, runner, user_arguments)
 
     if not runner.validateUserArguments(arguments(model),user_arguments)
-      return result
+      return false
     end
 
     length = runner.getDoubleArgumentValue("length",user_arguments)
