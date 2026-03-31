@@ -464,23 +464,17 @@ module OpenStudio
     end
 
     def updateProgressTitle(title)
-      if @progress_dialog
-        @progress_dialog.setWindowTitle(title)
-      end
+      @progress_dialog&.setWindowTitle(title)
     end
 
     # update the progress bar, note value is from 0 to 100
     def updateProgress(value)
-      if @progress_dialog
-        @progress_dialog.setValue(value.to_i)
-      end
+      @progress_dialog&.setValue(value.to_i)
     end
 
     # destroy the progress bar
     def destroyProgressBar(success: true)
-      if @progress_dialog
-        @progress_dialog.destroy(success: success)
-      end
+      @progress_dialog&.destroy(success: success)
       @progress_dialog = nil
     end
 

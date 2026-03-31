@@ -3,6 +3,7 @@
 #  See also https://openstudiocoalition.org/about/software_license/
 ########################################################################################################################
 
+require 'json'
 
 module OpenStudio
 
@@ -117,7 +118,7 @@ module OpenStudio
     def setWindowTitle(title)
       @title = title
       return if @skip
-      exec_script("setTitle('#{escape_js(@title)}')")
+      exec_script("setTitle(#{JSON.generate(@title)})")
     end
 
     def text
@@ -130,11 +131,6 @@ module OpenStudio
 
     def setVisible(visible)
     end
-
-    def escape_js(str)
-      str.to_s.gsub('\\', '\\\\').gsub("'", "\\'")
-    end
-    private :escape_js
 
     def exec_script(code)
       return unless @dialog
