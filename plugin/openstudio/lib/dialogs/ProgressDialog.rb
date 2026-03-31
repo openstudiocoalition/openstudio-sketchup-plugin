@@ -28,7 +28,7 @@ module OpenStudio
 
         options = {
           dialog_title:,
-          preferences_key: 'com.openstudiocoalition.progressdlg', # TODO: I need to find where to delete the stored value...
+          preferences_key: 'com.openstudiocoalition.progressdlg5', # TODO: I need to find where to delete the stored value...
           style:           UI::HtmlDialog::STYLE_DIALOG,
           resizable:       false,
           width:           400,
@@ -62,6 +62,8 @@ module OpenStudio
 
     def initialize(message)
       @skip = false
+      @ready = false
+      @pending_scripts = []
       super()
       @title = message
       @min = 0
@@ -75,8 +77,13 @@ module OpenStudio
         @skip = true
       else
         @dialog = self.class.create_dialog(dialog_title: message)
+        @dialog.add_action_callback('dialogReady') do |_ctx|
+          @ready = true
+          @pending_scripts.each { |script| @dialog.execute_script(script) rescue nil }
+          @pending_scripts.clear
+        end
         @dialog.show
-        @dialog.execute_script("setProgress('#{escape_js(@title)}', 0)") rescue nil
+        setWindowTitle(message)
       end
     end
 
@@ -106,7 +113,8 @@ module OpenStudio
 
     def setWindowTitle(title)
       @title = title
-      # onPercentageUpdated(@percentage)
+      return if @skip
+      exec_script("setTitle('#{escape_js(@title)}')")
     end
 
     def text
@@ -124,6 +132,16 @@ module OpenStudio
       str.to_s.gsub('\\', '\\\\').gsub("'", "\\'")
     end
     private :escape_js
+
+    def exec_script(code)
+      return unless @dialog
+      if @ready
+        @dialog.execute_script(code) rescue nil
+      else
+        @pending_scripts << code
+      end
+    end
+    private :exec_script
 
     def setRange(min, max)
       @min = min
@@ -159,9 +177,7 @@ module OpenStudio
 
       @percentage = percentage
 
-      if @dialog
-        @dialog.execute_script("setProgress('#{escape_js(@title)}', #{@percentage.round(1)})") rescue nil
-      end
+      exec_script("setProgress(#{@percentage.round(1)})")
     end
 
     def destroy(success: true)
