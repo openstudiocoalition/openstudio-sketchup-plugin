@@ -28,11 +28,14 @@ module OpenStudio
 
         options = {
           dialog_title:,
-          preferences_key: 'com.openstudiocoalition.progressdlg5', # TODO: I need to find where to delete the stored value...
+          # This key is super annoying as sketchup remembers it even when you close/reopen the app
+          # To delete on mac:
+          # defaults read com.sketchup.SketchUp.2024 | grep -o '"com.openstudiocoalition.progress[^"]*"' | tr -d '"' | xargs -I{} defaults delete com.sketchup.SketchUp.2024 {}
+          preferences_key: 'com.openstudiocoalition.progressdialog',
           style:           UI::HtmlDialog::STYLE_DIALOG,
           resizable:       false,
           width:           400,
-          height:          150,
+          height:          215,
         }
         dialog = UI::HtmlDialog.new(options)
         dialog.set_file(HTML_FILE)

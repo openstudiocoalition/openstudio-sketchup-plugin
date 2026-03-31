@@ -51,6 +51,21 @@
     text-align: right;
     font-size: 11px;
   }
+  #log {
+    margin-top: 8px;
+    height: 40px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 11px;
+    color: #444;
+    font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  }
+  #log div {
+    line-height: 1.5;
+  }
   #close-btn {
     display: none;
     position: relative;
@@ -86,6 +101,7 @@
     <div id="title"></div>
     <div class="bar-track"><div id="bar"></div></div>
     <div id="pct">0%</div>
+    <div id="log"></div>
     <button id="close-btn">
       <div id="countdown-bar"></div>
       <span id="close-label">Cancel</span>
@@ -98,6 +114,11 @@
 
     function setTitle(title) {
       document.getElementById('title').textContent = title;
+      var log = document.getElementById('log');
+      var entry = document.createElement('div');
+      entry.textContent = title;
+      log.appendChild(entry);
+      log.scrollTop = log.scrollHeight;
     }
 
     function setProgress(percentage) {
