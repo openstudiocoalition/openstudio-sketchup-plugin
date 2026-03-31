@@ -106,7 +106,7 @@ module OpenStudio
 
     def setWindowTitle(title)
       @title = title
-      onPercentageUpdated(0)
+      # onPercentageUpdated(@percentage)
     end
 
     def text
