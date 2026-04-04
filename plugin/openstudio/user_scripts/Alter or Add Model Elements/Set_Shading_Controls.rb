@@ -6,7 +6,7 @@
 module OpenStudio
 
 # Each user script is implemented within a class that derives from OpenStudio::Ruleset::UserScript
-class SetShadingControls < OpenStudio::Ruleset::ModelUserScript
+class SetShadingControls < OpenStudio::Measure::ModelMeasure
 
   # override name to return the name of your script
   def name
@@ -77,6 +77,7 @@ class SetShadingControls < OpenStudio::Ruleset::ModelUserScript
 
     end
 
+    return true
   end
 
 end

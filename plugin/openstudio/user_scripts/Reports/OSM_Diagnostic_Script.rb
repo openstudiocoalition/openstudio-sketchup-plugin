@@ -6,7 +6,7 @@
 module OpenStudio
 
 # Each user script is implemented within a class that derives from OpenStudio::Ruleset::UserScript
-class DiagnosticScript < OpenStudio::Ruleset::ModelUserScript
+class DiagnosticScript < OpenStudio::Measure::ModelMeasure
 
   # override name to return the name of your script
   def name
@@ -481,6 +481,8 @@ class DiagnosticScript < OpenStudio::Ruleset::ModelUserScript
     end
 
     runner.registerFinalCondition("Diagnostic Test Complete")
+
+    return true
   end
 
 end

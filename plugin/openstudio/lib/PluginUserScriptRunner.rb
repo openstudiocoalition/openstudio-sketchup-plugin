@@ -401,8 +401,11 @@ module OpenStudio
         model_interface.openstudio_model.setWorkflowJSON(@model_workflow_json)
 
         result = self.result
-        if not result.stepErrors.empty?
+        step_result = result.stepResult
+        if step_result.is_initialized && step_result.get.valueName == "Fail"
           has_errors = true
+        end
+        if not result.stepErrors.empty?
           error_msg += "Errors: \n"
           result.stepErrors.each { |error|
             error_msg += "  " + error + "\n"
@@ -427,7 +430,7 @@ module OpenStudio
 
       # switch render mode back to original
       proc = Proc.new {
-        destroyProgressBar
+        destroyProgressBar(success: !has_errors && !was_canceled)
 
         model_interface.materials_interface.rendering_mode = starting_rendermode
 
@@ -468,9 +471,9 @@ module OpenStudio
     end
 
     # destroy the progress bar
-    def destroyProgressBar
+    def destroyProgressBar(success: true)
       if @progress_dialog
-        @progress_dialog.destroy
+        @progress_dialog.destroy(success: success)
       end
       @progress_dialog = nil
     end

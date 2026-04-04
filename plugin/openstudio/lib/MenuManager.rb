@@ -7,7 +7,7 @@ require("openstudio/lib/IdfImporter")
 require("openstudio/lib/GbXMLImporter")
 require("openstudio/lib/SddImporter")
 require("openstudio/lib/OpenStudioImporter")
-require("openstudio/lib/dialogs/PluginInspectorDialog")
+require("openstudio/lib/dialogs/InspectorDialog/inspector_dialog")
 require("openstudio/lib/dialogs/ColorScaleInterface")
 require("openstudio/lib/dialogs/AnimationSettingsInterface")
 require("openstudio/lib/dialogs/PreferencesInterface")
@@ -293,7 +293,7 @@ module OpenStudio
       @loose_geometry_cmd.set_validation_proc { Plugin.dialog_manager.validate(LooseGeometryInterface) if (Plugin.dialog_manager) }
 
       @inspector_dialog_cmd = UI::Command.new("Inspector") {
-        Plugin.dialog_manager.inspector_dialog.restoreState
+        Plugin.dialog_manager.inspector_dialog.restore_state
         Plugin.dialog_manager.inspector_dialog.show
       }
       @inspector_dialog_cmd.small_icon = Plugin.dir + "/lib/resources/icons/OSC_inspector" + Plugin.image_ext
@@ -301,7 +301,7 @@ module OpenStudio
       @inspector_dialog_cmd.tooltip = "Inspector"
       @inspector_dialog_cmd.status_bar_text = "Display and edit the selected object"
       @inspector_dialog_cmd.set_validation_proc {
-        Plugin.dialog_manager.validate(PluginInspectorDialog) if (Plugin.dialog_manager)
+        Plugin.dialog_manager.validate(Inspector::InspectorDialog) if (Plugin.dialog_manager)
       }
 
       @surface_search_cmd = UI::Command.new("Surface Search") { Plugin.dialog_manager.show(SurfaceSearchInterface) }

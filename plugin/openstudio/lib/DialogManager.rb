@@ -16,7 +16,7 @@ module OpenStudio
 
       @dialog_interfaces = Set.new
 
-      @inspector_dialog = PluginInspectorDialog.new
+      @inspector_dialog = Inspector::InspectorDialog.new
       @inspector_dialog.hide
 
       update_units
@@ -29,8 +29,8 @@ module OpenStudio
 
       interface_names = @dialog_interfaces.collect { |interface| interface.class.to_s[12..-1] }  # Clip the "OpenStudio::" part
       Plugin.write_pref('Open Dialogs', interface_names.to_a.join(','))
-      Plugin.write_pref('Inspector Dialog Visible', @inspector_dialog.isVisible)
-      @inspector_dialog.saveState
+      Plugin.write_pref('Inspector Dialog Visible', @inspector_dialog.is_visible)
+      @inspector_dialog.save_state
     end
 
     def restore_state
@@ -50,7 +50,7 @@ module OpenStudio
 
       inspector_dialog_visible = Plugin.read_pref('Inspector Dialog Visible')
       if inspector_dialog_visible
-        @inspector_dialog.restoreState
+        @inspector_dialog.restore_state
         @inspector_dialog.show
       end
     end
@@ -58,8 +58,8 @@ module OpenStudio
     def active_interface(interface_class)
       #Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
 
-      if interface_class == PluginInspectorDialog
-        return @inspector_dialog.isVisible
+      if interface_class == Inspector::InspectorDialog
+        return @inspector_dialog.is_visible
       end
       return(@dialog_interfaces.find { |interface| interface.is_a? interface_class })
     end
@@ -125,9 +125,9 @@ module OpenStudio
       puts "new @units_system = #{@units_system}"
 
       if (@units_system == "IP")
-        @inspector_dialog.displayIP(true)
+        @inspector_dialog.set_unit_system("IP")
       else
-        @inspector_dialog.displayIP(false)
+        @inspector_dialog.set_unit_system("SI")
       end
 
     end
@@ -294,12 +294,12 @@ module OpenStudio
       watcher_enabled = drawing_interface.disable_watcher if drawing_interface
 
       if idd_object_type
-        result = @inspector_dialog.setIddObjectType(idd_object_type)
+        result = @inspector_dialog.set_idd_object_type(idd_object_type)
         Plugin.log(OpenStudio::Debug, "selection_changed: setting iddObjectType to #{idd_object_type}, result = #{result.to_s}")
       end
 
       if handles
-        result = @inspector_dialog.setSelectedObjectHandles(handles)
+        result = @inspector_dialog.set_selected_object_handles(handles)
         Plugin.log(OpenStudio::Debug, "selection_changed: setting setSelectedObjectHandles to #{handles.size.to_s}, result = #{result.to_s}")
       end
 

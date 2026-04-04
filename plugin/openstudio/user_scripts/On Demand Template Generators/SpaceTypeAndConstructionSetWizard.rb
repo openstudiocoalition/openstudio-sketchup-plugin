@@ -10,7 +10,7 @@ require "#{File.dirname(__FILE__)}/resources/OsLib_Constructions"
 module OpenStudio
 
 #start the measure
-class SpaceTypeAndConstructionSetWizard < OpenStudio::Ruleset::ModelUserScript
+class SpaceTypeAndConstructionSetWizard < OpenStudio::Measure::ModelMeasure
 
   #define the name that a user will see, this method may be deprecated as
   #the display name in PAT comes from the name field in measure.xml

@@ -5,7 +5,7 @@
 
 module OpenStudio
 
-class SetHShapeFloorPlan < OpenStudio::Ruleset::ModelUserScript
+class SetHShapeFloorPlan < OpenStudio::Measure::ModelMeasure
 
   # override name to return the name of your script
   def name
@@ -538,6 +538,7 @@ class SetHShapeFloorPlan < OpenStudio::Ruleset::ModelUserScript
 
     runner.destroyProgressBar
 
+    return true
   end
 
 end

@@ -6,7 +6,7 @@
 module OpenStudio
 
 # Each user script is implemented within a class that derives from OpenStudio::Ruleset::UserScript
-class SetWindowPropertyFrameAndDivider < OpenStudio::Ruleset::ModelUserScript
+class SetWindowPropertyFrameAndDivider < OpenStudio::Measure::ModelMeasure
 
   # override name to return the name of your script
   def name
@@ -80,6 +80,7 @@ class SetWindowPropertyFrameAndDivider < OpenStudio::Ruleset::ModelUserScript
 
     end
 
+    return true
   end
 
 end

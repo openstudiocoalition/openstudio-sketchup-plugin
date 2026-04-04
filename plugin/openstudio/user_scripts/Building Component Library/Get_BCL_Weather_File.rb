@@ -6,7 +6,7 @@
 module OpenStudio
 
 # Each user script is implemented within a class that derives from OpenStudio::Ruleset::UserScript
-class GetBCLWeatherFile < OpenStudio::Ruleset::ModelUserScript
+class GetBCLWeatherFile < OpenStudio::Measure::ModelMeasure
 
   # override name to return the name of your script
   def name
@@ -117,6 +117,8 @@ class GetBCLWeatherFile < OpenStudio::Ruleset::ModelUserScript
     OpenStudio::Plugin.command_manager.check_site("weather file", weather_name, weather_lat, weather_lon, weather_time, weather_elev)
 
     runner.registerFinalCondition("Successfully set weather file to #{epw_path}")
+
+    return true
   end
 
 end

@@ -52,7 +52,7 @@ module OpenStudio
       @model_object = added_object.get.to_Luminaire.get
 
       @model_interface.model_watcher.enable
-      OpenStudio::Modeleditor::ensureSpaceLoadDefinition(@model_object)
+      OpenStudio::ensureSpaceLoadDefinition(@model_object)
 
       @model_interface.model_watcher.disable if not model_watcher_enabled
 

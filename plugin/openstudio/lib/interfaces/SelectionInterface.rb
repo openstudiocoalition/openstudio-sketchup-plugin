@@ -150,7 +150,6 @@ module OpenStudio
 
     def select_drawing_interfaces(handles)
       Plugin.log(OpenStudio::Trace, "#{OpenStudio.current_method_name}")
-
       @selection.clear
 
       active_path = @model_interface.skp_model.active_path

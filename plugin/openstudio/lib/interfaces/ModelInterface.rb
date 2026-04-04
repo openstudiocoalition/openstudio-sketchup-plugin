@@ -957,6 +957,7 @@ module OpenStudio
 
         if Plugin.dialog_manager
           Plugin.dialog_manager.update_all
+          Plugin.dialog_manager.inspector_dialog&.on_model_attached
         end
 
         # show errors

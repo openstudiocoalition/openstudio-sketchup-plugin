@@ -6,7 +6,7 @@
 module OpenStudio
 
 # Each user script is implemented within a class that derives from OpenStudio::Ruleset::UserScript
-class ImportSpaces < OpenStudio::Ruleset::ModelUserScript
+class ImportSpaces < OpenStudio::Measure::ModelMeasure
 
   # override name to return the name of your script
   def name
@@ -95,6 +95,7 @@ class ImportSpaces < OpenStudio::Ruleset::ModelUserScript
     runner.registerFinalCondition("Spaces from file named '" + osmPath_2 + "' have been imported")
     puts 'Spaces from file named "'+ osmPath_2 + '" have been imported'
 
+    return true
   end
 
 end

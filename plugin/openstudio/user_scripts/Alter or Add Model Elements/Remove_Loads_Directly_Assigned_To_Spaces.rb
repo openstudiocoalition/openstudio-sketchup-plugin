@@ -6,7 +6,7 @@
 module OpenStudio
 
 # Each user script is implemented within a class that derives from OpenStudio::Ruleset::UserScript
-class RemoveLoadsDirectlyAssignedToSpaces < OpenStudio::Ruleset::ModelUserScript
+class RemoveLoadsDirectlyAssignedToSpaces < OpenStudio::Measure::ModelMeasure
 
   # override name to return the name of your script
   def name
@@ -54,6 +54,7 @@ class RemoveLoadsDirectlyAssignedToSpaces < OpenStudio::Ruleset::ModelUserScript
 
     end
 
+    return true
   end
 
 end

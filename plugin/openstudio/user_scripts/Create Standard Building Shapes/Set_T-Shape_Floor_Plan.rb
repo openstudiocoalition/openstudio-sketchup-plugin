@@ -5,7 +5,7 @@
 
 module OpenStudio
 
-class SetTShapeFloorPlan < OpenStudio::Ruleset::ModelUserScript
+class SetTShapeFloorPlan < OpenStudio::Measure::ModelMeasure
 
   # override name to return the name of your script
   def name
@@ -68,7 +68,7 @@ class SetTShapeFloorPlan < OpenStudio::Ruleset::ModelUserScript
     super(model, runner, user_arguments)
 
     if not runner.validateUserArguments(arguments(model),user_arguments)
-      return result
+      return false
     end
 
     length = runner.getDoubleArgumentValue("length",user_arguments)
@@ -389,6 +389,7 @@ class SetTShapeFloorPlan < OpenStudio::Ruleset::ModelUserScript
 
     runner.destroyProgressBar
 
+    return true
   end
 
 end

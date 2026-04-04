@@ -6,7 +6,7 @@
 module OpenStudio
 
 #start the measure
-class IntersectSpaceGeometry < OpenStudio::Ruleset::ModelUserScript
+class IntersectSpaceGeometry < OpenStudio::Measure::ModelMeasure
 
   #define the name that a user will see, this method may be deprecated as
   #the display name in PAT comes from the name field in measure.xml

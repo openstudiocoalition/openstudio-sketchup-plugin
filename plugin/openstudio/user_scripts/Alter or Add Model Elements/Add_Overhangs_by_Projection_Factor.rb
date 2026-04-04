@@ -6,7 +6,7 @@
 module OpenStudio
 
 # Each user script is implemented within a class that derives from OpenStudio::Ruleset::UserScript
-class OverhangScript < OpenStudio::Ruleset::ModelUserScript
+class OverhangScript < OpenStudio::Measure::ModelMeasure
 
   # override name to return the name of your script
   def name

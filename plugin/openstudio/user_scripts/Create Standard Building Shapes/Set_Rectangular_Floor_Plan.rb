@@ -5,7 +5,7 @@
 
 module OpenStudio
 
-class SetRectangularFloorPlan < OpenStudio::Ruleset::ModelUserScript
+class SetRectangularFloorPlan < OpenStudio::Measure::ModelMeasure
 
   # override name to return the name of your script
   def name
@@ -242,6 +242,7 @@ class SetRectangularFloorPlan < OpenStudio::Ruleset::ModelUserScript
 
     runner.destroyProgressBar
 
+    return true
   end
 
 end

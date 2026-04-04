@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>OpenStudio Inspector</title>
+  <link href="../vendor/modus/modus.min.css" rel="stylesheet">
+  <script src="../vendor/modus/jquery.js"></script>
+  <script src="../vendor/modus/bootstrap.bundle.min.js"></script>
+  <script src="../vendor/vue.js"></script>
+  <style>
+    :root {
+      --panel-header-h: 36px;
+      --toolbar-h: 38px;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-size: 13px;
+      overflow: hidden;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    /* ── Top toolbar ─────────────────────────── */
+    #toolbar {
+      flex: 0 0 var(--toolbar-h);
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 8px;
+      background: var(--modus-bg-panel-dark, #252a2e);
+      border-bottom: 1px solid #444;
+      color: #ddd;
+    }
+
+    #toolbar label {
+      font-size: 12px;
+      margin: 0;
+    }
+
+    #toolbar .unit-toggle {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    #toolbar .unit-toggle button {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 3px;
+      border: 1px solid #666;
+      background: transparent;
+      color: #ccc;
+      cursor: pointer;
+    }
+
+    #toolbar .unit-toggle button.active {
+      background: #0b6fbc;
+      border-color: #0b6fbc;
+      color: #fff;
+    }
+
+    /* ── Three-panel body ─────────────────────── */
+    #panels {
+      display: flex;
+      flex: 1 1 0;
+      overflow: hidden;
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-right: 1px solid #3a3f44;
+    }
+
+    #panel-type {
+      flex: 0 0 300px;
+      min-width: 300px;
+    }
+
+    #panel-obj {
+      flex: 0 0 300px;
+      min-width: 300px;
+    }
+
+    #panel-edit {
+      flex: 1 1 0;
+    }
+
+    .panel-header {
+      flex: 0 0 var(--panel-header-h);
+      line-height: var(--panel-header-h);
+      padding: 0 8px;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      background: #2d3338;
+      color: #a0aab4;
+      border-bottom: 1px solid #3a3f44;
+      user-select: none;
+    }
+
+    .panel-body {
+      flex: 1 1 0;
+      overflow-y: auto;
+    }
+
+    /* ── Type list ────────────────────────────── */
+    #type-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Group header rows */
+    .type-group-header {
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      background: #252a2e;
+      color: #7a8a9a;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border-bottom: 1px solid #2d3338;
+    }
+
+    .type-group-header:hover {
+      background: #2a2f34;
+      color: #a0b0c0;
+    }
+
+    .group-chevron {
+      font-size: 9px;
+      width: 10px;
+      display: inline-block;
+    }
+
+    /* Child type list within a group */
+    .type-group-children {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .type-group-children li {
+      padding: 5px 10px 5px 22px;
+      cursor: pointer;
+      font-size: 12px;
+      color: #010101;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border-bottom: 1px solid #2d3338;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .type-group-children li:hover {
+      background: #2e404f;
+      color: #fff;
+    }
+
+    .type-group-children li.active {
+      background: #0b6fbc;
+      color: #fff;
+    }
+
+    .count-badge {
+      font-size: 10px;
+      color: #7a8a9a;
+      margin-left: 4px;
+      flex-shrink: 0;
+    }
+
+    .type-group-children li.active .count-badge {
+      color: #a8caea;
+    }
+
+    /* ── Object table ─────────────────────────── */
+    #obj-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    #obj-table tr {
+      border-bottom: 1px solid #2d3338;
+      cursor: pointer;
+      color: #010101;
+    }
+
+    #obj-table tr:hover {
+      background: #2e404f;
+      color: #fff;
+    }
+
+    #obj-table tr.active {
+      background: #0b6fbc;
+      color: #fff;
+    }
+
+    #obj-table td {
+      padding: 4px 8px;
+    }
+
+    #obj-table .col-name {
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #obj-table .col-comment {
+      font-size: 11px;
+      color: #778;
+      max-width: 110px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #obj-table tr.active .col-comment {
+      color: #cde;
+    }
+
+    /* ── Object action buttons ────────────────── */
+    #obj-actions {
+      flex: 0 0 36px;
+      display: flex;
+      align-items: center;
+      padding: 0 6px;
+      gap: 4px;
+      border-top: 1px solid #3a3f44;
+      color: #010101;
+    }
+
+    #obj-actions button {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      border: 1px solid #555;
+      background: #0b6fbc;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    #obj-actions button:hover:not(:disabled) {
+      background: #2e404f;
+      color: #fff;
+    }
+
+    #obj-actions button:disabled {
+      opacity: .38;
+      cursor: default;
+    }
+
+    /* ── Field editor ─────────────────────────── */
+    #field-list {
+      padding: 6px 0;
+    }
+
+    .field-row {
+      padding: 4px 10px 4px 10px;
+      border-bottom: 1px solid #2a2e33;
+    }
+
+    .field-label {
+      font-size: 11px;
+      color: #010101;
+      margin-bottom: 2px;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .field-label .unit-badge {
+      font-size: 10px;
+      color: #010101;
+      font-style: italic;
+    }
+
+    .field-value {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .field-value input[type="text"],
+    .field-value input[type="number"] {
+      flex: 1;
+      font-size: 12px;
+      background: #fff;
+      border: 1px solid #3a4a5a;
+      border-radius: 3px;
+      color: #010101;
+      padding: 2px 6px;
+      height: 24px;
+    }
+
+    .field-value input:focus {
+      outline: none;
+      border-color: #3d8bcd;
+    }
+
+    .field-value input:disabled,
+    .locked-value {
+      color: #6a7a8a;
+      font-size: 12px;
+      font-style: italic;
+    }
+
+    .field-value select {
+      flex: 1;
+      font-size: 12px;
+      background: #fff;
+      border: 1px solid #3a4a5a;
+      border-radius: 3px;
+      color: #010101;
+      padding: 1px 4px;
+      height: 24px;
+    }
+
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: #010101;
+      cursor: pointer;
+    }
+
+    .radio-group label input {
+      cursor: pointer;
+    }
+
+    /* Object type heading in edit panel */
+    #edit-heading {
+      padding: 7px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #010101;
+      border-bottom: 1px solid #3a3f44;
+      background: #fff;
+    }
+
+    #edit-heading .obj-type {
+      font-size: 10px;
+      color: #010101;
+      margin-left: 4px;
+    }
+
+    /* Color swatch field */
+    .color-swatch-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 0;
+    }
+
+    .color-swatch-row input[type="color"] {
+      width: 48px;
+      height: 28px;
+      border: 1px solid #3a4a5a;
+      border-radius: 3px;
+      cursor: pointer;
+      padding: 1px;
+      background: transparent;
+    }
+
+    .color-swatch-row .hex-label {
+      font-size: 11px;
+      color: #6a8a9a;
+      letter-spacing: .03em;
+    }
+
+    /* Section header inside the field list */
+    .field-section-header {
+      padding: 6px 10px 3px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      color: #7090a8;
+      border-top: 1px solid #2d3338;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    /* Additional property row remove button */
+    .addl-prop-remove {
+      background: transparent;
+      border: none;
+      color: #e05555;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 0 4px;
+      flex-shrink: 0;
+    }
+
+    .addl-prop-remove:hover {
+      color: #ff7070;
+    }
+
+    /* Out-of-bounds numeric input — red border + subtle warning tint */
+    .input-out-of-bounds {
+      border-color: #cc3333 !important;
+      background-color: #3a1a1a !important;
+      color: #ff8888 !important;
+    }
+  </style>
+</head>
+
+<body class="bg-panel-background" style="background:#1a1e22; color:#c8d0d8;">
+  <div id="app">
+
+    <!-- ── Toolbar ─────────────────────────────────── -->
+    <div id="toolbar">
+      <span style="font-size:12px; font-weight:600; letter-spacing:.04em;">OpenStudio Inspector</span>
+      <div style="flex:1"></div>
+      <!-- Unit system is read from the model via setUnitSystem(); not user-controlled -->
+      <span v-if="unitSystem" style="font-size:11px; color:#a0aab4;">Units: {{ unitSystem.toUpperCase() }}</span>
+    </div>
+
+    <!-- ── Three-panel body ───────────────────────── -->
+    <div id="panels">
+
+      <!-- Panel 1: Select Type -->
+      <div class="panel" id="panel-type">
+        <div class="panel-header">Select Type</div>
+        <div class="panel-body">
+          <!-- Collapsible IDD groups; clicking group header expands/collapses children -->
+          <!-- Clicking a child type (not a group) loads the object list -->
+          <ul id="type-list">
+            <li v-for="g in groups" :key="g.label">
+              <!-- Group header row: toggle collapse on click -->
+              <div class="type-group-header" @click="toggleGroup(g.label)">
+                <span class="group-chevron">{{ collapsedGroups[g.label] ? '\u25B6' : '\u25BC' }}</span>
+                {{ g.label }}
+              </div>
+              <!-- Child types, shown unless group is collapsed -->
+              <ul class="type-group-children" v-show="!collapsedGroups[g.label]">
+                <li v-for="t in g.children" :key="t.key" :class="{active: selectedType===t.key}"
+                  @click="selectType(t.key)" :title="t.key">
+                  <span>{{ t.label }}</span>
+                  <span class="count-badge">({{ t.count }})</span>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Panel 2: Select Object – hidden for unique-type objects -->
+      <div class="panel" id="panel-obj" v-show="!isUnique">
+        <div class="panel-header">Select Object</div>
+        <div class="panel-body">
+          <table id="obj-table" v-if="objects.length > 0">
+            <tbody>
+              <tr v-for="obj in objects" :key="obj.handle" :class="{active: selectedHandle===obj.handle}"
+                @click="selectObject(obj.handle)">
+                <td class="col-name" :title="obj.name">{{ obj.name || '(unnamed)' }}</td>
+                <td class="col-comment" :title="obj.comment">{{ obj.comment }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="placeholder-msg" v-else-if="selectedType">
+            No objects of this type in the model.
+          </div>
+          <div class="placeholder-msg" v-else>
+            Select a type.
+          </div>
+        </div>
+        <div id="obj-actions">
+          <button title="New object" :disabled="!buttons.enable_add" @click="addObject">New</button>
+          <button title="Copy object" :disabled="!buttons.enable_copy || !selectedHandle"
+            @click="copyObject">Copy</button>
+          <button title="Delete object" :disabled="!buttons.enable_remove || !selectedHandle"
+            @click="deleteObject">Delete</button>
+          <button title="Purge unused" :disabled="!buttons.enable_purge" @click="purgeObjects">Purge</button>
+        </div>
+      </div>
+
+      <!-- Panel 3: Edit Object -->
+      <div class="panel" id="panel-edit">
+        <div class="panel-header">Edit Object</div>
+        <div style="display:flex; flex-direction:column; height:100%; overflow:hidden;">
+          <div id="edit-heading" v-if="editData">
+            {{ editData.name || '(unnamed)' }}
+            <span class="obj-type">{{ editData.type }}</span>
+          </div>
+          <div class="panel-body">
+            <div id="field-list" v-if="editData && editData.fields">
+              <template v-for="(field, fi) in editData.fields">
+                <!-- ColorSwatch (Rendering:Color objects only) -->
+                <template v-if="field.type === 'ColorSwatch'">
+                  <div class="field-section-header" style="padding-top:8px;">{{ field.name }}</div>
+                  <div class="field-row color-swatch-row">
+                    <input type="color" :value="field.hex" disabled>
+                    <span class="hex-label">{{ field.hex }}</span>
+                  </div>
+                </template>
+
+                <!-- SectionHeader -->
+                <template v-else-if="field.type === 'SectionHeader'">
+                  <div class="field-section-header">{{ field.name }}</div>
+                </template>
+
+                <!-- AdditionalProperty -->
+                <template v-else-if="field.type === 'AdditionalProperty'">
+                  <div class="field-row">
+                    <div class="field-label">
+                      {{ field.name }}
+                      <span class="unit-badge" v-if="field.feat_type">[{{ field.feat_type }}]</span>
+                    </div>
+                    <div class="field-value">
+                      <input type="text" :value="field.value">
+                      <button v-if="field.can_remove" class="addl-prop-remove" title="Remove property">✕</button>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- AddAdditionalProperty button -->
+                <template v-else-if="field.type === 'AddAdditionalProperty'">
+                  <div class="field-row">
+                    <button style="font-size:11px; padding:2px 8px;">+ Add Property</button>
+                  </div>
+                </template>
+
+                <!-- All standard IDD fields -->
+                <div class="field-row" v-else>
+                  <!-- Field label + units -->
+                  <div class="field-label">
+                    {{ field.name }}
+                    <span class="unit-badge" v-if="field.units">[ {{ field.units }} ]</span>
+                  </div>
+
+                  <!-- LOCKED: read-only text -->
+                  <div class="field-value" v-if="field.access === 'locked'">
+                    <span class="locked-value">{{ field.value || '—' }}</span>
+                  </div>
+
+                  <!-- FREE: Choice / ObjectList → select -->
+                  <div class="field-value" v-else-if="field.type === 'ChoiceType' || field.type === 'ObjectListType'">
+                    <select :value="field.value" @change="fieldChanged(field, $event.target.value)">
+                      <option v-for="ch in field.choices" :key="ch" :value="ch">{{ ch || '(none)' }}</option>
+                    </select>
+                  </div>
+
+                  <!-- FREE: Real with autosizable -->
+                  <div class="field-value" v-else-if="field.type === 'RealType' && field.autosizable">
+                    <div class="radio-group">
+                      <label>
+                        <input type="radio" :name="'autosize-'+fi" :checked="isAutoValue(field.value, 'autosize')"
+                          @change="fieldChanged(field, 'autosize')">
+                        Autosized
+                      </label>
+                      <label>
+                        <input type="radio" :name="'autosize-'+fi" :checked="!isAutoValue(field.value, 'autosize')"
+                          @change="switchToHardsize(field, fi)">
+                        Hard Sized
+                      </label>
+                    </div>
+                    <input type="number" :id="'field-'+fi"
+                      :value="isAutoValue(field.value,'autosize') ? '' : field.value"
+                      :class="{'input-out-of-bounds': !isAutoValue(field.value,'autosize') && isOutOfBounds(field, field.value)}"
+                      :disabled="isAutoValue(field.value,'autosize')" :min="field.min" :max="field.max" :step="'any'"
+                      @change="fieldChanged(field, $event.target.value)">
+                  </div>
+
+                  <!-- FREE: Real with autocalculatable -->
+                  <div class="field-value" v-else-if="field.type === 'RealType' && field.autocalculatable">
+                    <div class="radio-group">
+                      <label>
+                        <input type="radio" :name="'autocalc-'+fi" :checked="isAutoValue(field.value, 'autocalculate')"
+                          @change="fieldChanged(field, 'autocalculate')">
+                        Autocalculate
+                      </label>
+                      <label>
+                        <input type="radio" :name="'autocalc-'+fi" :checked="!isAutoValue(field.value, 'autocalculate')"
+                          @change="switchToHardsize(field, fi)">
+                        Hard Sized
+                      </label>
+                    </div>
+                    <input type="number" :id="'field-'+fi"
+                      :value="isAutoValue(field.value,'autocalculate') ? '' : field.value"
+                      :class="{'input-out-of-bounds': !isAutoValue(field.value,'autocalculate') && isOutOfBounds(field, field.value)}"
+                      :disabled="isAutoValue(field.value,'autocalculate')" :min="field.min" :max="field.max"
+                      :step="'any'" @change="fieldChanged(field, $event.target.value)">
+                  </div>
+
+                  <!-- FREE: Integer -->
+                  <div class="field-value" v-else-if="field.type === 'IntegerType'">
+                    <input type="number" :value="field.value"
+                      :class="{'input-out-of-bounds': isOutOfBounds(field, field.value)}"
+                      :min="field.min" :max="field.max" step="1"
+                      @change="fieldChanged(field, $event.target.value)">
+                  </div>
+
+                  <!-- FREE: Real (plain numeric) -->
+                  <div class="field-value" v-else-if="field.type === 'RealType'">
+                    <input type="number" :value="field.value"
+                      :class="{'input-out-of-bounds': isOutOfBounds(field, field.value)}"
+                      :min="field.min" :max="field.max" step="any"
+                      @change="fieldChanged(field, $event.target.value)">
+                  </div>
+
+                  <!-- FREE: Alpha / Unknown / default text -->
+                  <div class="field-value" v-else>
+                    <input type="text" :value="field.value" @change="fieldChanged(field, $event.target.value)">
+                  </div>
+
+                </div><!-- end standard field-row -->
+              </template><!-- end v-for -->
+            </div>
+            <div class="placeholder-msg" v-else>
+              Select an object to inspect its fields.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- #panels -->
+  </div><!-- #app -->
+
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        groups: [],
+        objects: [],
+        selectedType: null,
+        selectedHandle: null,
+        editData: null,
+        unitSystem: 'ip',
+        isUnique: false,
+        collapsedGroups: {},
+        buttons: {
+          enable_add: false,
+          enable_copy: false,
+          enable_remove: false,
+          enable_purge: false
+        }
+      },
+
+      methods: {
+        // ── Unit system (read-only – pushed from Ruby) ──────────────
+        // Unit system is set from Ruby via the global setUnitSystem(sys) function.
+        // No user-facing toggle exists; the method below is kept as a no-op
+        // so any stale calls don't cause errors.
+
+        // ── Group collapse/expand ──────────────────────────────────
+        toggleGroup: function (label) {
+          var current = this.collapsedGroups[label] || false;
+          // Vue.set is required for reactivity on dynamically-added keys
+          Vue.set(this.collapsedGroups, label, !current);
+        },
+
+        // ── Type selection ───────────────────────────
+        selectType: function (key) {
+          this.selectedType = key;
+          this.selectedHandle = null;
+          this.editData = null;
+          sketchup.set_type(key);
+        },
+
+        // ── Object selection ─────────────────────────
+        selectObject: function (handle) {
+          this.selectedHandle = handle;
+          sketchup.set_object(handle);
+        },
+
+        // ── Field change ─────────────────────────────
+        fieldChanged: function (field, value) {
+          if (!this.editData) return;
+          field.value = value;
+          sketchup.update_field(JSON.stringify({
+            handle: this.editData.handle,
+            index: field.index,
+            value: value
+          }));
+        },
+
+        // ── Autosize helpers ─────────────────────────
+        isAutoValue: function (val, keyword) {
+          return val && val.toString().toLowerCase() === keyword.toLowerCase();
+        },
+
+        // Returns true when val is a finite number outside [field.min, field.max].
+        // Bounds are only checked when the field actually provides them (not null/undefined).
+        isOutOfBounds: function (field, val) {
+          var n = parseFloat(val);
+          if (!isFinite(n)) return false;
+          if (field.min !== null && field.min !== undefined && n < field.min) return true;
+          if (field.max !== null && field.max !== undefined && n > field.max) return true;
+          return false;
+        },
+
+        switchToHardsize: function (field, fi) {
+          // Clear autosized/autocalc: set to empty so user can type a value
+          field.value = field.default !== null ? String(field.default) : '';
+          if (field.value !== '') {
+            this.fieldChanged(field, field.value);
+          }
+          // Focus the hard-sized input
+          this.$nextTick(function () {
+            var el = document.getElementById('field-' + fi);
+            if (el) { el.disabled = false; el.focus(); }
+          });
+        },
+
+        // ── CRUD buttons ─────────────────────────────
+        addObject: function () { if (this.selectedType) sketchup.add_object(this.selectedType); },
+        copyObject: function () { if (this.selectedHandle) sketchup.copy_object(this.selectedHandle); },
+        deleteObject: function () { if (this.selectedHandle) sketchup.delete_object(this.selectedHandle); },
+        purgeObjects: function () { if (this.selectedType) sketchup.purge_objects(this.selectedType); },
+      },
+
+      mounted: function () {
+        sketchup.ready();
+      }
+    });
+
+    // ── Ruby → JS entry points ───────────────────────
+
+    function setTypes(data) {
+      // data is an array of group objects: [{label, is_group:true, children:[...]}]
+      app.groups = data;
+    }
+
+    // Update the count badge for a single type without rebuilding the whole list.
+    // Called by Ruby when an object is added or removed from the model.
+    function updateTypeCount(typeKey, count) {
+      for (var gi = 0; gi < app.groups.length; gi++) {
+        var children = app.groups[gi].children;
+        for (var ci = 0; ci < children.length; ci++) {
+          if (children[ci].key === typeKey) {
+            // Vue.set is required so Vue tracks the mutation on the inner object
+            Vue.set(children, ci, Object.assign({}, children[ci], { count: count }));
+            return;
+          }
+        }
+      }
+    }
+
+    function setUnitSystem(sys) {
+      app.unitSystem = sys;
+    }
+
+    function setObjects(payload) {
+      app.objects = payload.objects || [];
+      app.buttons = payload.buttons || app.buttons;
+      app.isUnique = !!payload.unique;
+      app.selectedHandle = null;
+      app.editData = null;
+      // Keep selectedType in sync so toolbar buttons (Add, Purge, etc.) are
+      // enabled correctly when Ruby pushes objects without a user click.
+      if (payload.type) {
+        app.selectedType = payload.type;
+        // Authoritative count: always override whatever updateTypeCount set during
+        // pre-removal callbacks (which fire before the object leaves the workspace,
+        // making those intermediate counts off by one).
+        if (typeof payload.count === 'number') {
+          updateTypeCount(payload.type, payload.count);
+        }
+      }
+    }
+
+    function setFields(data) {
+      if (!data) {
+        app.editData = null;
+        return;
+      }
+      app.editData = data;
+      app.selectedHandle = data.handle;
+    }
+
+    function selectObject(handle) {
+      app.selectedHandle = handle;
+      if (handle) {
+        Vue.nextTick(function () {
+          var row = document.querySelector('#obj-table tr.active');
+          if (row) row.scrollIntoView({ block: 'nearest' });
+        });
+      }
+    }
+
+    // Called by Ruby to update the selected type in the UI without triggering
+    // a sketchup.set_type callback back to Ruby (Ruby already knows the type).
+    function selectType(key) {
+      app.selectedType = key;
+    }
+
+    // Called by Ruby after auto-selecting the first object so Copy/Delete buttons
+    // become enabled without waiting for the user to click an object row.
+    function updateButtons(b) {
+      app.buttons = b;
+    }
+
+    // Called by Ruby when the currently selected object's name changes.
+    // Updates only the name field in the object list without a full rebuild.
+    function updateObjectName(handle, newName) {
+      for (var i = 0; i < app.objects.length; i++) {
+        if (app.objects[i].handle === handle) {
+          Vue.set(app.objects, i, Object.assign({}, app.objects[i], { name: newName }));
+          return;
+        }
+      }
+    }
+  </script>
+</body>
+
+</html>
