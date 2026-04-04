@@ -63,11 +63,9 @@ module OpenStudio
         self.class.startup_skip -= 1
         @skip = true
       else
-        if dlg.visible?
-          dlg.bring_to_front
-        else
-          dlg.show
-        end
+        # after hiding, dlg.visible? still returns true so use show in addition to bring_to_front
+        dlg.show
+        dlg.bring_to_front
         dlg.execute_script("setProgress('#{escape_js(@title)}', 0)") rescue nil
       end
     end
